@@ -1,12 +1,15 @@
 #import "@preview/tufted:0.1.0"
 
 #let template = tufted.tufted-web.with(
+  // 你可以在 header-links 中修改网站上方的导航栏都包含哪些页面
+  // 例如，如果你想添加一个 Entry 页，你需要添加 `"/Entry/": "Entry"`
+  // 然后在 `content/` 路径中新建 `Entry/`路径，在其中添加 `index.typ` 作为 Entry 页的内容
   header-links: (
     "/": "Home",
     "/Blog/": "Blog",
-    "/Entry": "Entry",
+    "/CV/": "CV",
     "/About/": "About",
   ),
-  lang: "zh",
-  title: "天然純真 / Yousa Mirage",
+  lang: "zh", // TODO: 添加中英文页面切换功能
+  title: "天然純真 / Yousa Mirage",  // 你的网站在浏览器中显示的标题
 )

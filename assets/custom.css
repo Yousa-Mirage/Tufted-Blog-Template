@@ -1,28 +1,3 @@
-/* 引入自定义字体 */
-@font-face {
-  font-family: "Liu Jian Mao Cao";
-  src: url("/assets/LiuJianMaoCao-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* 针对使用特定标记链接的块应用手写字体 */
-a[href="custom-font-marker"] {
-  font-family: "Liu Jian Mao Cao", cursive;
-  font-size: 2.2em;
-  line-height: 1.5;
-  text-align: center;
-  color: inherit !important;
-  text-decoration: none !important;
-  background: none !important;
-  background-image: none !important;
-  cursor: default;
-  pointer-events: none;
-  display: block;
-  /* margin-top: 1em; */
-}
-
 html {
   font-size: 10.5pt;
 }
