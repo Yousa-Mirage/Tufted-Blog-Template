@@ -6,10 +6,10 @@
   // 然后在 `content/` 路径中新建 `Entry/`路径，在其中添加 `index.typ` 作为 Entry 页的内容
   header-links: (
     "/": "Home",
+    "/Docs/": "Docs",
     "/Blog/": "Blog",
     "/CV/": "CV",
-    "/About/": "About",
   ),
   lang: "zh", // TODO: 添加中英文页面切换功能
-  title: "天然純真 / Yousa Mirage",  // 你的网站在浏览器中显示的标题
+  title: "Tufted Blog Template",  // 你的网站在浏览器中显示的标题
 )

@@ -2,13 +2,17 @@
 
 这是一个基于 [Typst](https://typst.app/) 和 [Tufted](https://github.com/vsheg/tufted) 的静态网站构建模板，手把手教你搭建简洁、美观的个人博客、作品集和简历设计。
 
+![Tufted website](https://github.com/Yousa-Mirage/Tufted-Blog-Template/blob/main/concent/imgs/devices.webp)
+
 ## ✨ 特点
 
-- 🚀 使用 Typst 编写内容，语法简洁，功能丰富，编译极快
+- 🚀 使用 Typst 编写内容，语法简洁，功能强大，编译极快
 - 🎨 基于 Tufte CSS 设计，排版优雅，注重阅读体验
 - 📦 内置构建脚本，新手友好，支持跨平台
 - 📝 支持生成 HTML 网页和 PDF 文档，支持链接到 PDF
 - 🌐 内置 GitHub Pages 部署支持，一键发布网站
+
+[Tufte 样式](https://edwardtufte.github.io/tufte-css/) 源于数据可视化大师 Edward Tufte 的设计理念，主张“内容至上”与极简主义，力求去除一切干扰信息的视觉杂音。其最鲜明的特点是采用宽大的侧边栏布局，将注释、参考文献和图表直接并排展示在正文旁，取代了传统的脚注或尾注，配合优雅的衬线字体与类纸张背景，在数字屏幕上复刻了经典学术著作般清晰、沉浸且图文对照的深度阅读体验。
 
 ## 📦 依赖安装（仅需一次）
 
@@ -126,7 +130,7 @@ python -m http.server 8000 --directory _site
 1.  **修改配置**：编辑 `config.typ` 设置网站标题和导航栏。
 2.  **添加文章**：在 `content/**/` 下创建新的 `.typ` 文件。
 3.  **生成 PDF**：如果文件名包含 `PDF` (如 `CV-PDF.typ`)，构建脚本会自动将其编译为 PDF 文件，此时你可以在网页中添加链接指向该 PDF。
-4.  **部署网站**：将修改后的内容提交到 GitHub 仓库，GitHub Actions 会自动构建并部署网站。
+4.  **部署网站**：在你的 GitHub 仓库中配置好 Pages，将修改后的内容推送到 GitHub，GitHub Actions 会自动构建、部署、更新网站。
 
 默认 `content/` 中包含进一步的文档说明和示例页面，你可以自行探索和修改。推荐在启动本地预览后，一边阅读网页一边对照生成该网页的 `.typ` 源代码，从而更好地了解 Typst 文本内容和如何编写你自己的网站。
 
@@ -160,5 +164,13 @@ Tufted-Blog-Template/
 - 增加 Python 构建脚本，从而支持跨平台构建
 - 增加 PDF 构建支持，允许编译 PDF 文档并链接到网页
 - 增加网站标签页图标支持
+- 添加了大量详细的使用说明和代码注释，帮助用户快速上手
 
 本模板项目基于 [MIT License](https://github.com/Yousa-Mirage/Tufted-Blog-Template/blob/main/LICENSE) 开源。
+
+相关链接：
+
+- [Tufted Typst on GitHub](https://github.com/vsheg/tufted)
+- [Typst Universe](https://typst.app/universe/package/tufted)
+- [Tufte CSS](https://edwardtufte.github.io/tufte-css/) — used for styling, loaded automatically from a CDN
+- [tufted.vsheg.com](https://tufted.vsheg.com) — live demo and simple docs
