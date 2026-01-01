@@ -4,6 +4,10 @@
 
 ![Tufted website](content/imgs/devices.webp)
 
+> 如果你是纯萌新，可能会涉及到一些你从未接触到的新概念，甚至可能会第一次接触到终端和命令行，不要害怕，本项目不需要你有任何前置知识，很好上手。  
+> 遇到不懂的概念或不会的操作，多看文档、多问 AI、多搜索。  
+> 如果遇到任何问题，你可以：查看 [Wiki 文档](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki)、在 [Discussions](https://github.com/Yousa-Mirage/Tufted-Blog-Template/discussions) 中提问和讨论、在 [Issue](https://github.com/Yousa-Mirage/Tufted-Blog-Template/issues) 中提交反馈。
+
 ## ✨ 特点
 
 - 🚀 使用 Typst 编写内容，简洁强大，编译极快
@@ -14,9 +18,6 @@
 - 📄 丰富的示例和文档，无需任何前置知识，简单学习 Typst 后即可开始编写
 
 ## 📦 环境准备（仅需一次）
-
-> 如果你是纯萌新，这部分可能会涉及到一些你从未接触到的新概念，甚至可能会第一次接触到终端和命令行，不要害怕，本项目提供了[详细的文档](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki)帮助你上手。  
-> 遇到不懂的概念或不会的操作，多问 AI 多搜索。如果遇到任何问题，欢迎在 [Issue](https://github.com/Yousa-Mirage/Tufted-Blog-Template/issues) 和 [Discussions](https://github.com/Yousa-Mirage/Tufted-Blog-Template/discussions) 中提问和反馈。
 
 本项目只依赖 Typst 和 Python 环境（推荐使用 uv 工具）。Typst 用于将 `.typ` 文件编译为 HTML 和 PDF，Python 脚本用于自动化构建流程。
 
@@ -72,6 +73,10 @@ Typst 是一种用于排版文档的标记语言，Typst 编译器读取带有�
 安装完成后，你可以在终端中运行 `uv --version` 来验证安装是否成功。一旦 uv 安装成功，你不再需要手动安装 Python、操心环境问题，uv 会搞定一切。
 
 ## 🚀 快速开始
+
+### 0. 快速体验
+
+我的个人网站 [Yousa-Mirage.github.io](https://yousa-mirage.github.io) 就是使用本模板搭建的 <sub>（准确说本模板是从我的个人网站抽取出来的）</sub>。如果你只是想快速体验一下效果，可以直接访问我的网站。
 
 ### 1. 克隆项目
 
@@ -148,6 +153,26 @@ uv run build.py preview -p 12345
 2.  **添加文章**：在 `content/` 下创建新的 `.typ` 文件，可以参考目前的 `content/` 获得示例。
 3.  **生成 PDF**：如果文件名中包含 `PDF` (如 `CV-PDF.typ`)，构建脚本会自动将其编译为 PDF 文件，此时你可以在网页中添加链接指向该 PDF。
 4.  **部署网站**：在你的 GitHub 仓库中配置好 Pages，将修改后的内容推送到 GitHub，GitHub Actions 会自动构建、部署、更新网站。具体内容可参考 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/%E9%83%A8%E7%BD%B2%E7%BD%91%E7%AB%99)
+
+总之，整个模板工作流程如下所示：
+
+```plaintext
+使用本模板创建你的 GitHub 仓库 
+  ↓
+将你的仓库克隆到本地
+  ↓
+修改 .typ 文件
+  ↓
+运行 build.py
+  ↓
+本地预览（preview）
+  ↓
+满意后 git push 到你的 GitHub 仓库
+  ↓
+GitHub Actions 自动部署
+  ↓
+访问 username.github.io
+```
 
 ## 📂 项目结构
 

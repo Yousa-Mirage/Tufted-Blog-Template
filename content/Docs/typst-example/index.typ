@@ -12,9 +12,9 @@
 
 #note-box[
   本文档不是一份详细的 Typst 教程。本文档的目的是展示各种 Typst 元素在当前模板下的渲染效果，顺带展示写法。
-  
+
   如果你之前从未接触过 Typst 和标记语言，推荐你阅读下列 Typst 教程来学习：
-  
+
   - #link("https://typst-doc-cn.github.io/tutorial/")[*Typst 中文教程（小蓝书）*]
     - 强烈建议至少学习 `导引`、`1. 标记模式`、`2. 脚本模式` 三节，这会让你了解 Typst 的基本编写模式，能够完全理解本文档的内容，并且能够编写自己的 Typst 文档（足以使用以下展示的内容构建网站）。
   - #link("https://typst-doc-cn.github.io/guide/word.html")[*面向 Word 用户的快速入门向导*]
@@ -23,7 +23,7 @@
   - #link("https://typst-doc-cn.github.io/docs/")[Typst 中文文档]
   - #link("https://typst.app/docs/")[Typst 官方文档]
   - #link("https://typst.app/universe/")[Typst Universe - 大量第三方包和模板]
-  
+
   学习完前两个资料后，你应该就了解了什么是 Typst，也能够看懂接下来的所有内容并将其应用到你自己的文档中了。对于本模板用户来说，你不需要了解什么高级用法，只要学习到能看懂下列代码和 `content/` 中的 `.typ` 文档，你就可以开始编写你自己的网站了。
 ]
 
@@ -80,7 +80,7 @@
 - 你也可以链接到本网站的其他位置，例如：
   - #link("sample-PDF.pdf")[这是一个指向 PDF 文档的链接]。你可以创建编译为 PDF 的 Typst 文档，例如这个 PDF 由名为 `sample-PDF.typ` 的文件编译而来。你可以链接到编译的 PDF 文件，从而展示带有复杂格式的 PDF 文档，比如 PDF 版简历。
   - #link("/CV/")[而这是一个指向本网站 CV 页的链接。]
-  
+
 ```typ
 - #link("https://github.com/Yousa-Mirage")[这是一个外部网页的链接]。
 - #link("https://yousa-mirage.github.io/", "这也是一个外部链接")。
@@ -217,7 +217,7 @@
 ]
 
 #figure(caption: "这是只猴！")[
-  #image("../../../_site/Blog/2025-04-16-monkeys-apes/imgs/gorilla.webp", height: 250pt)
+  #image("../../imgs/gorilla.webp", height: 250pt)
 ]
 
 ```typ
@@ -226,7 +226,7 @@
 ]
 
 #figure(caption: "这是只猴！")[
-  #image("../../../_site/Blog/2025-04-16-monkeys-apes/imgs/gorilla.webp", height: 250pt)
+  #image("../../imgs/gorilla.webp", height: 250pt)
 ]
 ```
 
