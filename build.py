@@ -480,7 +480,6 @@ def build_pdf(force: bool = False):
         args = ["compile", "--root", ".", "--font-path", str(ASSETS_DIR), str(typ_file), str(pdf_output)]
 
         if run_typst_command(args):
-            print(f"  ✅ {typ_file} -> {pdf_output}")
             success_count += 1
         else:
             print(f"  ❌ {typ_file} 编译失败")

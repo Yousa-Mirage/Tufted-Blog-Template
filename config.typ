@@ -10,6 +10,6 @@
     "/Blog/": "Blog",
     "/CV/": "CV",
   ),
-  lang: "zh", // TODO: 添加中英文页面切换功能
+  lang: "zh",
   title: "Tufted Blog Template",  // 你的网站在浏览器中显示的标题
 )

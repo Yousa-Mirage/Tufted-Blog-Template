@@ -29,6 +29,8 @@
 
 ### 1. 安装 Typst
 
+> 如果你的系统已经安装 Typst CLI，也可以跳过这一步。
+
 Typst 是一种用于排版文档的标记语言，Typst 编译器读取并解释带有标记的 `.typ` 文本文件，将这些文本文件编译为 PDF/HTML 文档。本项目基于 Typst 实验性的 HTML 导出功能构建网页。我们要下载的便是 Typst 编译器。
 
 - **方法 1（推荐）：从 [Typst 下载页面](https://typst.app/open-source/#download)直接下载可执行程序。** 你需要下载压缩文件，并将其解压到一个位于 `PATH` 环境变量中的文件夹中。
@@ -165,6 +167,13 @@ Tufted-Blog-Template/
 └── Makefile              # Make 构建命令
 ```
 
+## TODO 列表
+
+- 优化公式前后的间距
+- 参考文献直接显示在侧边栏
+- 网页的交叉引用跳转
+- 添加中英文页面切换功能
+
 ## 🔗 说明
 
 本模板基于 Vsevolod Shegolev 开发的 Typst 包 [Tufted](https://github.com/vsheg/tufted)，并进行了一些样式和功能修改以更好的支持中文内容，主要包括：
@@ -173,8 +182,8 @@ Tufted-Blog-Template/
 - 优化代码块样式，增加行号和复制功能
 - 增加 Python 构建脚本，从而支持跨平台构建
 - 增加 PDF 构建支持，允许编译 PDF 文档并链接到网页
-- 增加网站标签页图标支持
-- 添加了大量详细的使用说明和代码注释，帮助用户快速上手
+- 增加了网站标签页图标支持
+- 添加了详细的使用说明和代码注释，帮助用户快速上手
 
 本模板项目基于 [MIT License](https://github.com/Yousa-Mirage/Tufted-Blog-Template/blob/main/LICENSE) 开源。
 
@@ -182,5 +191,5 @@ Tufted-Blog-Template/
 
 - [Tufted Typst on GitHub](https://github.com/vsheg/tufted)
 - [Typst Universe](https://typst.app/universe/package/tufted)
-- [Tufte CSS](https://edwardtufte.github.io/tufte-css/) — used for styling, loaded automatically from a CDN
-- [tufted.vsheg.com](https://tufted.vsheg.com) — live demo and simple docs
+- [Tufte CSS](https://edwardtufte.github.io/tufte-css/)
+- [tufted.vsheg.com](https://tufted.vsheg.com) — Tufted 包作者提供的在线演示网站和简单文档

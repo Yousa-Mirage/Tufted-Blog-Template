@@ -10,6 +10,6 @@
 - #link("03-styling/", "Styling")
 - #link("04-deploy/", "Deployment")
 
-== Advanced
+== 中文帮助文档
 
-- #link("embedding-markdown", "Embedding Markdown")
+- #link("typst-example/", "Typst 文档编写示例")
