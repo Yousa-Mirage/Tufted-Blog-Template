@@ -375,15 +375,18 @@ def run_typst_command(args: List[str]) -> bool:
 
 def build_html(force: bool = False):
     """
-    编译所有 .typ 文件为 HTML。
+    编译所有 .typ 文件为 HTML（文件名中包含 PDF 的除外）。
 
     参数:
         force: 是否强制重建所有文件
     """
     typ_files = find_typ_files()
 
-    if not typ_files:
-        print("  ⚠️ 未找到任何 .typ 文件。")
+    # 排除标记为 PDF 的文件
+    html_files = [f for f in typ_files if "pdf" not in f.stem.lower()]
+
+    if not html_files:
+        print("  ⚠️ 未找到任何 HTML 文件。")
         return True
 
     print("正在构建 HTML 文件...")
@@ -395,7 +398,7 @@ def build_html(force: bool = False):
     skip_count = 0
     fail_count = 0
 
-    for typ_file in typ_files:
+    for typ_file in html_files:
         html_output = get_html_output_path(typ_file)
 
         # 增量编译检查

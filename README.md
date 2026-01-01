@@ -72,9 +72,9 @@ Typst 是一种用于排版文档的标记语言，Typst 编译器读取并解�
 1. 点击本页面右上角的绿色按钮 [Use this template] -> Create a new repository，将这个模板复制到你自己的 GitHub 账号下的仓库中，将仓库命名为 `<your-github-username>.github.io`。
 2. 然后将代码克隆到你的电脑上。首先你需要选择一个文件夹作为你的工作目录，然后**在该路径下打开终端**，运行以下命令（将 `<your-github-username>` 替换为你的 GitHub 用户名）：
 
-  ```bash
-  git clone https://github.com/<your-github-username>/<your-github-username>.github.io.git
-  ```
+```bash
+git clone https://github.com/<your-github-username>/<your-github-username>.github.io.git
+```
 
 例如，如果我想要在 `D:\My-Website\` 目录下存放网站项目，则首先进入 `D:\`，在该路径下打开终端，然后运行：
 
@@ -126,6 +126,7 @@ python build.py preview
 `preview` 会首先尝试运行 `uvx livereload _site`，这个命令使用 uv 运行了一个叫做 livereload 的工具，livereload 将 `_site/` 目录作为网站根目录，并在本地的 8000 端口启动 HTTP 实时服务器。如果你没有安装 uv，则会回退到使用 Python 内置的 HTTP 服务器：`python -m http.server 8000 --directory _site`。
 
 预览服务器默认使用 `8000` 端口，你可以使用 `-p/--port` 参数指定其他端口，例如：
+
 ```bash
 uv run build.py preview -p 12345
 ```
@@ -138,10 +139,10 @@ uv run build.py preview -p 12345
 
 1.  **修改配置**：编辑 `config.typ` 设置网站标题和导航栏。
 2.  **添加文章**：在 `content/**/` 下创建新的 `.typ` 文件，可以参考目前的 `content/` 获得示例。
-3.  **生成 PDF**：如果文件名包含 `PDF/pdf` (如 `CV-PDF.typ`)，构建脚本会自动将其编译为 PDF 文件，此时你可以在网页中添加链接指向该 PDF。
+3.  **生成 PDF**：如果文件名中包含 `PDF` (如 `CV-PDF.typ`)，构建脚本会自动将其编译为 PDF 文件，此时你可以在网页中添加链接指向该 PDF。
 4.  **部署网站**：在你的 GitHub 仓库中配置好 Pages，将修改后的内容推送到 GitHub，GitHub Actions 会自动构建、部署、更新网站。
 
-默认 `content/` 中包含进一步的文档说明和示例页面，你可以自行探索和修改。推荐在启动本地预览后，一边阅读网页一边对照生成该网页的 `.typ` 源代码，从而更好地了解 Typst 文本内容和如何编写你自己的网站。
+默认 `content/` 中包含进一步的文档说明和示例页面，你可以自行探索和修改。推荐在启动本地预览后，一边阅读网页文档，一边对照生成该页面的 `.typ` 源代码，从而更好地了解 `content/` 结构、Typst 内容以及如何编写你自己的网站。
 
 在了解网页结构和如何编写后，你就可以将 `content/` 中的内容替换为你自己的内容，从而搭建你自己的网站。
 
