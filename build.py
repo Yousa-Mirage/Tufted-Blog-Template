@@ -35,6 +35,7 @@ Tufted Blog Template 构建脚本
 
 import argparse
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -123,14 +124,14 @@ def find_typ_dependencies(typ_file: Path) -> Set[Path]:
     """
     解析 .typ 文件中的依赖（通过 #import 和 #include 导入的文件）。
 
-    只返回模板和配置文件作为依赖，忽略 content/ 下的普通页面文件，
-    因为它们是独立的页面，不应该相互依赖。
+    只追踪 .typ 文件的依赖，忽略 content/ 下的普通页面文件。
+    其他资源文件（如 .md, .bib, 图片等）通过 copy_content_assets 处理。
 
     参数:
         typ_file: .typ 文件路径
 
     返回:
-        Set[Path]: 依赖文件路径集合
+        Set[Path]: 依赖的 .typ 文件路径集合
     """
     dependencies: Set[Path] = set()
 
@@ -141,10 +142,6 @@ def find_typ_dependencies(typ_file: Path) -> Set[Path]:
 
     # 获取文件所在目录，用于解析相对路径
     base_dir = typ_file.parent
-
-    # 简单解析 #import 和 #include 语句
-    # 匹配模式: #import "path" 或 #include "path"
-    import re
 
     patterns = [
         r'#import\s+"([^"]+)"',
@@ -169,11 +166,10 @@ def find_typ_dependencies(typ_file: Path) -> Set[Path]:
                 # 相对于当前文件的路径
                 dep_path = base_dir / dep_path_str
 
-            # 规范化路径
+            # 规范化路径，只追踪 .typ 文件
             try:
                 dep_path = dep_path.resolve()
-                # 只添加存在的模板文件作为依赖
-                if dep_path.exists() and is_dep_file(dep_path):
+                if dep_path.exists() and dep_path.suffix == ".typ" and is_dep_file(dep_path):
                     dependencies.add(dep_path)
             except Exception:
                 pass
@@ -222,6 +218,7 @@ def needs_rebuild(source: Path, target: Path, extra_deps: Optional[List[Path]] =
     2. 源文件比目标文件新
     3. 任何额外依赖文件比目标文件新
     4. 源文件的任何导入依赖比目标文件新
+    5. 源文件同目录下的任何非 .typ 文件比目标文件新（如 .md, .bib, 图片等）
 
     参数:
         source: 源文件路径
@@ -251,6 +248,14 @@ def needs_rebuild(source: Path, target: Path, extra_deps: Optional[List[Path]] =
     for dep in get_all_dependencies(source):
         if get_file_mtime(dep) > target_mtime:
             return True
+
+    # 检查源文件同目录下的非 .typ 资源文件（如 .md, .bib, 图片等）
+    # 只检查同一目录，不递归子目录，避免过度重编译
+    source_dir = source.parent
+    for item in source_dir.iterdir():
+        if item.is_file() and item.suffix != ".typ":
+            if get_file_mtime(item) > target_mtime:
+                return True
 
     return False
 
