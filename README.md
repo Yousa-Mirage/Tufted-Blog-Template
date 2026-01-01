@@ -31,14 +31,14 @@
 
 ### 1. 安装 Typst
 
-> 如果你的系统已经安装 Typst CLI，也可以跳过这一步。
+> 如果你的系统已经安装 Typst CLI，可以跳过这一步。
 
 Typst 是一种用于排版文档的标记语言，Typst 编译器读取带有标记的 `.typ` 文本文件，将这些文本文件编译为 PDF/HTML 文档。本项目基于 Typst 实验性的 HTML 导出功能构建网页。
 
 我们要下载的便是 Typst 编译器。
 
-- **方法 1：从 [Typst 下载页面](https://typst.app/open-source/#download)直接下载可执行程序。** 你需要下载压缩文件，并将其解压到一个位于 `PATH` 环境变量中的文件夹中。
-    - (**推荐**) Windows 用户可将其解压到 `D:\typst\` 或你喜欢的其他路径，然后将该路径添加到 `PATH` 环境变量中，具体操作可见 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/PATH-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F)。
+- **方法 1：从 [Typst 下载页面](https://typst.app/open-source/#download)直接下载可执行程序。** 你需要下载压缩包，并将其解压到一个位于 `PATH` 环境变量中的文件夹中。
+    - Windows 用户 (**推荐**) 可将其解压你喜欢的路径，然后将该路径添加到 `PATH` 环境变量中，具体操作可见 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/PATH-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F)。
     - macOS / Linux 用户可将其解压到 `/usr/local/bin` 或其他已添加到 `PATH` 的目录中，具体操作可见 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/PATH-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F)。
 - **方法 2：使用包管理器安装。**
     - Windows：
@@ -55,7 +55,7 @@ Typst 是一种用于排版文档的标记语言，Typst 编译器读取带有�
 
 > 如果你的系统已经安装 Python >= 3.6，也可以跳过这一步。
 
-本项目使用一个 Python 脚本 `build.py` 来自动化构建流程。理论上只需要安装有 Python 就可以运行，不过为了最大程度简化环境依赖问题，推荐使用 [**uv**](https://docs.astral.sh/uv/) 来运行脚本。uv 是一个速度极快的 Python 包和项目管理器，可以简化 Python 安装、环境依赖管理和脚本运行。
+本项目使用一个 Python 脚本 `build.py` 来自动化构建流程。理论上只需要安装有 Python 就可以运行，不过为了避免各种 Python 环境问题，推荐使用 [**uv**](https://docs.astral.sh/uv/) 来运行脚本。uv 是一个速度极快的 Python 包和项目管理器，可以简化 Python 安装、环境依赖管理和脚本运行。
 
 你可以按照下面的说明安装 uv：
 
@@ -75,8 +75,8 @@ Typst 是一种用于排版文档的标记语言，Typst 编译器读取带有�
 
 ### 1. 克隆项目
 
-1. 点击本页面右上角的绿色按钮 [Use this template] -> Create a new repository，将这个模板复制到你自己的 GitHub 账号下的仓库中，将仓库命名为 `<your-github-username>.github.io`。
-2. 然后将代码克隆到你的电脑上。首先你需要选择一个文件夹作为你的工作目录，然后**在该路径下打开终端**，运行以下命令（将 `<your-github-username>` 替换为你的 GitHub 用户名）：
+1. 点击本页面右上角的绿色按钮 [Use this template] -> Create a new repository，将这个模板复制到你自己的仓库中，**将仓库命名为 `<your-github-username>.github.io`**。
+2. 然后将代码克隆到你的电脑上。首先你需要选择一个文件夹作为你的工作目录，然后**在该路径下**打开终端，运行以下命令（将 `<your-github-username>` 替换为你的 GitHub 用户名）：
 
 ```bash
 git clone https://github.com/<your-github-username>/<your-github-username>.github.io.git
@@ -92,7 +92,7 @@ git clone https://github.com/Yousa-Mirage/Yousa-Mirage.github.io.git
 
 ### 2. 构建网站
 
-进入你的网站项目目录，**在当前路径下打开终端**并运行以下命令：
+进入你的网站项目目录，**在当前路径下**打开终端并运行以下命令：
 
 ```bash
 uv run build.py build
@@ -107,11 +107,10 @@ python build.py build
 如果你使用 macOS/Linux 并且安装了 `make`，也可以运行以下命令：
 
 ```bash
-# 只适用于 macOS/Linux
-make build
+make build  # 只适用于 macOS/Linux
 ```
 
-此命令会将 `content/` 下的 `.typ` 文件对应编译为 HTML 文件，并输出到 `_site/` 目录。`_site/` 目录就是你的网站在本地的样子。在你修改文件后，重新运行该命令即可增量编译。
+此命令会将 `content/` 下的 `.typ` 文件对应编译为 HTML 文件，并输出到 `_site/` 目录。`_site/` 目录就是你的网站在本地的样子。在你修改文件后，重新运行该命令即可**增量编译**。
 
 ### 3. 本地预览
 
@@ -139,18 +138,16 @@ uv run build.py preview -p 12345
 
 </details>
 
-现在你可以打开浏览器，访问 `http://localhost:8000` 来查看你的网站。
+现在你可以打开浏览器，访问 `http://localhost:8000` 来查看默认网页。我在默认网页（即`content/` 中的内容）中编写了更多文档说明和示例内容，，你可以自行探索和修改。推荐在启动本地预览后，一边阅读网页文档，一边对照生成该页面的 `.typ` 源代码，从而更好地了解 `content/` 结构、Typst 内容以及如何编写你自己的网站。
 
 ### 4. 使用 Typst 编写网页与部署网站
 
-1.  **修改配置**：编辑 `config.typ` 设置网站标题和导航栏。
-2.  **添加文章**：在 `content/**/` 下创建新的 `.typ` 文件，可以参考目前的 `content/` 获得示例。
-3.  **生成 PDF**：如果文件名中包含 `PDF` (如 `CV-PDF.typ`)，构建脚本会自动将其编译为 PDF 文件，此时你可以在网页中添加链接指向该 PDF。
-4.  **部署网站**：在你的 GitHub 仓库中配置好 Pages，将修改后的内容推送到 GitHub，GitHub Actions 会自动构建、部署、更新网站。
-
-默认 `content/` 中包含进一步的文档说明和示例页面，你可以自行探索和修改。推荐在启动本地预览后，一边阅读网页文档，一边对照生成该页面的 `.typ` 源代码，从而更好地了解 `content/` 结构、Typst 内容以及如何编写你自己的网站。
-
 在了解网页结构和如何编写后，你就可以将 `content/` 中的内容替换为你自己的内容，从而搭建你自己的网站。
+
+1.  **修改配置**：编辑 `config.typ` 设置网站标题和导航栏，还可以在 `assets/` 下放置一个 `favicon.ico` 作为你网站的标签页图标。
+2.  **添加文章**：在 `content/` 下创建新的 `.typ` 文件，可以参考目前的 `content/` 获得示例。
+3.  **生成 PDF**：如果文件名中包含 `PDF` (如 `CV-PDF.typ`)，构建脚本会自动将其编译为 PDF 文件，此时你可以在网页中添加链接指向该 PDF。
+4.  **部署网站**：在你的 GitHub 仓库中配置好 Pages，将修改后的内容推送到 GitHub，GitHub Actions 会自动构建、部署、更新网站。具体内容可参考 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/%E9%83%A8%E7%BD%B2%E7%BD%91%E7%AB%99)
 
 ## 📂 项目结构
 
@@ -158,14 +155,14 @@ uv run build.py preview -p 12345
 Tufted-Blog-Template/
 ├── .github/workflows     # GitHub Actions 自动构建、部署
 ├── _site/                # 构建输出目录 (自动生成)
-├── assets/               # 静态资源 (CSS, JS, 字体等)
+├── assets/               # 静态资源 (CSS, JS, 字体, 图标等)
 ├── content/              # 网站内容源文件 (.typ)
-│   ├── index.typ           # 网站首页
-|   ├── About/              # 关于页
-│   ├── Blog/               # 博客页
-│   ├── CV/                 # 简历页
-|   ├── Docs/               # 编写文档页
-│   └── .../                # 可自行添加其他页面
+│   ├── index.typ             # 网站首页
+|   ├── About/                # 关于页
+│   ├── Blog/                 # 博客页
+│   ├── CV/                   # 简历页
+|   ├── Docs/                 # 编写文档页
+│   └── .../                  # 可自行添加其他页面
 ├── build.py              # Python 构建脚本
 ├── config.typ            # 网站全局配置
 └── Makefile              # Make 构建命令
