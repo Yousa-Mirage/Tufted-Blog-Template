@@ -6,7 +6,7 @@
 #import "@preview/mitex:0.2.6": *
 #show: template.with(title: "Typst 文档编写示例")
 
-= Typst 功能速览与样例文档
+= Typst 功能速览与样例
 
 这份文档展示了 Typst 的核心功能。上方是实际渲染效果，下方灰色背景的代码块是对应的源代码。
 
