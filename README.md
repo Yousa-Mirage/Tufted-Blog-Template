@@ -94,7 +94,7 @@ GitHub Actions 自动部署
 
 ### 0. 快速体验
 
-我的个人网站 [Yousa-Mirage.github.io](https://yousa-mirage.github.io) 就是使用本模板搭建的<sub>（准确说本模板是从我的个人网站抽取出来的）</sub>。如果你只是想快速体验一下效果，可以直接访问我的网站。
+如果你想快速体验网站样式效果，可以直接访问 [tufted.vsheg.com](https://tufted.vsheg.com/) 或 [我的个人网站](https://yousa-mirage.github.io)。
 
 ### 1. 克隆项目
 
