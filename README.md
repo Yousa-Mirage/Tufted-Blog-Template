@@ -1,6 +1,6 @@
 # Tufted Blog Template
 
-这是一个基于 [Typst](https://typst.app/) 和 [Tufted](https://github.com/vsheg/tufted) 的静态网站构建模板，手把手教你搭建简洁、美观的个人博客、作品集和简历设计。
+这是一个基于 [Typst](https://typst.app/) 和 [Tufted](https://github.com/vsheg/tufted) 的静态网站构建模板，手把手教你搭建简洁、美观的个人网站、博客和简历设计。
 
 ![Tufted website](content/imgs/devices.webp)
 
