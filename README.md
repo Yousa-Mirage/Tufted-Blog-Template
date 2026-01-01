@@ -14,7 +14,7 @@
 - 🎨 基于 Tufte CSS 设计，极简主义、内容至上，提供清晰、沉浸的阅读体验
 - 📦 内置基于 Python 的跨平台构建脚本，支持增量编译
 - 📝 支持生成 HTML 网页和 PDF 文档，支持链接到 PDF
-- 🌐 内置 GitHub Pages 部署支持，一键发布网站
+- 🌐 内置 GitHub Actions 工作流，一键部署网站
 - 📄 丰富的示例和文档，无需任何前置知识，简单学习 Typst 后即可开始编写
 
 ## 📦 环境准备（仅需一次）
@@ -74,9 +74,29 @@ Typst 是一种用于排版文档的标记语言，Typst 编译器读取带有�
 
 ## 🚀 快速开始
 
+整个模板工作流程如下所示：
+
+```plaintext
+使用本模板创建你的 GitHub 仓库 
+  ↓
+将你的仓库克隆到本地
+  ↓
+修改 .typ 文件
+  ↓
+运行 build.py
+  ↓
+本地预览（preview）
+  ↓
+满意后 git push 到你的 GitHub 仓库
+  ↓
+GitHub Actions 自动部署
+  ↓
+访问 username.github.io
+```
+
 ### 0. 快速体验
 
-我的个人网站 [Yousa-Mirage.github.io](https://yousa-mirage.github.io) 就是使用本模板搭建的 <sub>（准确说本模板是从我的个人网站抽取出来的）</sub>。如果你只是想快速体验一下效果，可以直接访问我的网站。
+我的个人网站 [Yousa-Mirage.github.io](https://yousa-mirage.github.io) 就是使用本模板搭建的<sub>（准确说本模板是从我的个人网站抽取出来的）</sub>。如果你只是想快速体验一下效果，可以直接访问我的网站。
 
 ### 1. 克隆项目
 
@@ -152,27 +172,7 @@ uv run build.py preview -p 12345
 1.  **修改配置**：编辑 `config.typ` 设置网站标题和导航栏，还可以在 `assets/` 下放置一个 `favicon.ico` 作为你网站的标签页图标。
 2.  **添加文章**：在 `content/` 下创建新的 `.typ` 文件，可以参考目前的 `content/` 获得示例。
 3.  **生成 PDF**：如果文件名中包含 `PDF` (如 `CV-PDF.typ`)，构建脚本会自动将其编译为 PDF 文件，此时你可以在网页中添加链接指向该 PDF。
-4.  **部署网站**：在你的 GitHub 仓库中配置好 Pages，将修改后的内容推送到 GitHub，GitHub Actions 会自动构建、部署、更新网站。具体内容可参考 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/%E9%83%A8%E7%BD%B2%E7%BD%91%E7%AB%99)
-
-总之，整个模板工作流程如下所示：
-
-```plaintext
-使用本模板创建你的 GitHub 仓库 
-  ↓
-将你的仓库克隆到本地
-  ↓
-修改 .typ 文件
-  ↓
-运行 build.py
-  ↓
-本地预览（preview）
-  ↓
-满意后 git push 到你的 GitHub 仓库
-  ↓
-GitHub Actions 自动部署
-  ↓
-访问 username.github.io
-```
+4.  **部署网站**：在你的 GitHub 仓库中配置好 Pages，将修改后的内容推送到 GitHub，GitHub Actions 会自动构建、部署、更新网站。具体内容可参考 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/GitHub-Pages-%E9%83%A8%E7%BD%B2%E7%BD%91%E7%AB%99)。
 
 ## 📂 项目结构
 
