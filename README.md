@@ -2,7 +2,7 @@
 
 这是一个基于 [Typst](https://typst.app/) 和 [Tufted](https://github.com/vsheg/tufted) 的静态网站构建模板，手把手教你搭建简洁、美观的个人网站、博客和简历设计。
 
-如果你想快速体验网站样式效果，可以访问 [tufted.vsheg.com](https://tufted.vsheg.com/) 或 [我的个人网站](https://yousa-mirage.github.io)。
+如果你想快速体验网站样式效果，可以访问 [tufted.vsheg.com](https://tufted.vsheg.com/) 或 [示例网站](https://little-yousa-mirage.github.io/)。
 
 ![Tufted website](content/imgs/devices.webp)
 
@@ -160,6 +160,8 @@ uv run build.py preview -p 12345
 </details>
 
 浏览器应该会自动打开，或者你可以手动打开浏览器，访问 `http://localhost:8000` 来查看默认网页。我在默认网页（即`content/` 中的内容）中编写了更多文档说明和示例内容，你可以自行探索和修改。
+
+你看到的本地网站内容应该与 [示例网站](https://little-yousa-mirage.github.io/) 完全相同。
 
 你可以参考 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/Typst-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E8%B5%84%E6%96%99) 的内容和资料了解和学习 Typst。
 
