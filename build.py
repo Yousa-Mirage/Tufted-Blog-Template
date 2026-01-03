@@ -39,6 +39,9 @@ import re
 import shutil
 import subprocess
 import sys
+import threading
+import time
+import webbrowser
 from pathlib import Path
 from typing import List, Optional, Set
 
@@ -596,7 +599,7 @@ def clean() -> bool:
         return False
 
 
-def preview(port: int = 8000) -> bool:
+def preview(port: int = 8000, open_browser_flag: bool = True) -> bool:
     """
     启动本地预览服务器。
 
@@ -605,15 +608,25 @@ def preview(port: int = 8000) -> bool:
 
     参数:
         port: 服务器端口号，默认为 8000
+        open_browser_flag: 是否自动打开浏览器，默认为 True
     """
     if not SITE_DIR.exists():
         print(f"  ⚠ 输出目录 {SITE_DIR} 不存在，请先运行 build 命令。")
         return False
 
-    print("正在启动本地预览服务器...")
-    print(f"  🌐 访问地址: http://localhost:{port}")
-    print("  按 Ctrl+C 停止服务器")
+    print("正在启动本地预览服务器（按 Ctrl+C 停止）...")
     print()
+
+    if open_browser_flag:
+
+        def open_browser():
+            time.sleep(1.5)  # 等待服务器启动
+            url = f"http://localhost:{port}"
+            print(f"  🚀 正在打开浏览器: {url}")
+            webbrowser.open(url)
+
+        # 在后台线程中打开浏览器
+        threading.Thread(target=open_browser, daemon=True).start()
 
     # 首先尝试 uvx livereload
     try:
@@ -708,8 +721,6 @@ def create_parser():
 """,
     )
 
-    parser.add_argument("--force", "-f", action="store_true", help="强制完整重建，忽略增量检查")
-
     subparsers = parser.add_subparsers(dest="command", title="可用命令", metavar="<command>")
 
     build_parser = subparsers.add_parser("build", help="完整构建 (HTML + PDF + 资源)")
@@ -728,6 +739,10 @@ def create_parser():
     preview_parser.add_argument(
         "-p", "--port", type=int, default=8000, help="服务器端口号（默认: 8000）"
     )
+    preview_parser.add_argument(
+        "--no-open", action="store_false", dest="open_browser", help="不自动打开浏览器"
+    )
+    preview_parser.set_defaults(open_browser=True)
 
     return parser
 
@@ -754,7 +769,7 @@ if __name__ == "__main__":
         "pdf": lambda: (SITE_DIR.mkdir(parents=True, exist_ok=True), build_pdf(force))[1],
         "assets": lambda: (SITE_DIR.mkdir(parents=True, exist_ok=True), copy_assets())[1],
         "clean": clean,
-        "preview": lambda: preview(getattr(args, "port", 8000)),
+        "preview": lambda: preview(getattr(args, "port", 8000), getattr(args, "open_browser", True)),
     }
 
     success = commands[args.command]()
