@@ -1,5 +1,7 @@
 # Tufted Blog Template
 
+English | [中文](README.md)
+
 This is a static website building template based on [Typst](https://typst.app/) and [Tufted](https://github.com/vsheg/tufted), providing step-by-step guidance to build a clean and beautiful personal website, blog, and resume.
 
 If you want to quickly experience the website style, you can visit [tufted.vsheg.com](https://tufted.vsheg.com/) or [Demo Website](https://little-yousa-mirage.github.io/).

@@ -1,5 +1,7 @@
 # Tufted Blog Template
 
+[English](README_en.md) | 中文
+
 这是一个基于 [Typst](https://typst.app/) 和 [Tufted](https://github.com/vsheg/tufted) 的静态网站构建模板，手把手教你搭建简洁、美观的个人网站、博客和简历设计。
 
 如果你想快速体验网站样式效果，可以访问 [tufted.vsheg.com](https://tufted.vsheg.com/) 或 [示例网站](https://little-yousa-mirage.github.io/)。
@@ -197,7 +199,7 @@ Tufted-Blog-Template/
 - [x] 优化夜间模式效果
 - [ ] 添加浅色/深色模式切换
 - [ ] 优化移动端代码块宽度
-- [ ] 增加英文 README 和文档
+- [x] 增加英文 README 和文档
 - [ ] 优化公式前后的间距
 - [ ] 添加网页的交叉引用跳转
 - [ ] （参考文献直接显示在侧边栏）
