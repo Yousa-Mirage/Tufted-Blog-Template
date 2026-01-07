@@ -14,7 +14,7 @@
     }
 
     if el != none and el.func() == heading {
-      return smartquote() + it.element.body + smartquote()
+      return link(el.location(), smartquote() + it.element.body + smartquote())
     }
 
     it
