@@ -19,7 +19,31 @@ html {
 
 img,
 svg {
+    max-width: 100%;
     max-height: 80vh;
+}
+
+/* Constrain images within section to text width unless in fullwidth */
+section>figure:not(.fullwidth)>img,
+section>figure:not(.fullwidth)>svg {
+    max-width: 100%;
+}
+
+/* Images directly in section (not in figure) should be constrained */
+section>img,
+section>svg {
+    max-width: 55%;
+}
+
+/* Fullwidth content */
+.fullwidth {
+    max-width: 90%;
+    clear: both;
+}
+
+.fullwidth img,
+.fullwidth svg {
+    max-width: 100%;
 }
 
 
@@ -141,9 +165,36 @@ a.footnote-ref-link {
 MATH NOTATION
 *******************************************************************************/
 
-/* TODO: Remove hack for math zooming */
+/* Block math equations - display as block, centered */
 figure[role="math"] {
-    zoom: 1.4;
+    display: block;
+    width: 55%;
+    text-align: center;
+    margin: 1em 0;
+    font-size: 1.4em;
+    line-height: 1.2;
+}
+
+figure>figure[role="math"] {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+    max-width: 100%;
+}
+
+/* Inline math - smaller size, aligned with text baseline */
+span[role="math"] {
+    display: inline-block;
+    vertical-align: baseline;
+    margin: 0 0.1em;
+}
+
+/* Responsive: math equations take full width on mobile */
+@media (max-width: 760px) {
+    figure[role="math"] {
+        width: 100%;
+    }
 }
 
 @media (prefers-color-scheme: dark) {

@@ -5,7 +5,8 @@ html {
 /* 设置段落两端对齐 */
 p {
   text-align: justify;
-  text-justify: inter-ideograph; /* 针对中文优化，改善标点和汉字间距 */
+  text-justify: inter-ideograph;
+  /* 针对中文优化，改善标点和汉字间距 */
 }
 
 /* 增加段落行高，原为 2rem */
@@ -61,12 +62,13 @@ h5 {
 }
 
 /* 覆盖 Tufte CSS 的默认代码块样式 */
-pre > code {
+pre>code {
   width: 95%;
   /* 原为 52.5%，改为 100% 以适应父容器 */
   font-size: 1.2rem;
   /* 原为 0.9rem，增大字体 */
-  line-height: 1.5; /* 显式设置行高以对齐行号 */
+  line-height: 1.5;
+  /* 显式设置行高以对齐行号 */
   margin-left: 0%;
   background-color: transparent;
   /* 避免代码块内重复背景 */
@@ -90,9 +92,12 @@ pre.has-line-numbers {
   user-select: none;
   text-align: right;
   min-width: 1.2em;
-  font-size: 1.2rem; /* 匹配代码字体大小 */
-  line-height: 1.5; /* 匹配代码行高 */
-  font-family: monospace; /* 确保字体一致 */
+  font-size: 1.2rem;
+  /* 匹配代码字体大小 */
+  line-height: 1.5;
+  /* 匹配代码行高 */
+  font-family: monospace;
+  /* 确保字体一致 */
 }
 
 /* 调整行内代码大小及样式 */
@@ -151,8 +156,8 @@ figure pre {
 /* 修复引用块 (Quote Box) 样式 */
 /* 针对 theorion 包生成的带左边框的 div */
 div[style*="border-inline-start"] {
-  width: 55% !important;
-  /* 强制宽度为 55%，与正文一致 */
+  width: 55%;
+  /* 宽度为 55%，与正文一致 */
   font-size: 1.4rem;
   /* 统一字体大小，匹配正文 p 标签 */
   line-height: 2.2rem;
@@ -161,8 +166,20 @@ div[style*="border-inline-start"] {
   /* 清除浮动 */
   margin: 1.5em 0;
   /* 垂直间距 */
-  padding-right: 0 !important;
+  padding-right: 0;
   /* 移除右内边距，确保侧边注与正文侧边注对齐 */
+  box-sizing: border-box;
+}
+
+/* 响应式：移动端引用块占满宽度 */
+@media (max-width: 760px) {
+  div[style*="border-inline-start"] {
+    width: 100%;
+  }
+
+  pre {
+    width: 100%;
+  }
 }
 
 /* 确保内部 p 标签样式一致 */
@@ -225,6 +242,7 @@ sup.footnote-ref {
 
 /* 深色模式适配 */
 @media (prefers-color-scheme: dark) {
+
   /* 标题颜色 */
   h1,
   h2,
@@ -248,7 +266,7 @@ sup.footnote-ref {
   }
 
   /* 代码块中的代码文本 */
-  pre > code {
+  pre>code {
     color: #e8e8e8;
   }
 
