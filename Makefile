@@ -52,7 +52,6 @@ clean:
 _site/%.html: content/%.typ
 	@mkdir -p $(@D)
 	typst compile --root .. --font-path assets --features html --format html $< $@
-	@sed -i 's|</head>|<link rel="icon" href="/assets/favicon.ico"><script src="/assets/copy-code.js"></script><script src="/assets/line-numbers.js"></script><script src="/assets/format-headings.js"></script></head>|' $@
 
 # Pattern rule to compile .typ files to .pdf files
 _site/%.pdf: content/%.typ
