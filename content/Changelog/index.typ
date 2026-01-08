@@ -10,6 +10,8 @@
 - 优化了表格边框样式，现在会生成美观的 HTML 表格
 - 将 `assets/custom.css` 中的内容完全移动到 `assets/tufted.css`
 - 合并 `assets/copy-code.js` 和 `assets/line-numbers.js` 为单个脚本 `assets/code-blocks.js`
+- 彻底优化了深色模式显示效果
+- 添加了美观的浅色/深色模式切换按钮
 
 == 2026-01-07
 
