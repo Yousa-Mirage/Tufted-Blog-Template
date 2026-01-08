@@ -25,8 +25,7 @@
   ),
   icon: "/assets/favicon.ico",
   js-scripts: (
-    "/assets/copy-code.js",
-    "/assets/line-numbers.js",
+    "/assets/code-blocks.js",
     "/assets/format-headings.js",
   ),
   header-elements: (),
