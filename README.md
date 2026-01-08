@@ -5,6 +5,7 @@
 这是一个基于 [Typst](https://typst.app/) 和 [Tufted](https://github.com/vsheg/tufted) 的静态网站构建模板，手把手教你搭建简洁、美观的个人网站、博客和简历设计。
 
 如果你想快速体验网站样式效果，可以访问 [示例网站](https://tufted-blog.pages.dev/) 。
+更新记录可见 [Changelog](https://tufted-blog.pages.dev/Changelog/) 。
 
 ![Tufted website](content/imgs/devices.webp)
 
@@ -142,6 +143,8 @@ make build  # 只适用于 macOS/Linux
 ### 3. 本地预览
 
 > HTTP 服务器会占用当前终端窗口，因此推荐在该路径下打开一个新的终端窗口运行预览命令。
+>
+> 💡 **快速工作流提示**：你可以在一个终端后台运行 `uv run build.py preview`，然后在另一个终端运行 `uv run build.py build` 来编译修改。网页会自动刷新，从而实现实时预览而不需要反复运行 `preview` 命令重启服务器。
 
 你可以运行以下命令启动本地预览服务器：
 

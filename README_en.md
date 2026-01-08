@@ -5,6 +5,7 @@ English | [中文](README.md)
 This is a static website building template based on [Typst](https://typst.app/) and [Tufted](https://github.com/vsheg/tufted), providing step-by-step guidance to build a clean and beautiful personal website, blog, and resume.
 
 If you want to quickly experience the website style, you can visit [Demo Website](https://tufted-blog.pages.dev/).
+Update log available at [Changelog](https://tufted-blog.pages.dev/Changelog/) .
 
 ![Tufted website](content/imgs/devices.webp)
 
@@ -142,6 +143,8 @@ This command will compile the `.typ` files in `content/` to HTML files and outpu
 ### 3. Local Preview
 
 > The HTTP server will occupy the current terminal window, so it's recommended to open a new terminal window in that path to run the preview command.
+>
+> 💡 **Quick workflow tip**: You can run `uv run build.py preview` in one terminal and then run `uv run build.py build` in another terminal to compile your changes. The web page will automatically refresh, allowing for real-time preview without the need to repeatedly run the `preview` command to restart the server.
 
 You can run the following command to start a local preview server:
 
