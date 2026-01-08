@@ -361,6 +361,11 @@ RESPONSIVE LAYOUT
     table td {
         padding: 0.4em 0.6em;
     }
+
+    /* Math equations take full width on mobile */
+    figure[role="math"] {
+        width: 100%;
+    }
 }
 
 
@@ -481,98 +486,6 @@ span[role="math"] {
     display: inline-block;
     vertical-align: baseline;
     margin: 0 0.1em;
-}
-
-/* Responsive: math equations take full width on mobile */
-@media (max-width: 760px) {
-    figure[role="math"] {
-        width: 100%;
-    }
-
-    /* Heading colors */
-    h1,
-    h2,
-    h3,
-    h4,
-    h5 {
-        color: #eee;
-    }
-
-    /* Inline code */
-    code {
-        background-color: #2d2d2d;
-        color: #e8e8e8;
-        border-color: #3d3d3d;
-    }
-
-    /* Code block container */
-    pre {
-        background-color: #2d2d2d;
-        border-color: #3d3d3d;
-    }
-
-    /* Code text in blocks */
-    pre>code {
-        color: #e8e8e8;
-    }
-
-    /* Line numbers */
-    .line-numbers-rows {
-        border-right-color: #555;
-        color: #666;
-    }
-
-    /* Copy button */
-    .copy-button {
-        background-color: #333;
-        color: #ccc;
-        border-color: #555;
-    }
-
-    .copy-button:hover {
-        background-color: #444;
-        color: #eee;
-    }
-
-    .copy-button.copied {
-        background-color: #1a4d3a;
-        color: #5fda9d;
-        border-color: #5fda9d;
-    }
-
-    /* Quote blocks */
-    div[style*="border-inline-start"] .footnote-ref,
-    div[style*="border-inline-start"] .marginnote,
-    div[style*="border-inline-start"] .footnote-ref a {
-        color: #eee !important;
-    }
-
-    /* Tables */
-    table th,
-    table td {
-        border-color: #444;
-    }
-
-    table th,
-    table thead td {
-        background-color: #333;
-    }
-
-    table tbody tr:nth-child(even) {
-        background-color: #2a2a2a;
-    }
-
-    table tbody tr:hover {
-        background-color: #383838;
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-
-    /* Invert math figures for better contrast */
-    [role="math"] {
-        filter: invert(1) hue-rotate(180deg);
-    }
 }
 
 

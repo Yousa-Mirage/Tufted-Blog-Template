@@ -1,0 +1,246 @@
+/*******************************************************************************
+THEME CONFIGURATION
+主题配置 - 深色/浅色模式切换
+
+This file contains all styles related to light/dark theme switching.
+*******************************************************************************/
+
+/*******************************************************************************
+CSS CUSTOM PROPERTIES (Theme Variables)
+*******************************************************************************/
+
+:root {
+    /* Light mode colors (default) */
+    --theme-bg: #fffff8;
+    --theme-text: #111;
+    --theme-heading: #111;
+    --theme-code-bg: #f7f7f7;
+    --theme-code-text: inherit;
+    --theme-code-border: #e7e7e7;
+    --theme-pre-bg: #f7f7f7;
+    --theme-pre-border: #e0e0e0;
+    --theme-line-numbers-border: #ddd;
+    --theme-line-numbers-text: #aaa;
+    --theme-copy-btn-bg: #fff;
+    --theme-copy-btn-text: #666;
+    --theme-copy-btn-border: #ccc;
+    --theme-copy-btn-hover-bg: #f0f0f0;
+    --theme-copy-btn-hover-text: #333;
+    --theme-copy-btn-copied-bg: #e6fffa;
+    --theme-copy-btn-copied-text: #008000;
+    --theme-copy-btn-copied-border: #008000;
+    --theme-table-border: #ccc;
+    --theme-table-header-bg: #f5f5f5;
+    --theme-table-row-even: #fafafa;
+    --theme-table-row-hover: #f0f0f0;
+    --theme-math-filter: none;
+    --theme-link-text-shadow: 0.03em 0 #fffff8, -0.03em 0 #fffff8, 0 0.03em #fffff8, 0 -0.03em #fffff8, 0.06em 0 #fffff8, -0.06em 0 #fffff8, 0.09em 0 #fffff8, -0.09em 0 #fffff8, 0.12em 0 #fffff8, -0.12em 0 #fffff8, 0.15em 0 #fffff8, -0.15em 0 #fffff8;
+    --theme-link-bg-image: linear-gradient(#fffff8, #fffff8), linear-gradient(#fffff8, #fffff8), linear-gradient(currentColor, currentColor);
+}
+
+/* Dark mode variables */
+html[data-theme="dark"],
+html:not([data-theme]) {
+    --theme-bg: #151515;
+    --theme-text: #ddd;
+    --theme-heading: #eee;
+    --theme-code-bg: #2d2d2d;
+    --theme-code-text: #e8e8e8;
+    --theme-code-border: #3d3d3d;
+    --theme-pre-bg: #2d2d2d;
+    --theme-pre-border: #3d3d3d;
+    --theme-line-numbers-border: #555;
+    --theme-line-numbers-text: #666;
+    --theme-copy-btn-bg: #333;
+    --theme-copy-btn-text: #ccc;
+    --theme-copy-btn-border: #555;
+    --theme-copy-btn-hover-bg: #444;
+    --theme-copy-btn-hover-text: #eee;
+    --theme-copy-btn-copied-bg: #1a4d3a;
+    --theme-copy-btn-copied-text: #5fda9d;
+    --theme-copy-btn-copied-border: #5fda9d;
+    --theme-table-border: #444;
+    --theme-table-header-bg: #333;
+    --theme-table-row-even: #2a2a2a;
+    --theme-table-row-hover: #383838;
+    --theme-math-filter: invert(1) hue-rotate(180deg);
+    --theme-link-text-shadow: none;
+    --theme-link-bg-image: none;
+}
+
+/* System preference: only apply dark variables when no explicit theme is set */
+@media (prefers-color-scheme: light) {
+    html:not([data-theme]) {
+        --theme-bg: #fffff8;
+        --theme-text: #111;
+        --theme-heading: #111;
+        --theme-code-bg: #f7f7f7;
+        --theme-code-text: inherit;
+        --theme-code-border: #e7e7e7;
+        --theme-pre-bg: #f7f7f7;
+        --theme-pre-border: #e0e0e0;
+        --theme-line-numbers-border: #ddd;
+        --theme-line-numbers-text: #aaa;
+        --theme-copy-btn-bg: #fff;
+        --theme-copy-btn-text: #666;
+        --theme-copy-btn-border: #ccc;
+        --theme-copy-btn-hover-bg: #f0f0f0;
+        --theme-copy-btn-hover-text: #333;
+        --theme-copy-btn-copied-bg: #e6fffa;
+        --theme-copy-btn-copied-text: #008000;
+        --theme-copy-btn-copied-border: #008000;
+        --theme-table-border: #ccc;
+        --theme-table-header-bg: #f5f5f5;
+        --theme-table-row-even: #fafafa;
+        --theme-table-row-hover: #f0f0f0;
+        --theme-math-filter: none;
+        --theme-link-text-shadow: 0.03em 0 #fffff8, -0.03em 0 #fffff8, 0 0.03em #fffff8, 0 -0.03em #fffff8, 0.06em 0 #fffff8, -0.06em 0 #fffff8, 0.09em 0 #fffff8, -0.09em 0 #fffff8, 0.12em 0 #fffff8, -0.12em 0 #fffff8, 0.15em 0 #fffff8, -0.15em 0 #fffff8;
+        --theme-link-bg-image: linear-gradient(#fffff8, #fffff8), linear-gradient(#fffff8, #fffff8), linear-gradient(currentColor, currentColor);
+    }
+}
+
+
+/*******************************************************************************
+THEME STYLES (using CSS variables)
+*******************************************************************************/
+
+html {
+    background-color: var(--theme-bg) !important;
+    color: var(--theme-text) !important;
+}
+
+body {
+    background-color: var(--theme-bg) !important;
+    color: var(--theme-text) !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    color: var(--theme-heading) !important;
+}
+
+a,
+a:link,
+a:visited {
+    color: inherit !important;
+    background-color: transparent !important;
+    text-shadow: var(--theme-link-text-shadow) !important;
+    background-image: var(--theme-link-bg-image) !important;
+}
+
+header nav a,
+header nav a:link,
+header nav a:visited {
+    text-shadow: none !important;
+    background-image: none !important;
+}
+
+code {
+    background-color: var(--theme-code-bg) !important;
+    color: var(--theme-code-text) !important;
+    border-color: var(--theme-code-border) !important;
+}
+
+pre {
+    background-color: var(--theme-pre-bg) !important;
+    border-color: var(--theme-pre-border) !important;
+}
+
+pre>code {
+    color: var(--theme-code-text) !important;
+}
+
+.line-numbers-rows {
+    border-right-color: var(--theme-line-numbers-border) !important;
+    color: var(--theme-line-numbers-text) !important;
+}
+
+.copy-button {
+    background-color: var(--theme-copy-btn-bg) !important;
+    color: var(--theme-copy-btn-text) !important;
+    border-color: var(--theme-copy-btn-border) !important;
+}
+
+.copy-button:hover {
+    background-color: var(--theme-copy-btn-hover-bg) !important;
+    color: var(--theme-copy-btn-hover-text) !important;
+}
+
+.copy-button.copied {
+    background-color: var(--theme-copy-btn-copied-bg) !important;
+    color: var(--theme-copy-btn-copied-text) !important;
+    border-color: var(--theme-copy-btn-copied-border) !important;
+}
+
+div[style*="border-inline-start"] .footnote-ref,
+div[style*="border-inline-start"] .marginnote,
+div[style*="border-inline-start"] .footnote-ref a {
+    color: var(--theme-heading) !important;
+}
+
+table th,
+table td {
+    border-color: var(--theme-table-border) !important;
+}
+
+table th,
+table thead td {
+    background-color: var(--theme-table-header-bg) !important;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: var(--theme-table-row-even) !important;
+}
+
+table tbody tr:hover {
+    background-color: var(--theme-table-row-hover) !important;
+}
+
+[role="math"] {
+    filter: var(--theme-math-filter) !important;
+}
+
+
+/*******************************************************************************
+THEME TOGGLE BUTTON (DeepWiki Style)
+*******************************************************************************/
+
+.theme-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    margin-left: auto;
+    margin-top: 1.6em;
+    transition: background-color 0.15s ease;
+    color: #374151;
+    /* 浅色模式下月亮图标颜色 */
+}
+
+.theme-toggle-btn:hover {
+    background: var(--highlight-weak, rgba(128, 128, 128, 0.2));
+}
+
+.theme-toggle-btn:focus-visible {
+    outline: 2px solid var(--highlight-strong, rgba(128, 128, 128, 0.4));
+    outline-offset: 2px;
+}
+
+.theme-toggle-btn svg {
+    width: 1.8rem;
+    height: 1.8rem;
+}
+
+/* 深色模式下太阳图标颜色 */
+.theme-toggle-btn.is-dark {
+    color: #d1d5db;
+}

@@ -21,12 +21,14 @@
   css: (
     "https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.8.0/tufte.min.css",
     "/assets/tufted.css",
+    "/assets/theme.css",
     "/assets/custom.css",
   ),
   icon: "/assets/favicon.ico",
   js-scripts: (
     "/assets/code-blocks.js",
     "/assets/format-headings.js",
+    "/assets/theme-toggle.js",
   ),
   header-elements: (),
   footer-elements: (),
