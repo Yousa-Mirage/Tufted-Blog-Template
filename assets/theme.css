@@ -34,8 +34,6 @@ CSS CUSTOM PROPERTIES (Theme Variables)
     --theme-table-row-even: #fafafa;
     --theme-table-row-hover: #f0f0f0;
     --theme-math-filter: none;
-    --theme-link-text-shadow: 0.03em 0 #fffff8, -0.03em 0 #fffff8, 0 0.03em #fffff8, 0 -0.03em #fffff8, 0.06em 0 #fffff8, -0.06em 0 #fffff8, 0.09em 0 #fffff8, -0.09em 0 #fffff8, 0.12em 0 #fffff8, -0.12em 0 #fffff8, 0.15em 0 #fffff8, -0.15em 0 #fffff8;
-    --theme-link-bg-image: linear-gradient(#fffff8, #fffff8), linear-gradient(#fffff8, #fffff8), linear-gradient(currentColor, currentColor);
 }
 
 /* Dark mode variables */
@@ -64,8 +62,6 @@ html:not([data-theme]) {
     --theme-table-row-even: #2a2a2a;
     --theme-table-row-hover: #383838;
     --theme-math-filter: invert(1) hue-rotate(180deg);
-    --theme-link-text-shadow: none;
-    --theme-link-bg-image: none;
 }
 
 /* System preference: only apply dark variables when no explicit theme is set */
@@ -94,8 +90,6 @@ html:not([data-theme]) {
         --theme-table-row-even: #fafafa;
         --theme-table-row-hover: #f0f0f0;
         --theme-math-filter: none;
-        --theme-link-text-shadow: 0.03em 0 #fffff8, -0.03em 0 #fffff8, 0 0.03em #fffff8, 0 -0.03em #fffff8, 0.06em 0 #fffff8, -0.06em 0 #fffff8, 0.09em 0 #fffff8, -0.09em 0 #fffff8, 0.12em 0 #fffff8, -0.12em 0 #fffff8, 0.15em 0 #fffff8, -0.15em 0 #fffff8;
-        --theme-link-bg-image: linear-gradient(#fffff8, #fffff8), linear-gradient(#fffff8, #fffff8), linear-gradient(currentColor, currentColor);
     }
 }
 
@@ -127,15 +121,10 @@ a:link,
 a:visited {
     color: inherit !important;
     background-color: transparent !important;
-    text-shadow: var(--theme-link-text-shadow) !important;
-    background-image: var(--theme-link-bg-image) !important;
-}
-
-header nav a,
-header nav a:link,
-header nav a:visited {
     text-shadow: none !important;
     background-image: none !important;
+    text-decoration: underline !important;
+    text-underline-offset: 0.15em;
 }
 
 code {
