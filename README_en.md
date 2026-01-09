@@ -142,12 +142,6 @@ If you don't have uv installed, you can run the script directly with Python:
 python build.py build
 ```
 
-If you're using macOS/Linux and have `make` installed, you can also run:
-
-```bash
-make build  # Only for macOS/Linux
-```
-
 This command will compile the `.typ` files in `content/` to HTML files and output them to the `_site/` directory. The `_site/` directory is what your website looks like locally. After modifying files, run this command again for **incremental compilation**.
 
 ### 3. Local Preview
@@ -219,8 +213,7 @@ Tufted-Blog-Template/
 │   ├── refs.typ               # Reference and bibliography handling
 │   └── notes.typ              # Footnotes and margin notes handling
 ├── build.py               # Python build script
-├── config.typ             # Website global configuration
-└── Makefile               # Make build commands
+└── config.typ             # Website global configuration
 ```
 
 ## 🔗 Notes

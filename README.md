@@ -142,12 +142,6 @@ uv run build.py build
 python build.py build
 ```
 
-如果你使用 macOS/Linux 并且安装了 `make`，也可以运行以下命令：
-
-```bash
-make build  # 只适用于 macOS/Linux
-```
-
 此命令会将 `content/` 下的 `.typ` 文件对应编译为 HTML 文件，并输出到 `_site/` 目录。`_site/` 目录就是你的网站在本地的样子。在你修改文件后，重新运行该命令即可**增量编译**。
 
 ### 3. 本地预览
@@ -219,8 +213,7 @@ Tufted-Blog-Template/
 │   ├── refs.typ               # 参考文献处理
 │   └── notes.typ              # 脚注和侧边注处理
 ├── build.py               # Python 构建脚本
-├── config.typ             # 网站全局配置
-└── Makefile               # Make 构建命令
+└── config.typ             # 网站全局配置
 ```
 
 ## 🔗 说明
