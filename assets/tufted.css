@@ -332,6 +332,57 @@ table tbody tr:hover {
 
 
 /*******************************************************************************
+MATH NOTATION
+*******************************************************************************/
+
+/* Block math equations - display as block, centered */
+figure[role="math"] {
+    display: block;
+    width: 55%;
+    text-align: center;
+    margin: 1em 0;
+    padding: 0.5em 0;
+    font-size: 1.4em;
+    line-height: 1.2;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* Math content wrapper - prevent shrinking */
+figure[role="math"]>* {
+    display: inline-block;
+    min-width: max-content;
+    text-align: center;
+}
+
+figure>figure[role="math"] {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+    padding: 0.5em 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* Math content wrapper for nested figures */
+figure>figure[role="math"]>* {
+    display: inline-block;
+    min-width: max-content;
+    text-align: center;
+}
+
+/* Inline math - smaller size, aligned with text baseline */
+span[role="math"] {
+    display: inline-block;
+    vertical-align: baseline;
+    margin: 0 0.1em;
+    text-indent: 0;
+}
+
+
+/*******************************************************************************
 RESPONSIVE LAYOUT
 *******************************************************************************/
 
@@ -490,55 +541,6 @@ a.footnote-ref-link {
 }
 
 
-/*******************************************************************************
-MATH NOTATION
-*******************************************************************************/
-
-/* Block math equations - display as block, centered */
-figure[role="math"] {
-    display: block;
-    width: 55%;
-    text-align: center;
-    margin: 1em 0;
-    padding: 0.5em 0;
-    font-size: 1.4em;
-    line-height: 1.2;
-    overflow-x: auto;
-    overflow-y: hidden;
-}
-
-/* Math content wrapper - prevent shrinking */
-figure[role="math"]>* {
-    display: inline-block;
-    min-width: max-content;
-    text-align: center;
-}
-
-figure>figure[role="math"] {
-    display: block;
-    width: 100%;
-    text-align: center;
-    margin: 0 auto;
-    padding: 0.5em 0;
-    max-width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-}
-
-/* Math content wrapper for nested figures */
-figure>figure[role="math"]>* {
-    display: inline-block;
-    min-width: max-content;
-    text-align: center;
-}
-
-/* Inline math - smaller size, aligned with text baseline */
-span[role="math"] {
-    display: inline-block;
-    vertical-align: baseline;
-    margin: 0 0.1em;
-    text-indent: 0;
-}
 
 /*******************************************************************************
 POST TILES
