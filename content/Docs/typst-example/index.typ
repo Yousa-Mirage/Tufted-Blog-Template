@@ -452,7 +452,7 @@ Typst 不但是一个标记排版语言，还是一门编程排版语言：
 #let name = "Typst"
 #if name == "Typst" [
   #for i in range(3) [
-    这是 Typst！
+    这是 Typst #i！
   ]
 ] else [
   这不是 Typst。
