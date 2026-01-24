@@ -24,7 +24,6 @@ body {
     min-height: 100%;
     display: flex;
     flex-direction: column;
-    box-sizing: border-box;
 }
 
 /* Main content fills remaining space */
@@ -410,11 +409,11 @@ RESPONSIVE LAYOUT
     }
 
     /* Footnote margin notes collapse by default */
-    .footnote-ref + .marginnote {
+    .footnote-ref+.marginnote {
         display: none;
     }
 
-    .footnote-ref + .marginnote.is-expanded {
+    .footnote-ref+.marginnote.is-expanded {
         display: block;
     }
 
@@ -432,7 +431,7 @@ RESPONSIVE LAYOUT
         top: -0.2em;
     }
 
-    sup.footnote-ref > a.footnote-ref-link {
+    sup.footnote-ref>a.footnote-ref-link {
         display: inline-flex;
         align-items: center;
         justify-content: center;
