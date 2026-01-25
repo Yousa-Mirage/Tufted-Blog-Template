@@ -42,6 +42,7 @@ import sys
 import threading
 import time
 import webbrowser
+from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Set
 
@@ -632,6 +633,54 @@ def preview(port: int = 8000, open_browser_flag: bool = True) -> bool:
         return False
 
 
+def generate_sitemap() -> bool:
+    """
+    Generate sitemap.xml for the website.
+    """
+    print("正在构建 sitemap.xml...")
+    
+    base_url = "https://www.tufted-blog.pages.dev"
+    sitemap_path = SITE_DIR / "sitemap.xml"
+    
+    urls = []
+    
+    # Walk through the _site directory
+    for file_path in SITE_DIR.rglob("*.html"):
+        # Calculate relative path from _site
+        rel_path = file_path.relative_to(SITE_DIR)
+        
+        # Convert path to URL and handle index.html
+        url_path = rel_path.as_posix()
+        
+        # Handle index.html - usually mapped to directory root
+        if url_path.endswith("index.html"):
+            url_path = url_path[:-10] # Remove index.html
+        
+        full_url = f"{base_url}/{url_path}"
+        
+        # Get last modification time
+        mtime = file_path.stat().st_mtime
+        lastmod = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
+        
+        urls.append(f"""  <url>
+    <loc>{full_url}</loc>
+    <lastmod>{lastmod}</lastmod>
+  </url>""")
+    
+    sitemap_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{chr(10).join(sorted(urls))}
+</urlset>"""
+
+    try:
+        sitemap_path.write_text(sitemap_content, encoding="utf-8")
+        print(f"✅ Sitemap 构建完成。")
+        return True
+    except Exception as e:
+        print(f"❌ Sitemap 构建失败: {e}")
+        return False
+
+
 def build(force: bool = False):
     """
     完整构建：HTML + PDF + 资源。
@@ -658,6 +707,7 @@ def build(force: bool = False):
 
     results.append(copy_assets())
     results.append(copy_content_assets(force))
+    results.append(generate_sitemap())
 
     print("-" * 60)
     if all(results):
