@@ -41,6 +41,19 @@
   show: template-notes
   show: template-figures
 
+  // Intercept link rendering to open external/PDF links in new tab
+  show link: it => {
+    if type(it.dest) == str {
+      if it.dest.starts-with("http") or it.dest.ends-with(".pdf") {
+        html.a(href: it.dest, target: "_blank", rel: ("noopener", "noreferrer"), it.body)
+      } else {
+        it
+      }
+    } else {
+      it
+    }
+  }
+
   set text(lang: lang)
 
   html.html(
