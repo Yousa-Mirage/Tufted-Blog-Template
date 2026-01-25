@@ -638,7 +638,7 @@ def get_site_url() -> str:
     Parse site-url from config.typ.
     Fallback to a default if not found.
     """
-    default_url = "https://www.tufted-blog.pages.dev/"
+    default_url = "https://www.tufted-blog.pages.dev"
     
     if not CONFIG_FILE.exists():
         return default_url
@@ -689,9 +689,10 @@ def generate_sitemap() -> bool:
     <lastmod>{lastmod}</lastmod>
   </url>""")
     
+    newline = '\n'
     sitemap_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-{'\n'.join(sorted(urls))}
+{newline.join(sorted(urls))}
 </urlset>"""
 
     try:
