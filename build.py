@@ -34,6 +34,7 @@ Tufted Blog Template 构建脚本
 """
 
 import argparse
+import html
 import os
 import re
 import shutil
@@ -685,7 +686,7 @@ def generate_sitemap() -> bool:
         lastmod = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
         
         urls.append(f"""  <url>
-    <loc>{full_url}</loc>
+    <loc>{html.escape(full_url)}</loc>
     <lastmod>{lastmod}</lastmod>
   </url>""")
     

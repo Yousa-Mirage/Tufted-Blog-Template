@@ -7,7 +7,13 @@
 
   // Canonical URL
   let canonical = if site-url != none and path != none {
-    if site-url.ends-with("/") { site-url + path.trim("/") } else { site-url + "/" + path.trim("/") }
+    let clean-site-url = site-url.trim("/", at: end)
+    let clean-path = path.trim("/")
+    if clean-path == "" {
+      clean-site-url + "/"
+    } else {
+      clean-site-url + "/" + clean-path + "/"
+    }
   } else {
     none
   }
@@ -25,8 +31,10 @@
   }
 
   // Twitter Card
-  html.meta(name: "twitter:card", content: "summary_large_image")
   if image != none {
+    html.meta(name: "twitter:card", content: "summary_large_image")
     html.meta(name: "twitter:image", content: image)
+  } else {
+    html.meta(name: "twitter:card", content: "summary")
   }
 }

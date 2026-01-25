@@ -1,7 +1,7 @@
 #import "../index.typ": template, tufted
 #show: template.with(
   title: "Changelog",
-  description: "Changelod",
+  description: "Changelog",
   path: "Changelog",
 )
 
