@@ -14,7 +14,7 @@
   lang: "zh",
   title: "Tufted Blog Template", // 你的网站在浏览器中显示的标题
   description: "Tufted Blog Template", // 你的网站的描述
-  canonical-url: "https://www.tufted-blog.pages.dev/", // 你的网站的 canonical URL
+  site-url: "https://www.tufted-blog.pages.dev/", // 你的网站的 canonical URL
 
   // 自定义 header 和 footer 元素
   // 数组格式，可以添加任意数量的内容，内容之间使用换行分隔

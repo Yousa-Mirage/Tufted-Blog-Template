@@ -1,5 +1,9 @@
 #import "../index.typ": template, tufted
-#show: template.with(title: "Changelog")
+#show: template.with(
+  title: "Changelog",
+  description: "Changelod",
+  path: "Changelog",
+)
 
 = 更新日志 / Changelog
 

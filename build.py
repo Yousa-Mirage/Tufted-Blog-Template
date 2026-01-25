@@ -633,13 +633,35 @@ def preview(port: int = 8000, open_browser_flag: bool = True) -> bool:
         return False
 
 
+def get_site_url() -> str:
+    """
+    Parse site-url from config.typ.
+    Fallback to a default if not found.
+    """
+    default_url = "https://www.tufted-blog.pages.dev/"
+    
+    if not CONFIG_FILE.exists():
+        return default_url
+        
+    try:
+        content = CONFIG_FILE.read_text(encoding="utf-8")
+        # Look for site-url: "..."
+        match = re.search(r'site-url:\s*"([^"]+)"', content)
+        if match:
+            return match.group(1).rstrip("/")
+    except Exception as e:
+        print(f"  ⚠️ Failed to parse config.typ: {e}")
+        
+    return default_url
+
+
 def generate_sitemap() -> bool:
     """
     Generate sitemap.xml for the website.
     """
     print("正在构建 sitemap.xml...")
     
-    base_url = "https://www.tufted-blog.pages.dev"
+    base_url = get_site_url()
     sitemap_path = SITE_DIR / "sitemap.xml"
     
     urls = []
@@ -654,7 +676,7 @@ def generate_sitemap() -> bool:
         
         # Handle index.html - usually mapped to directory root
         if url_path.endswith("index.html"):
-            url_path = url_path[:-10] # Remove index.html
+            url_path = url_path[:-len("index.html")] # Remove index.html
         
         full_url = f"{base_url}/{url_path}"
         
@@ -669,7 +691,7 @@ def generate_sitemap() -> bool:
     
     sitemap_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-{chr(10).join(sorted(urls))}
+{'\n'.join(sorted(urls))}
 </urlset>"""
 
     try:

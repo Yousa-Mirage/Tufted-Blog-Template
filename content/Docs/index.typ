@@ -1,5 +1,9 @@
 #import "../index.typ": template, tufted
-#show: template.with(title: "Docs")
+#show: template.with(
+  title: "Docs",
+  description: "Docs",
+  path: "Docs",
+)
 
 = 文档 / Docs
 

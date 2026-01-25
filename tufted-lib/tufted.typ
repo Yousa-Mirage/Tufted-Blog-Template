@@ -20,7 +20,8 @@
   header-links: none,
   title: "Tufted Blog Template",
   description: "Tufted Blog Template",
-  canonical-url: none,
+  site-url: none,
+  path: none,
   lang: "en",
   css: (
     "https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.8.0/tufte.min.css",
@@ -38,6 +39,7 @@
   header-elements: (),
   footer-elements: (),
   content,
+  image: none,
 ) = {
   // Apply styling
   show: template-math
@@ -62,7 +64,9 @@
         seo-tags(
           title: title,
           description: description,
-          canonical-url: canonical-url,
+          site-url: site-url,
+          path: path,
+          image: image,
         )
 
         // Stylesheets
