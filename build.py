@@ -726,6 +726,28 @@ def generate_sitemap() -> bool:
         return False
 
 
+def generate_robots_txt() -> bool:
+    """
+    Generate robots.txt pointing to the sitemap.
+    """
+    site_url = get_site_url()
+    if not site_url:
+        return True
+
+    robots_content = f"""User-agent: *
+Allow: /
+
+Sitemap: {site_url}/sitemap.xml
+"""
+
+    try:
+        (SITE_DIR / "robots.txt").write_text(robots_content, encoding="utf-8")
+        return True
+    except Exception as e:
+        print(f"❌ 生成 robots.txt 失败: {e}")
+        return False
+
+
 def build(force: bool = False) -> bool:
     """
     完整构建：HTML + PDF + 资源。
@@ -753,6 +775,7 @@ def build(force: bool = False) -> bool:
     results.append(copy_assets())
     results.append(copy_content_assets(force))
     results.append(generate_sitemap())
+    results.append(generate_robots_txt())
 
     print("-" * 60)
     if all(results):
