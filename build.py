@@ -695,6 +695,8 @@ def generate_sitemap() -> bool:
             url_path = ""
         elif rel_path.endswith("/index.html"):
             url_path = rel_path[:-10]
+        elif rel_path.endswith(".html"):
+            url_path = rel_path[:-5] + "/"
         else:
             url_path = rel_path
 

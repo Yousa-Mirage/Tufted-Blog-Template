@@ -30,8 +30,15 @@
   }
 
   // Open Graph
+
+  let auto-og-type = if page-path == "" or page-path == "/" {
+    "website"
+  } else {
+    "article"
+  }
+
   html.elem("meta", attrs: (property: "og:title", content: title))
-  html.elem("meta", attrs: (property: "og:type", content: "article"))
+  html.elem("meta", attrs: (property: "og:type", content: auto-og-type))
   if image-path != none {
     html.elem("meta", attrs: (property: "og:image", content: image-path))
   }
