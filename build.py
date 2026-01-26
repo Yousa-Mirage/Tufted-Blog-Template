@@ -360,7 +360,7 @@ def run_typst_command(args: List[str]) -> bool:
 # ============================================================================
 
 
-def build_html(force: bool = False):
+def build_html(force: bool = False) -> bool:
     """
     编译所有 .typ 文件为 HTML（文件名中包含 PDF 的除外）。
 
@@ -429,7 +429,7 @@ def build_html(force: bool = False):
     return fail_count == 0
 
 
-def build_pdf(force: bool = False):
+def build_pdf(force: bool = False) -> bool:
     """
     编译文件名包含 "PDF" 的 .typ 文件为 PDF。
 
@@ -639,58 +639,58 @@ def get_site_url() -> str:
     Parse site-url from config.typ.
     Fallback to a default if not found.
     """
-    default_url = "https://www.tufted-blog.pages.dev"
-    
     if not CONFIG_FILE.exists():
-        return default_url
-        
+        return ""
+
     try:
         content = CONFIG_FILE.read_text(encoding="utf-8")
         # Look for site-url: "..."
-        match = re.search(r'site-url:\s*"([^"]+)"', content)
+        match = re.search(r'site-url\s*:\s*"([^"]*)"', content)
         if match:
-            return match.group(1).rstrip("/")
+            return match.group(1).strip().rstrip("/")
     except Exception as e:
-        print(f"  ⚠️ Failed to parse config.typ: {e}")
-        
-    return default_url
+        print(f"⚠️ Warning: Failed to parse site-url from config.typ: {e}")
+
+    return ""
 
 
 def generate_sitemap() -> bool:
     """
     Generate sitemap.xml for the website.
     """
-    print("正在构建 sitemap.xml...")
-    
     base_url = get_site_url()
+    if not base_url:
+        print("⚠️ 跳过 Sitemap 构建: config.typ 中未配置 'site-url'。")
+        return False
+
     sitemap_path = SITE_DIR / "sitemap.xml"
-    
     urls = []
-    
+
     # Walk through the _site directory
     for file_path in SITE_DIR.rglob("*.html"):
         # Calculate relative path from _site
-        rel_path = file_path.relative_to(SITE_DIR)
-        
-        # Convert path to URL and handle index.html
-        url_path = rel_path.as_posix()
-        
-        # Handle index.html - usually mapped to directory root
-        if url_path.endswith("index.html"):
-            url_path = url_path[:-len("index.html")] # Remove index.html
-        
+        rel_path = file_path.relative_to(SITE_DIR).as_posix()
+
+        # Determine URL path
+        if rel_path == "index.html":
+            url_path = ""
+        elif rel_path.endswith("/index.html"):
+            url_path = rel_path[:-10]
+        else:
+            url_path = rel_path
+
         full_url = f"{base_url}/{url_path}"
-        
+
         # Get last modification time
         mtime = file_path.stat().st_mtime
         lastmod = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
-        
+
         urls.append(f"""  <url>
     <loc>{html.escape(full_url)}</loc>
     <lastmod>{lastmod}</lastmod>
   </url>""")
-    
-    newline = '\n'
+
+    newline = "\n"
     sitemap_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 {newline.join(sorted(urls))}
@@ -698,14 +698,14 @@ def generate_sitemap() -> bool:
 
     try:
         sitemap_path.write_text(sitemap_content, encoding="utf-8")
-        print(f"✅ Sitemap 构建完成。")
+        print(f"✅ Sitemap 构建完成: 包含 {len(urls)} 个页面")
         return True
     except Exception as e:
         print(f"❌ Sitemap 构建失败: {e}")
         return False
 
 
-def build(force: bool = False):
+def build(force: bool = False) -> bool:
     """
     完整构建：HTML + PDF + 资源。
 
@@ -749,7 +749,7 @@ def build(force: bool = False):
 # ============================================================================
 
 
-def create_parser():
+def create_parser() -> argparse.ArgumentParser:
     """
     创建命令行参数解析器。
     """
