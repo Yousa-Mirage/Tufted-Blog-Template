@@ -757,6 +757,7 @@ def build(force: bool = False) -> bool:
     """
     print("-" * 60)
     if force:
+        clean()
         print("🛠️ 开始完整构建...")
     else:
         print("🚀 开始增量构建...")
