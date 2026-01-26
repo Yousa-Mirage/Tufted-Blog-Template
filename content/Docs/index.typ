@@ -2,7 +2,7 @@
 #show: template.with(
   title: "Docs",
   description: "Docs",
-  path: "Docs",
+  page-path: "Docs",
 )
 
 = 文档 / Docs

@@ -2,7 +2,7 @@
 #show: template.with(
   title: "Blog",
   description: "Blog templates",
-  path: "Blog",
+  page-path: "Blog",
 )
 
 = 博客 / Blog

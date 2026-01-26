@@ -1,4 +1,10 @@
-#let seo-tags(title: "", description: none, site-url: none, path: none, image: none) = {
+#let seo-tags(
+  title: "",
+  description: none,
+  site-url: none,
+  page-path: none,
+  image-path: none,
+) = {
   // Description
   if description != none {
     html.meta(name: "description", content: description)
@@ -6,9 +12,9 @@
   }
 
   // Canonical URL
-  let canonical = if site-url != none and path != none {
+  let canonical = if site-url != none and page-path != none {
     let clean-site-url = site-url.trim("/", at: end)
-    let clean-path = path.trim("/")
+    let clean-path = page-path.trim("/")
     if clean-path == "" {
       clean-site-url + "/"
     } else {
@@ -25,15 +31,15 @@
 
   // Open Graph
   html.elem("meta", attrs: (property: "og:title", content: title))
-  html.elem("meta", attrs: (property: "og:type", content: "website"))
-  if image != none {
-    html.elem("meta", attrs: (property: "og:image", content: image))
+  html.elem("meta", attrs: (property: "og:type", content: "article"))
+  if image-path != none {
+    html.elem("meta", attrs: (property: "og:image", content: image-path))
   }
 
   // Twitter Card
-  if image != none {
+  if image-path != none {
     html.meta(name: "twitter:card", content: "summary_large_image")
-    html.meta(name: "twitter:image", content: image)
+    html.meta(name: "twitter:image", content: image-path)
   } else {
     html.meta(name: "twitter:card", content: "summary")
   }

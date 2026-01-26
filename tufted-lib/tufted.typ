@@ -21,7 +21,8 @@
   title: "Tufted Blog Template",
   description: "Tufted Blog Template",
   site-url: none,
-  path: none,
+  page-path: none,
+  image-path: none,
   lang: "en",
   css: (
     "https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.8.0/tufte.min.css",
@@ -39,7 +40,6 @@
   header-elements: (),
   footer-elements: (),
   content,
-  image: none,
 ) = {
   // Apply styling
   show: template-math
@@ -65,8 +65,8 @@
           title: title,
           description: description,
           site-url: site-url,
-          path: path,
-          image: image,
+          page-path: page-path,
+          image-path: image-path,
         )
 
         // Stylesheets
