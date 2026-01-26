@@ -14,7 +14,7 @@
 This is a static website building template based on [Typst](https://typst.app/) and [Tufted](https://github.com/vsheg/tufted), providing step-by-step guidance to build a clean and beautiful personal website, blog, and resume.
 
 If you want to quickly experience the website style, you can visit [Demo Website](https://tufted-blog.pages.dev/).
-Update log available at [Changelog](https://tufted-blog.pages.dev/Changelog/) .
+Update log available at [Changelog](CHANGELOG_en.md) .
 
 ![Tufted website](content/imgs/devices.webp)
 

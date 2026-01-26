@@ -1,11 +1,14 @@
 # 更新日志
 
+[English version](CHANGELOG_en.md)
+
 ## 开发阶段
 
 开发中的更新内容将在此记录。
 
 - 功能：在新标签页中打开外部链接和 PDF 链接（[#15](https://github.com/Yousa-Mirage/Tufted-Blog-Template/pull/15), [@yanwenwang24](https://github.com/yanwenwang24)）
 - 功能：增加了丰富的 SEO 元数据支持（[#16](https://github.com/Yousa-Mirage/Tufted-Blog-Template/issues/16), [#17](https://github.com/Yousa-Mirage/Tufted-Blog-Template/pull/17), [@yanwenwang24](https://github.com/yanwenwang24)）
+- 修复：强制构建时未清理旧文件的问题
 
 ## v0.5.0
 
