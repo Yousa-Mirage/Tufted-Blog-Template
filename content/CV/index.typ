@@ -2,7 +2,6 @@
 #show: template.with(
   title: "Edward R. Tufte",
   description: "CV of Edward R. Tufte",
-  page-path: "CV",
 )
 #import "@preview/citegeist:0.2.0": load-bibliography
 

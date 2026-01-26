@@ -50,6 +50,12 @@
 
   set text(lang: lang)
 
+  let current-page-path = if page-path != none {
+    page-path
+  } else {
+    sys.inputs.at("page-path", default: none)
+  }
+
   html.html(
     lang: lang,
     {
@@ -65,7 +71,7 @@
           title: title,
           description: description,
           site-url: site-url,
-          page-path: page-path,
+          page-path: current-page-path,
           image-path: image-path,
         )
 

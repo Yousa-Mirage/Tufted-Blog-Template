@@ -388,6 +388,23 @@ def build_html(force: bool = False) -> bool:
     for typ_file in html_files:
         html_output = get_html_output_path(typ_file)
 
+        try:
+            rel_path = typ_file.relative_to(CONTENT_DIR)
+
+            if rel_path.name == "index.typ":
+                # index.typ uses the parent directory name as the path
+                # content/Blog/index.typ -> "Blog"
+                # content/index.typ -> "" (Homepage)
+                page_path = rel_path.parent.as_posix()
+                if page_path == ".":
+                    page_path = ""
+            else:
+                # Common files use the filename as the path
+                # content/about.typ -> "about"
+                page_path = rel_path.with_suffix("").as_posix()
+        except ValueError:
+            page_path = ""
+
         # 增量编译检查
         if not force and not needs_rebuild(typ_file, html_output, common_deps):
             skip_count += 1
@@ -406,6 +423,8 @@ def build_html(force: bool = False) -> bool:
             "html",
             "--format",
             "html",
+            "--input",
+            f"page-path={page_path}",
             str(typ_file),
             str(html_output),
         ]
@@ -661,7 +680,7 @@ def generate_sitemap() -> bool:
     base_url = get_site_url()
     if not base_url:
         print("⚠️ 跳过 Sitemap 构建: config.typ 中未配置 'site-url'。")
-        return False
+        return True
 
     sitemap_path = SITE_DIR / "sitemap.xml"
     urls = []

@@ -2,7 +2,6 @@
 #show: template.with(
   title: "Changelog",
   description: "Changelog",
-  page-path: "Changelog",
 )
 
 = 更新日志 / Changelog
