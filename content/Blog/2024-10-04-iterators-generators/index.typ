@@ -1,5 +1,5 @@
 #import "../index.typ": template, tufted
-#show: template
+#show: template.with(lang: "en")
 
 = Iterators vs Generators in Python
 

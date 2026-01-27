@@ -1,7 +1,7 @@
 #import "../index.typ": template, tufted
 #show: template.with(
   title: "Docs",
-  description: "Docs",
+  description: "Docs for Tufted Blog Template",
 )
 
 = 文档 / Docs

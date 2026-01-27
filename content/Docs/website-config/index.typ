@@ -1,5 +1,8 @@
 #import "../index.typ": template, tufted
-#show: template.with(title: "网站配置")
+#show: template.with(
+  title: "网站配置",
+  description: "网站配置文档",
+)
 
 = 网站结构
 

@@ -4,7 +4,11 @@
 #import "@preview/citegeist:0.2.0": load-bibliography
 #import "@preview/cmarker:0.1.8"
 #import "@preview/mitex:0.2.6": *
-#show: template.with(title: "Typst 功能速览与样例")
+
+#show: template.with(
+  title: "Typst 功能速览与样例",
+  description: "Typst 功能速览与样例文档，展示了 Typst 的功能以及在当前网页模板下的效果。",
+)
 
 = Typst 功能速览与样例
 

@@ -1,5 +1,8 @@
 #import "../index.typ": template, tufted
-#show: template.with(title: "自定义样式")
+#show: template.with(
+  title: "自定义样式",
+  description: "自定义样式文档，介绍了如何修改网站的视觉外观。",
+)
 
 = 自定义样式
 

@@ -1,5 +1,8 @@
 #import "../index.typ": template, tufted
-#show: template.with(title: "GitHub 网站部署")
+#show: template.with(
+  title: "GitHub 网站部署",
+  description: "GitHub 网站部署文档，介绍了如何使用 GitHub Actions 将网站部署到 GitHub Pages。",
+)
 
 = GitHub 网站部署
 

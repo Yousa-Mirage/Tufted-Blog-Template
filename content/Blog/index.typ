@@ -1,7 +1,7 @@
 #import "../index.typ": template, tufted
 #show: template.with(
   title: "Blog",
-  description: "Blog templates",
+  description: "Some blog examples",
 )
 
 = 博客 / Blog

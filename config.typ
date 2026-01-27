@@ -1,5 +1,8 @@
 #import "tufted-lib/tufted.typ" as tufted
 
+/// 在 `config.typ` 中配置全局模板配置 template
+/// 之后的每个页面都会从上个页面导入这个模板函数
+/// 在每个具体页面中，都可以通过 `#show: template.with()` 来应用模板、修改参数
 #let template = tufted.tufted-web.with(
   /// 网站顶部导航栏的链接字典。格式为 `("链接地址": "显示名称")`。
   // 例如，如果你想添加一个 Entry 页，你需要添加 `"/Entry/": "Entry"`
@@ -19,7 +22,7 @@
   description: "Tufted Blog Template, Powered by Typst",
   /// 站点的根 URL (例如 "https://example.com")。用于生成 Canonical URL 元数据。
   site-url: "https://tufted-blog.pages.dev/",
-  /// 页面语言代码，例如 "zh" 或 "en"。
+  /// 页面语言代码，例如 "zh" 或 "en"，默认为 "zh"。
   lang: "zh",
 
 
