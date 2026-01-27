@@ -12,6 +12,7 @@
   ),
   lang: "zh",
   title: "Tufted Blog Template", // 你的网站在浏览器中显示的标题
+  author: "@Yousa-Mirage",
   description: "Tufted Blog Template", // 你的网站描述
   site-url: "https://tufted-blog.pages.dev/", // 你的网站的 canonical URL
 

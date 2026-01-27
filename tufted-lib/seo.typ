@@ -1,5 +1,6 @@
 #let seo-tags(
   title: "",
+  author: none,
   description: none,
   site-url: none,
   page-path: none,
@@ -41,6 +42,13 @@
   html.elem("meta", attrs: (property: "og:type", content: auto-og-type))
   if image-path != none {
     html.elem("meta", attrs: (property: "og:image", content: image-path))
+  }
+
+  if author != none {
+    html.meta(name: "author", content: author)
+    if auto-og-type == "article" {
+      html.elem("meta", attrs: (property: "article:author", content: author))
+    }
   }
 
   // Twitter Card

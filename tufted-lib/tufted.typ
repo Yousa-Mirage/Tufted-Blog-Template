@@ -19,6 +19,7 @@
 #let tufted-web(
   header-links: none,
   title: "Tufted Blog Template",
+  author: none,
   description: "Tufted Blog Template",
   site-url: none,
   page-path: none,
@@ -69,6 +70,7 @@
         // SEO
         seo-tags(
           title: title,
+          author: author,
           description: description,
           site-url: site-url,
           page-path: current-page-path,
