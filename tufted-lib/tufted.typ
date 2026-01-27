@@ -16,6 +16,9 @@
   },
 )
 
+/// Tufted 博客模板的主包装函数。
+///
+/// 用于生成完整的 HTML 页面结构，包含 SEO 元数据、CSS/JS 资源加载以及页眉页脚布局。
 #let tufted-web(
   header-links: (:),
 
