@@ -8,6 +8,7 @@
 
 - 功能：在新标签页中打开外部链接和 PDF 链接（[#15](https://github.com/Yousa-Mirage/Tufted-Blog-Template/pull/15), [@yanwenwang24](https://github.com/yanwenwang24)）
 - 功能：增加了丰富的 SEO 元数据支持（[#16](https://github.com/Yousa-Mirage/Tufted-Blog-Template/issues/16), [#17](https://github.com/Yousa-Mirage/Tufted-Blog-Template/pull/17), [@yanwenwang24](https://github.com/yanwenwang24)）
+- 样式：统一了 `table` 和 `figure>table` 的显示效果，实现了居中和自动列宽
 - 修复：强制构建时未清理旧文件的问题
 - 重构：将最低支持的 Python 版本更新至 3.10
 

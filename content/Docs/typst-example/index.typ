@@ -243,7 +243,7 @@
 ]
 ```
 
-更推荐使用橘子大佬写的 `tablem` 包，根据 markdown 表格格式生成表格：
+更推荐使用 #link("https://blog.orangex4.workers.dev/")[\@OrangeX4] 大佬写的 #link("https://typst.app/universe/package/tablem")[`tablem`] 包，根据 markdown 表格格式生成表格：
 
 #tablem[
   | *Name* | *Location* | *Height* | *Score* |
@@ -303,7 +303,7 @@
 
 目前 Typst 编译 HTML 还不支持段落对齐方式和分栏，但你可以#link("sample-PDF.pdf")[在 PDF 中实现]。这在简历、分栏论文、演示文稿中非常有用。
 
-你可以使用同样是橘子大佬写的定理包 `theorion` 来实现各种特殊的段落样式，例如：
+你可以使用同样是 #link("https://blog.orangex4.workers.dev/")[\@OrangeX4] 大佬写的定理包 #link("https://typst.app/universe/package/theorion")[`theorion`] 来实现各种特殊的段落样式，例如：
 
 #quote-box[
   这是一个引用块。你可以在这里引用相当长的内容。你可以在这里引用相当长的内容。你可以在这里引用相当长的内容。你可以在这里引用相当长的内容。支持换行、分段，甚至可以在其中添加新的引用块。

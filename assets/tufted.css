@@ -48,13 +48,12 @@ svg {
 
 /* 
    CONTENT ALIGNMENT & CENTERING 
-   Shared logic for images, SVGs, and tables 
+   Shared logic for images, SVGs
 */
 
 /* 1. Content centered in the main text column (55% width) */
 section>img,
-section>svg,
-section>table {
+section>svg {
     max-width: 55%;
     position: relative;
     left: 27.5%;
@@ -68,8 +67,7 @@ section>svg {
 
 /* 2. Content centered in figures (100% of figure width) */
 section>figure:not(.fullwidth)>img,
-section>figure:not(.fullwidth)>svg,
-figure table {
+section>figure:not(.fullwidth)>svg {
     max-width: 100%;
     margin-left: auto;
     margin-right: auto;
@@ -305,15 +303,25 @@ TABLES
 
 table {
     width: auto;
-    margin: 1.5em 0;
+    margin: 1.5em auto;
     border-collapse: collapse;
     font-size: 1.4rem;
-    line-height: 1.6;
+    line-height: 1.2;
+}
+
+/* Naked tables behave like the main text column */
+section>table {
+    width: auto;
+    position: relative;
+    left: 27.5%;
+    transform: translateX(-50%);
+    margin-left: 0;
+    margin-right: 0;
 }
 
 table th,
 table td {
-    padding: 0.5em 0.8em;
+    padding: 0.5em 0.7em;
     border: 1px solid #ccc;
     text-align: left;
     vertical-align: top;
@@ -332,6 +340,28 @@ table tbody tr:nth-child(even) {
 
 table tbody tr:hover {
     background-color: #f0f0f0;
+}
+
+@media (max-width: 760px) {
+    table {
+        font-size: 1.2rem;
+    }
+
+    /* Reset naked table positioning on mobile */
+    section>table {
+        left: 0;
+        transform: none;
+        margin: 1.5em auto;
+    }
+
+    figure {
+        margin: 1.5em auto;
+    }
+
+    table th,
+    table td {
+        padding: 0.4em 0.6em;
+    }
 }
 
 
@@ -472,26 +502,12 @@ RESPONSIVE LAYOUT
 
     /* Full-width tables and images on mobile */
     section>img,
-    section>svg,
-    section>table {
+    section>svg {
         max-width: 100%;
         left: 0;
         transform: none;
         margin-left: auto;
         margin-right: auto;
-    }
-
-    section>table {
-        width: 100%;
-    }
-
-    table {
-        font-size: 1.2rem;
-    }
-
-    table th,
-    table td {
-        padding: 0.4em 0.6em;
     }
 
     /* Math equations take full width on mobile */

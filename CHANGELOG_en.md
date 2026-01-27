@@ -8,6 +8,7 @@ Development updates will be recorded here.
 
 - feat: open external links and PDF links in new tabs ([#15](https://github.com/Yousa-Mirage/Tufted-Blog-Template/pull/15), [@yanwenwang24](https://github.com/yanwenwang24))
 - feat: add rich SEO metadata support ([#16](https://github.com/Yousa-Mirage/Tufted-Blog-Template/issues/16), [#17](https://github.com/Yousa-Mirage/Tufted-Blog-Template/pull/17), [@yanwenwang24](https://github.com/yanwenwang24))
+- style: unify the display of `table` and `figure>table`, centering and automatically adjusting column widths
 - fix: old files were not cleaned during forced builds
 - refactor: update minimum supported Python version to 3.10
 
