@@ -26,9 +26,11 @@
   title: "",
   author: none,
   description: "",
+  lang: "zh",
+
+  // SEO
   site-url: none,
   image-path: none,
-  lang: "zh",
 
   // Custom header and footer elements
   header-elements: (),

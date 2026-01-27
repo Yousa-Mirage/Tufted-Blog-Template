@@ -6,6 +6,8 @@
 
 = 博客 / Blog
 
+中文博客样例可参考 #link("https://yousa-mirage.github.io/Blog")[我的个人网站]。
+
 == 2025
 
 - #link("2025-10-30-normal-distribution/")[Normal Distribution]
