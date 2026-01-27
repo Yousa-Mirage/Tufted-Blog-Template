@@ -1,5 +1,5 @@
 # /// script
-# requires-python = ">=3.6"
+# requires-python = ">=3.10"
 # dependencies = []
 # ///
 
@@ -43,9 +43,9 @@ import sys
 import threading
 import time
 import webbrowser
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Set
 
 # ============================================================================
 # 配置
@@ -55,6 +55,31 @@ CONTENT_DIR = Path("content")  # 源文件目录
 SITE_DIR = Path("_site")  # 输出目录
 ASSETS_DIR = Path("assets")  # 静态资源目录
 CONFIG_FILE = Path("config.typ")  # 全局配置文件
+
+
+@dataclass
+class BuildStats:
+    """构建统计信息"""
+
+    success: int = 0
+    skipped: int = 0
+    failed: int = 0
+
+    def format_summary(self) -> str:
+        """格式化统计摘要"""
+        parts = []
+        if self.success > 0:
+            parts.append(f"编译: {self.success}")
+        if self.skipped > 0:
+            parts.append(f"跳过: {self.skipped}")
+        if self.failed > 0:
+            parts.append(f"失败: {self.failed}")
+        return ", ".join(parts) if parts else "无文件需要处理"
+
+    @property
+    def has_failures(self) -> bool:
+        """是否存在失败"""
+        return self.failed > 0
 
 
 # ============================================================================
@@ -117,7 +142,7 @@ def is_dep_file(path: Path) -> bool:
         return True
 
 
-def find_typ_dependencies(typ_file: Path) -> Set[Path]:
+def find_typ_dependencies(typ_file: Path) -> set[Path]:
     """
     解析 .typ 文件中的依赖（通过 #import 和 #include 导入的文件）。
 
@@ -128,9 +153,9 @@ def find_typ_dependencies(typ_file: Path) -> Set[Path]:
         typ_file: .typ 文件路径
 
     返回:
-        Set[Path]: 依赖的 .typ 文件路径集合
+        set[Path]: 依赖的 .typ 文件路径集合
     """
-    dependencies: Set[Path] = set()
+    dependencies: set[Path] = set()
 
     try:
         content = typ_file.read_text(encoding="utf-8")
@@ -174,7 +199,7 @@ def find_typ_dependencies(typ_file: Path) -> Set[Path]:
     return dependencies
 
 
-def get_all_dependencies(typ_file: Path, visited: Optional[Set[Path]] = None) -> Set[Path]:
+def get_all_dependencies(typ_file: Path, visited: set[Path] | None = None) -> set[Path]:
     """
     递归获取 .typ 文件的所有依赖（包括传递依赖）。
 
@@ -183,7 +208,7 @@ def get_all_dependencies(typ_file: Path, visited: Optional[Set[Path]] = None) ->
         visited: 已访问的文件集合（用于避免循环依赖）
 
     返回:
-        Set[Path]: 所有依赖文件路径集合
+        set[Path]: 所有依赖文件路径集合
     """
     if visited is None:
         visited = set()
@@ -194,7 +219,7 @@ def get_all_dependencies(typ_file: Path, visited: Optional[Set[Path]] = None) ->
         return set()
     visited.add(abs_path)
 
-    all_deps: Set[Path] = set()
+    all_deps: set[Path] = set()
     direct_deps = find_typ_dependencies(typ_file)
 
     for dep in direct_deps:
@@ -206,7 +231,7 @@ def get_all_dependencies(typ_file: Path, visited: Optional[Set[Path]] = None) ->
     return all_deps
 
 
-def needs_rebuild(source: Path, target: Path, extra_deps: Optional[List[Path]] = None) -> bool:
+def needs_rebuild(source: Path, target: Path, extra_deps: list[Path] | None = None) -> bool:
     """
     判断是否需要重新构建。
 
@@ -257,12 +282,12 @@ def needs_rebuild(source: Path, target: Path, extra_deps: Optional[List[Path]] =
     return False
 
 
-def find_common_dependencies() -> List[Path]:
+def find_common_dependencies() -> list[Path]:
     """
     查找所有文件的公共依赖（如 config.typ）。
 
     返回:
-        List[Path]: 公共依赖文件路径列表
+        list[Path]: 公共依赖文件路径列表
     """
     common_deps = []
 
@@ -286,12 +311,12 @@ def find_common_dependencies() -> List[Path]:
 # ============================================================================
 
 
-def find_typ_files() -> List[Path]:
+def find_typ_files() -> list[Path]:
     """
     查找 content/ 目录下所有 .typ 文件，排除路径中包含以下划线开头的目录的文件。
 
     返回:
-        List[Path]: .typ 文件路径列表
+        list[Path]: .typ 文件路径列表
     """
     typ_files = []
     for typ_file in CONTENT_DIR.rglob("*.typ"):
@@ -330,7 +355,7 @@ def get_pdf_output_path(typ_file: Path) -> Path:
     return SITE_DIR / relative_path.with_suffix(".pdf")
 
 
-def run_typst_command(args: List[str]) -> bool:
+def run_typst_command(args: list[str]) -> bool:
     """
     运行 typst 命令。
 
@@ -360,6 +385,50 @@ def run_typst_command(args: List[str]) -> bool:
 # ============================================================================
 
 
+def _compile_files(
+    files: list[Path],
+    force: bool,
+    common_deps: list[Path],
+    get_output_path_func,
+    build_args_func,
+) -> BuildStats:
+    """
+    通用文件编译函数，减少重复代码。
+
+    参数:
+        files: 要编译的文件列表
+        force: 是否强制重建
+        common_deps: 公共依赖列表
+        get_output_path_func: 获取输出路径的函数
+        build_args_func: 构建编译参数的函数
+
+    返回:
+        BuildStats: 构建统计信息
+    """
+    stats = BuildStats()
+
+    for typ_file in files:
+        output_path = get_output_path_func(typ_file)
+
+        # 增量编译检查
+        if not force and not needs_rebuild(typ_file, output_path, common_deps):
+            stats.skipped += 1
+            continue
+
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # 构建编译参数
+        args = build_args_func(typ_file, output_path)
+
+        if run_typst_command(args):
+            stats.success += 1
+        else:
+            print(f"  ❌ {typ_file} 编译失败")
+            stats.failed += 1
+
+    return stats
+
+
 def build_html(force: bool = False) -> bool:
     """
     编译所有 .typ 文件为 HTML（文件名中包含 PDF 的除外）。
@@ -381,13 +450,8 @@ def build_html(force: bool = False) -> bool:
     # 获取公共依赖
     common_deps = find_common_dependencies()
 
-    success_count = 0
-    skip_count = 0
-    fail_count = 0
-
-    for typ_file in html_files:
-        html_output = get_html_output_path(typ_file)
-
+    def build_html_args(typ_file: Path, output_path: Path) -> list[str]:
+        """构建 HTML 编译参数"""
         try:
             rel_path = typ_file.relative_to(CONTENT_DIR)
 
@@ -405,15 +469,7 @@ def build_html(force: bool = False) -> bool:
         except ValueError:
             page_path = ""
 
-        # 增量编译检查
-        if not force and not needs_rebuild(typ_file, html_output, common_deps):
-            skip_count += 1
-            continue
-
-        html_output.parent.mkdir(parents=True, exist_ok=True)
-
-        # 编译 HTML
-        args = [
+        return [
             "compile",
             "--root",
             ".",
@@ -426,26 +482,19 @@ def build_html(force: bool = False) -> bool:
             "--input",
             f"page-path={page_path}",
             str(typ_file),
-            str(html_output),
+            str(output_path),
         ]
 
-        if run_typst_command(args):
-            success_count += 1
-        else:
-            print(f"  ❌ {typ_file} 编译失败")
-            fail_count += 1
+    stats = _compile_files(
+        html_files,
+        force,
+        common_deps,
+        get_html_output_path,
+        build_html_args,
+    )
 
-    status_parts = []
-    if success_count > 0:
-        status_parts.append(f"编译: {success_count}")
-    if skip_count > 0:
-        status_parts.append(f"跳过: {skip_count}")
-    if fail_count > 0:
-        status_parts.append(f"失败: {fail_count}")
-
-    status_str = ", ".join(status_parts) if status_parts else "无文件需要处理"
-    print(f"✅ HTML 构建完成。{status_str}")
-    return fail_count == 0
+    print(f"✅ HTML 构建完成。{stats.format_summary()}")
+    return not stats.has_failures
 
 
 def build_pdf(force: bool = False) -> bool:
@@ -466,40 +515,28 @@ def build_pdf(force: bool = False) -> bool:
     # 获取公共依赖
     common_deps = find_common_dependencies()
 
-    success_count = 0
-    skip_count = 0
-    fail_count = 0
+    def build_pdf_args(typ_file: Path, output_path: Path) -> list[str]:
+        """构建 PDF 编译参数"""
+        return [
+            "compile",
+            "--root",
+            ".",
+            "--font-path",
+            str(ASSETS_DIR),
+            str(typ_file),
+            str(output_path),
+        ]
 
-    for typ_file in pdf_files:
-        pdf_output = get_pdf_output_path(typ_file)
+    stats = _compile_files(
+        pdf_files,
+        force,
+        common_deps,
+        get_pdf_output_path,
+        build_pdf_args,
+    )
 
-        # 增量编译检查
-        if not force and not needs_rebuild(typ_file, pdf_output, common_deps):
-            skip_count += 1
-            continue
-
-        pdf_output.parent.mkdir(parents=True, exist_ok=True)
-
-        # 编译 PDF
-        args = ["compile", "--root", ".", "--font-path", str(ASSETS_DIR), str(typ_file), str(pdf_output)]
-
-        if run_typst_command(args):
-            success_count += 1
-        else:
-            print(f"  ❌ {typ_file} 编译失败")
-            fail_count += 1
-
-    status_parts = []
-    if success_count > 0:
-        status_parts.append(f"编译: {success_count}")
-    if skip_count > 0:
-        status_parts.append(f"跳过: {skip_count}")
-    if fail_count > 0:
-        status_parts.append(f"失败: {fail_count}")
-
-    status_str = ", ".join(status_parts) if status_parts else "无文件需要处理"
-    print(f"✅ PDF 构建完成。{status_str}")
-    return fail_count == 0
+    print(f"✅ PDF 构建完成。{stats.format_summary()}")
+    return not stats.has_failures
 
 
 def copy_assets() -> bool:
@@ -664,8 +701,7 @@ def get_site_url() -> str:
     try:
         content = CONFIG_FILE.read_text(encoding="utf-8")
         # Look for site-url: "..."
-        match = re.search(r'site-url\s*:\s*"([^"]*)"', content)
-        if match:
+        if match := re.search(r'site-url\s*:\s*"([^"]*)"', content):
             return match.group(1).strip().rstrip("/")
     except Exception as e:
         print(f"⚠️ Warning: Failed to parse site-url from config.typ: {e}")
@@ -694,9 +730,9 @@ def generate_sitemap() -> bool:
         if rel_path == "index.html":
             url_path = ""
         elif rel_path.endswith("/index.html"):
-            url_path = rel_path[:-10]
+            url_path = rel_path.removesuffix("index.html")
         elif rel_path.endswith(".html"):
-            url_path = rel_path[:-5] + "/"
+            url_path = rel_path.removesuffix(".html") + "/"
         else:
             url_path = rel_path
 
@@ -856,15 +892,25 @@ if __name__ == "__main__":
     # 获取 force 参数
     force = getattr(args, "force", False)
 
-    # 执行对应的命令
-    commands = {
-        "build": lambda: build(force),
-        "html": lambda: (SITE_DIR.mkdir(parents=True, exist_ok=True), build_html(force))[1],
-        "pdf": lambda: (SITE_DIR.mkdir(parents=True, exist_ok=True), build_pdf(force))[1],
-        "assets": lambda: (SITE_DIR.mkdir(parents=True, exist_ok=True), copy_assets())[1],
-        "clean": clean,
-        "preview": lambda: preview(getattr(args, "port", 8000), getattr(args, "open_browser", True)),
-    }
+    # 使用 match-case 执行对应的命令
+    match args.command:
+        case "build":
+            success = build(force)
+        case "html":
+            SITE_DIR.mkdir(parents=True, exist_ok=True)
+            success = build_html(force)
+        case "pdf":
+            SITE_DIR.mkdir(parents=True, exist_ok=True)
+            success = build_pdf(force)
+        case "assets":
+            SITE_DIR.mkdir(parents=True, exist_ok=True)
+            success = copy_assets()
+        case "clean":
+            success = clean()
+        case "preview":
+            success = preview(getattr(args, "port", 8000), getattr(args, "open_browser", True))
+        case _:
+            print(f"❌ 未知命令: {args.command}")
+            success = False
 
-    success = commands[args.command]()
     sys.exit(0 if success else 1)
