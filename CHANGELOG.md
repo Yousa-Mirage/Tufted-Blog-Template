@@ -11,6 +11,10 @@
 - 样式：统一了 `table` 和 `figure>table` 的显示效果，实现了居中和自动列宽
 - 修复：强制构建时未清理旧文件的问题
 - 重构：将最低支持的 Python 版本更新至 3.10
+- 重构：调整了 `tufted-lib/tufted.typ` 中的 `tufted-web` 模板函数
+  - 将默认 CSS 与 JS 硬编码在函数内部，参数只用来接收自定义文件
+  - 在函数内部将`icon` 硬编码为 `/assets/favicon.ico`
+  - **BERAKING：**移除了 `icon`、`page-path` 参数，`lang` 默认值改为 `zh`
 
 ## v0.5.0
 

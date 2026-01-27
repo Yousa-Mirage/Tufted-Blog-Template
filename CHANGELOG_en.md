@@ -11,6 +11,10 @@ Development updates will be recorded here.
 - style: unify the display of `table` and `figure>table`, centering and automatically adjusting column widths
 - fix: old files were not cleaned during forced builds
 - refactor: update minimum supported Python version to 3.10
+- refactor: `tufted-web` template functions in `tufted-lib/tufted.typ`
+  - Hardcode the default CSS and JS inside the function, and the parameters are only used to receive custom files
+  - Hardcode `icon` to `/assets/favicon.ico` inside the function
+  - **BERAKING:** Removed the `icon` and `page-path` parameters, and changed the default value of `lang` to `zh`
 
 ## v0.5.0
 

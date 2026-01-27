@@ -7,7 +7,7 @@
 #import "seo.typ": seo-tags
 
 #let make-header(links) = html.header(
-  if links != none {
+  if links.len() > 0 {
     html.nav(
       for (href, title) in links {
         html.a(href: href, title)
@@ -17,29 +17,23 @@
 )
 
 #let tufted-web(
-  header-links: none,
-  title: "Tufted Blog Template",
+  header-links: (:),
+
+  // Meta data
+  title: "",
   author: none,
-  description: "Tufted Blog Template",
+  description: "",
   site-url: none,
-  page-path: none,
   image-path: none,
-  lang: "en",
-  css: (
-    "https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.8.0/tufte.min.css",
-    "/assets/tufted.css",
-    "/assets/theme.css",
-    "/assets/custom.css",
-  ),
-  icon: "/assets/favicon.ico",
-  js-scripts: (
-    "/assets/code-blocks.js",
-    "/assets/format-headings.js",
-    "/assets/theme-toggle.js",
-    "/assets/marginnote-toggle.js",
-  ),
+  lang: "zh",
+
+  // Custom header and footer elements
   header-elements: (),
   footer-elements: (),
+
+  // Custom CSS and JS
+  css: ("/assets/custom.css",),
+  js-scripts: (),
   content,
 ) = {
   // Apply styling
@@ -51,12 +45,6 @@
 
   set text(lang: lang)
 
-  let current-page-path = if page-path != none {
-    page-path
-  } else {
-    sys.inputs.at("page-path", default: none)
-  }
-
   html.html(
     lang: lang,
     {
@@ -64,8 +52,10 @@
       html.head({
         html.meta(charset: "utf-8")
         html.meta(name: "viewport", content: "width=device-width, initial-scale=1")
+        html.meta(name: "generator", content: "Typst")
+
         html.title(title)
-        html.link(rel: "icon", href: icon)
+        html.link(rel: "icon", href: "/assets/favicon.ico")
 
         // SEO
         seo-tags(
@@ -73,16 +63,28 @@
           author: author,
           description: description,
           site-url: site-url,
-          page-path: current-page-path,
+          page-path: sys.inputs.at("page-path", default: none),
           image-path: image-path,
         )
 
-        // Stylesheets
-        for (css-link) in css {
+        // load CSS
+        let base-css = (
+          "https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.8.0/tufte.min.css",
+          "/assets/tufted.css",
+          "/assets/theme.css",
+        )
+        for (css-link) in (base-css + css).dedup() {
           html.link(rel: "stylesheet", href: css-link)
         }
 
-        for (js-src) in js-scripts {
+        // load JS scripts
+        let base-js = (
+          "/assets/code-blocks.js",
+          "/assets/format-headings.js",
+          "/assets/theme-toggle.js",
+          "/assets/marginnote-toggle.js",
+        )
+        for (js-src) in (base-js + js-scripts).dedup() {
           html.script(src: js-src)
         }
       })
