@@ -1,8 +1,5 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = [
-#     "feedgen",
-# ]
 # ///
 
 """
@@ -37,6 +34,7 @@ Tufted Blog Template 构建脚本
 
 import argparse
 import html
+from email.utils import format_datetime
 from html.parser import HTMLParser
 import os
 import re
@@ -50,9 +48,7 @@ import webbrowser
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-
-from feedgen.feed import FeedGenerator
-from feedgen.entry import FeedEntry
+import xml.etree.ElementTree as ET
 
 # ============================================================================
 # 配置
@@ -586,6 +582,7 @@ def copy_assets() -> bool:
         print(f"  ⚠ 静态资源目录 {ASSETS_DIR} 不存在。")
         return True
 
+    SITE_DIR.mkdir(parents=True, exist_ok=True)
     target_dir = SITE_DIR / "assets"
 
     try:
@@ -823,8 +820,8 @@ def extract_post_metadata(index_html: Path) -> tuple[str, str, str, datetime | N
     parser = parse_html_metadata(index_html)
 
     title = parser["title"].strip()
-    description = parser["description"].strip()
-    link = parser["link"].rstrip("/")
+    description = parser.get("description", "").strip()
+    link = parser.get("link", "").rstrip("/")
     date_obj = None
 
     # 尝试从 <meta name="date"> 解析日期
@@ -906,8 +903,7 @@ def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
     构建符合 RSS 2.0 规范的 XML 内容字符串。
 
     功能:
-        使用 feedgen 库根据文章数据和站点配置生成完整的 RSS Feed XML。
-        按日期降序排序文章，使用 feedgen 的 API 自动处理 XML 转义和格式化。
+        使用 Python 标准库 xml.etree.ElementTree 根据文章数据和站点配置生成完整的 RSS Feed XML。
         支持条件输出 description 标签（仅在有描述时输出）。
 
     参数:
@@ -918,7 +914,7 @@ def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
             - date: datetime 对象
             - dir: 分类名称 (即路径名)
         config (dict): 站点配置字典，应包含:
-            - base_url: 站点根 URL
+            - site_url: 站点根 URL
             - site_title: 站点标题
             - site_description: 站点描述
         lang (str): 语言代码（如 "zh", "en"）
@@ -926,42 +922,46 @@ def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
     返回:
         str: 完整的 RSS 2.0 XML 字符串，包含 XML 声明和所有必要的命名空间。
     """
-    site_url = config["site_url"]
-    site_title = config["site_title"]
-    site_description = config["site_description"]
-    rss_file_name = "feed.xml"
+    # 注册 atom 命名空间前缀
+    ATOM_NS = "http://www.w3.org/2005/Atom"
+    ET.register_namespace("atom", ATOM_NS)
 
-    # 创建 FeedGenerator 对象
-    fg = FeedGenerator()
-    fg.id(site_url)
-    fg.title(site_title)
-    fg.link(href=site_url, rel="alternate")
-    fg.description(site_description)
-    fg.language(lang)
+    # 创建 RSS 根元素（命名空间声明由 register_namespace 自动处理）
+    rss = ET.Element("rss", version="2.0")
 
-    # 添加自链接（RSS Feed 自身的链接）
-    rss_url = f"{site_url}/{rss_file_name}"
-    fg.link(href=rss_url, rel="self", type="application/rss+xml")
+    # Channel 元数据
+    channel = ET.SubElement(rss, "channel")
+    ET.SubElement(channel, "title").text = config["site_title"]
+    ET.SubElement(channel, "link").text = config["site_url"]
+    ET.SubElement(channel, "description").text = config["site_description"]
+    ET.SubElement(channel, "language").text = lang
+    ET.SubElement(channel, "lastBuildDate").text = format_datetime(datetime.now(timezone.utc))
+
+    # 添加 atom:link 自链接
+    atom_link = ET.SubElement(channel, f"{{{ATOM_NS}}}link")
+    atom_link.set("href", f"{config['site_url']}/feed.xml")
+    atom_link.set("rel", "self")
+    atom_link.set("type", "application/rss+xml")
 
     # 添加文章条目
     for post in posts:
-        fe = fg.add_entry()
-        fe.id(post["link"])
-        fe.title(post["title"])
-        fe.link(href=post["link"])
-        fe.published(post["date"])
+        item = ET.SubElement(channel, "item")
+
+        ET.SubElement(item, "title").text = post["title"]
+        ET.SubElement(item, "link").text = post["link"]
+        ET.SubElement(item, "guid", isPermaLink="true").text = post["link"]
+        ET.SubElement(item, "pubDate").text = format_datetime(post["date"])
+        ET.SubElement(item, "category").text = post["dir"]
 
         # 仅在有描述时添加
         if post["description"]:
-            fe.description(post["description"])
+            ET.SubElement(item, "description").text = post["description"]
 
-        # 添加分类信息
-        fe.category(term=post["dir"])
+    # 生成 XML 字符串
+    ET.indent(rss, space="  ")
+    xml_str = ET.tostring(rss, encoding="unicode", xml_declaration=False)
 
-    # 生成 RSS 2.0 格式的 XML 字符串
-    rss_content = fg.rss_str(pretty=True).decode("utf-8")
-
-    return rss_content
+    return f'<?xml version="1.0" encoding="UTF-8"?>\n{xml_str}'
 
 
 def generate_rss(site_url: str) -> bool:
@@ -1010,13 +1010,13 @@ def generate_rss(site_url: str) -> bool:
     # 按日期降序排序
     posts = sorted(posts, key=lambda x: x["date"], reverse=True)
 
-    # 获取配置信息：从首页 HTML 解析一次即可获取所有元数据
+    # 获取配置信息
     index_html = SITE_DIR / "index.html"
     parser = parse_html_metadata(index_html)
 
-    lang = parser.get("lang", "zh")
-    site_title = parser.get("title", "").strip()
-    site_description = parser.get("description", "").strip()
+    lang = parser["lang"]
+    site_title = parser["title"].strip()
+    site_description = parser["description"].strip()
 
     config = {
         "site_url": site_url,
@@ -1028,7 +1028,7 @@ def generate_rss(site_url: str) -> bool:
     try:
         rss_content = build_rss_xml(posts, config, lang)
         rss_file.write_text(rss_content, encoding="utf-8")
-        print(f"  ✅ RSS 订阅源生成成功: {rss_file} ({len(posts)} 篇文章)")
+        print(f"✅ RSS 订阅源生成成功: {rss_file} ({len(posts)} 篇文章)")
         return True
     except ValueError as e:
         print("❌ 错误: RSS 订阅源生成失败")
@@ -1043,17 +1043,22 @@ def generate_rss(site_url: str) -> bool:
 
 def generate_sitemap(site_url: str) -> bool:
     """
-    Generate sitemap.xml for the website.
+    使用 Python 标准库 xml.etree.ElementTree 生成 sitemap.xml。
     """
     sitemap_path = SITE_DIR / "sitemap.xml"
-    urls = []
+    sitemap_ns = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
-    # Walk through the _site directory
-    for file_path in SITE_DIR.rglob("*.html"):
-        # Calculate relative path from _site
+    # 注册默认命名空间
+    ET.register_namespace("", sitemap_ns)
+
+    # 创建根元素
+    urlset = ET.Element("urlset", xmlns=sitemap_ns)
+
+    # 遍历 _site 目录
+    for file_path in sorted(SITE_DIR.rglob("*.html")):
         rel_path = file_path.relative_to(SITE_DIR).as_posix()
 
-        # Determine URL path
+        # 确定 URL 路径
         if rel_path == "index.html":
             url_path = ""
         elif rel_path.endswith("/index.html"):
@@ -1065,24 +1070,23 @@ def generate_sitemap(site_url: str) -> bool:
 
         full_url = f"{site_url}/{url_path}"
 
-        # Get last modification time
+        # 获取最后修改时间
         mtime = file_path.stat().st_mtime
         lastmod = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
 
-        urls.append(f"""  <url>
-    <loc>{html.escape(full_url)}</loc>
-    <lastmod>{lastmod}</lastmod>
-  </url>""")
+        # 创建 url 元素
+        url_elem = ET.SubElement(urlset, "url")
+        ET.SubElement(url_elem, "loc").text = full_url
+        ET.SubElement(url_elem, "lastmod").text = lastmod
 
-    newline = "\n"
-    sitemap_content = f"""<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-{newline.join(sorted(urls))}
-</urlset>"""
+    # 生成 XML 字符串
+    ET.indent(urlset, space="  ")
+    xml_str = ET.tostring(urlset, encoding="unicode", xml_declaration=False)
+    sitemap_content = f'<?xml version="1.0" encoding="UTF-8"?>\n{xml_str}'
 
     try:
         sitemap_path.write_text(sitemap_content, encoding="utf-8")
-        print(f"✅ Sitemap 构建完成: 包含 {len(urls)} 个页面")
+        print(f"✅ Sitemap 构建完成: 包含 {len(urlset)} 个页面")
         return True
     except Exception as e:
         print(f"❌ Sitemap 构建失败: {e}")
