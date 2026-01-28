@@ -33,9 +33,6 @@ Tufted Blog Template 构建脚本
 """
 
 import argparse
-import html
-from email.utils import format_datetime
-from html.parser import HTMLParser
 import os
 import re
 import shutil
@@ -43,12 +40,11 @@ import subprocess
 import sys
 import threading
 import time
-from typing import Literal
-import webbrowser
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from pathlib import Path
-import xml.etree.ElementTree as ET
+from typing import Literal
 
 # ============================================================================
 # 配置
@@ -681,6 +677,8 @@ def preview(port: int = 8000, open_browser_flag: bool = True) -> bool:
         port: 服务器端口号，默认为 8000
         open_browser_flag: 是否自动打开浏览器，默认为 True
     """
+    import webbrowser
+
     if not SITE_DIR.exists():
         print(f"  ⚠ 输出目录 {SITE_DIR} 不存在，请先运行 build 命令。")
         return False
@@ -898,7 +896,7 @@ def collect_posts(dirs: set[str], site_url: str) -> list[dict]:
     return posts
 
 
-def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
+def build_rss_xml(posts: list[dict], config: dict) -> str:
     """
     构建符合 RSS 2.0 规范的 XML 内容字符串。
 
@@ -917,11 +915,14 @@ def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
             - site_url: 站点根 URL
             - site_title: 站点标题
             - site_description: 站点描述
-        lang (str): 语言代码（如 "zh", "en"）
+            - lang: 语言代码（如 "zh", "en"）
 
     返回:
         str: 完整的 RSS 2.0 XML 字符串，包含 XML 声明和所有必要的命名空间。
     """
+    import xml.etree.ElementTree as ET
+    from email.utils import format_datetime
+
     # 注册 atom 命名空间前缀
     ATOM_NS = "http://www.w3.org/2005/Atom"
     ET.register_namespace("atom", ATOM_NS)
@@ -934,7 +935,7 @@ def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
     ET.SubElement(channel, "title").text = config["site_title"]
     ET.SubElement(channel, "link").text = config["site_url"]
     ET.SubElement(channel, "description").text = config["site_description"]
-    ET.SubElement(channel, "language").text = lang
+    ET.SubElement(channel, "language").text = config["lang"]
     ET.SubElement(channel, "lastBuildDate").text = format_datetime(datetime.now(timezone.utc))
 
     # 添加 atom:link 自链接
@@ -954,8 +955,8 @@ def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
         ET.SubElement(item, "category").text = post["dir"]
 
         # 仅在有描述时添加
-        if post["description"]:
-            ET.SubElement(item, "description").text = post["description"]
+        if des := post["description"]:
+            ET.SubElement(item, "description").text = des
 
     # 生成 XML 字符串
     ET.indent(rss, space="  ")
@@ -1016,17 +1017,18 @@ def generate_rss(site_url: str) -> bool:
 
     lang = parser["lang"]
     site_title = parser["title"].strip()
-    site_description = parser["description"].strip()
+    site_description = parser.get("description", "").strip()
 
     config = {
         "site_url": site_url,
         "site_title": site_title,
         "site_description": site_description,
+        "lang": lang,
     }
 
     # 构建 RSS XML
     try:
-        rss_content = build_rss_xml(posts, config, lang)
+        rss_content = build_rss_xml(posts, config)
         rss_file.write_text(rss_content, encoding="utf-8")
         print(f"✅ RSS 订阅源生成成功: {rss_file} ({len(posts)} 篇文章)")
         return True
@@ -1045,6 +1047,8 @@ def generate_sitemap(site_url: str) -> bool:
     """
     使用 Python 标准库 xml.etree.ElementTree 生成 sitemap.xml。
     """
+    import xml.etree.ElementTree as ET
+
     sitemap_path = SITE_DIR / "sitemap.xml"
     sitemap_ns = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
