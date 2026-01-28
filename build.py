@@ -976,15 +976,15 @@ def extract_post_metadata(item: Path, index_file: Path) -> tuple[str, str, datet
                 elif pos_match:
                     date_obj = datetime(int(pos_match.group(1)), int(pos_match.group(2)), int(pos_match.group(3)), tzinfo=timezone.utc)
             
-            # 2. 匹配 title: "..." / title: '...' 或一级标题
-            if title_match := re.search(r'title:\s*["\']([^"\']+)["\']', content_clean):
-                title = title_match.group(1).strip()
+            # 2. 匹配 title: "..." 或一级标题
+            if title_match := re.search(r'title:\s*"((?:\\.|[^"\\])*)"', content_clean):
+                title = title_match.group(1).replace('\\"', '"').replace('\\\\', '\\').strip()
             elif head_match := re.search(r"^=\s+(.+)$", content_clean, re.MULTILINE):
                 title = head_match.group(1).strip()
             
             # 3. 匹配 description: "..."
-            if desc_match := re.search(r'description:\s*"([^"]+)"', content_clean):
-                description = desc_match.group(1).strip()
+            if desc_match := re.search(r'description:\s*"((?:\\.|[^"\\])*)"', content_clean):
+                description = desc_match.group(1).replace('\\"', '"').replace('\\\\', '\\').strip()
         except Exception as e:
             print(f"⚠️ 警告: 解析 {index_file} 时出错: {e}")
 
