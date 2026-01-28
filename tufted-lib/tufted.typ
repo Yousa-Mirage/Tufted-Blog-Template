@@ -30,10 +30,11 @@
   date: none,
 
   // SEO
-  site-url: none,
+  website-url: none,
   image-path: none,
 
   // Feed-RSS
+  website-title: "",
   feed-dir: (),
 
   // Custom header and footer elements
@@ -73,11 +74,12 @@
         }
 
         if feed-dir != none and feed-dir.len() > 0 {
+          let rss-title = if website-title != "" { website-title } else { title }
           html.link(
             rel: "alternate",
             type: "application/rss+xml",
             href: "/feed.xml",
-            title: title + " RSS Feed"
+            title: rss-title + " RSS Feed"
           )
         }
 
@@ -86,7 +88,7 @@
           title: title,
           author: author,
           description: description,
-          site-url: site-url,
+          site-url: website-url,
           page-path: sys.inputs.at("page-path", default: none),
           image-path: image-path,
         )
