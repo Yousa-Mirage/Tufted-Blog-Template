@@ -27,10 +27,15 @@
   author: none,
   description: "",
   lang: "zh",
+  date: none,
 
   // SEO
-  site-url: none,
+  website-url: none,
   image-path: none,
+
+  // Feed-RSS
+  website-title: "",
+  feed-dir: (),
 
   // Custom header and footer elements
   header-elements: (),
@@ -62,12 +67,28 @@
         html.title(title)
         html.link(rel: "icon", href: "/assets/favicon.ico")
 
+        if type(date) == datetime {
+          html.meta(name: "date", content: date.display())
+        } else if type(date) == str {
+          html.meta(name: "date", content: date)
+        }
+
+        if feed-dir != none and feed-dir.len() > 0 {
+          let rss-title = if website-title != "" { website-title } else { title }
+          html.link(
+            rel: "alternate",
+            type: "application/rss+xml",
+            href: "/feed.xml",
+            title: rss-title + " RSS Feed"
+          )
+        }
+
         // SEO
         seo-tags(
           title: title,
           author: author,
           description: description,
-          site-url: site-url,
+          site-url: website-url,
           page-path: sys.inputs.at("page-path", default: none),
           image-path: image-path,
         )

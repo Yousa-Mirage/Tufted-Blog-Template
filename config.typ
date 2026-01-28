@@ -13,7 +13,7 @@
     "/Blog/": "Blog",
     "/CV/": "CV",
   ),
-
+  
   /// 网页标题。会显示在浏览器标签页以及 SEO/社交分享卡片中。
   title: "Tufted Blog Template",
   /// 文章作者。用于生成 <meta name="author"> 标签。
@@ -21,11 +21,16 @@
   /// 网页描述。用于 SEO 搜索引擎摘要和社交媒体分享预览。
   description: "Tufted Blog Template, Powered by Typst",
   /// 站点的根 URL (例如 "https://example.com")。用于生成 Canonical URL 元数据。
-  site-url: "https://tufted-blog.pages.dev/",
-  /// 页面语言代码，例如 "zh" 或 "en"，默认为 "zh"。
+  website-url: "https://tufted-blog.pages.dev/",
+  /// 网站的默认语言，例如 "zh" 或 "en"，默认为 "zh"。
   lang: "zh",
-
-
+  /// 订阅源配置，使用这种方式来完成配置。
+  feed-dir: (
+    // 选择包含 Docs 和 Blog 分类的文章
+    "/Docs/",
+    "/Blog/",
+  ),
+  
   /// 自定义页眉元素列表 (content 数组)。会显示在导航栏上方。
   header-elements: (
     [你好 Ciallo～(∠・ω< )⌒☆],

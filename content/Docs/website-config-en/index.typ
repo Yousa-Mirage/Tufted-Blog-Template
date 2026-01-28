@@ -61,16 +61,16 @@ The `lang` parameter defines the site language. It will be used to set the HTML 
 
 SEO (Search Engine Optimization) parameters help improve your site's visibility in search engines. The template provides the following optional parameters:
 
-- `site-url` - the root URL of the site, used to generate absolute links
+- `website-url` - the root URL of the site, used to generate absolute links
 - `image-path` - the default site image path, used to generate Open Graph images
 
-Once `site-url` is set, the build script will automatically generate accurate absolute links for each page, ensuring SEO friendliness.
+Once `website-url` is set, the build script will automatically generate accurate absolute links for each page, ensuring SEO friendliness.
 
 ```typst
 #let template = tufted.tufted-web.with(
   // Links and labels in the top navigation bar
   ...,
-  site-url: "https://example.com",
+  website-url: "https://example.com",
   image-path: "/assets/image.png",
   ...,
 )

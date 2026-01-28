@@ -60,16 +60,16 @@
 
 SEO (Search Engine Optimization，搜索引擎优化) 参数用于优化网站在搜索引擎中的可见性。模板提供以下参数（均为可选）：
 
-- `site-url` - 网站的根 URL，用于生成绝对链接
+- `website-url` - 网站的根 URL，用于生成绝对链接
 - `image-path` - 网站的默认图片路径，用于生成 Open Graph 图片
 
-一旦设置了 `site-url`，构建脚本会自动为每个页面生成准确的绝对链接，确保 SEO 友好。
+一旦设置了 `website-url`，构建脚本会自动为每个页面生成准确的绝对链接，确保 SEO 友好。
 
 ```typst
 #let template = tufted.tufted-web.with(
   // 顶部导航栏的链接和标签
   ...,
-  site-url: "https://example.com",
+  website-url: "https://example.com",
   image-path: "/assets/image.png",
   ...,
 )
