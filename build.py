@@ -1204,8 +1204,14 @@ def generate_rss() -> bool:
         RSS_FILE.write_text(rss_content, encoding="utf-8")
         print(f"  ✅ RSS 订阅源生成成功: {RSS_FILE} ({len(posts)} 篇文章)")
         return True
+    except ValueError as e:
+        print(f"❌ 错误: RSS 订阅源生成失败")
+        print(f"   原因: feedgen 库报错 - {e}")
+        print("   解决: 请检查 config.typ 中的必需配置字段（title 和 description）")
+        return False
     except Exception as e:
-        print(f"  ❌ 生成 RSS 订阅源失败: {e}")
+        print(f"❌ 错误: 生成 RSS 订阅源时出错")
+        print(f"   异常: {type(e).__name__}: {e}")
         return False
 
 
