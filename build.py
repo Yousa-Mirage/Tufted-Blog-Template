@@ -44,6 +44,7 @@ import subprocess
 import sys
 import threading
 import time
+from typing import Literal
 import webbrowser
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -332,32 +333,18 @@ def find_typ_files() -> list[Path]:
     return typ_files
 
 
-def get_html_output_path(typ_file: Path) -> Path:
+def get_file_output_path(typ_file: Path, type: Literal["pdf", "html"]) -> Path:
     """
-    获取 .typ 文件对应的 HTML 输出路径。
+    获取 .typ 文件的输出路径。
 
     参数:
         typ_file: .typ 文件路径 (相对于 content/)
 
     返回:
-        Path: HTML 文件输出路径 (在 _site/ 目录下)
+        Path: 文件输出路径 (在 _site/ 目录下)
     """
     relative_path = typ_file.relative_to(CONTENT_DIR)
-    return SITE_DIR / relative_path.with_suffix(".html")
-
-
-def get_pdf_output_path(typ_file: Path) -> Path:
-    """
-    获取 .typ 文件对应的 PDF 输出路径。
-
-    参数:
-        typ_file: .typ 文件路径 (相对于 content/)
-
-    返回:
-        Path: PDF 文件输出路径 (在 _site/ 目录下)
-    """
-    relative_path = typ_file.relative_to(CONTENT_DIR)
-    return SITE_DIR / relative_path.with_suffix(".pdf")
+    return SITE_DIR / relative_path.with_suffix(f".{type}")
 
 
 def run_typst_command(args: list[str]) -> bool:
@@ -441,6 +428,8 @@ def build_html(force: bool = False) -> bool:
     参数:
         force: 是否强制重建所有文件
     """
+    SITE_DIR.mkdir(parents=True, exist_ok=True)
+
     typ_files = find_typ_files()
 
     # 排除标记为 PDF 的文件
@@ -494,7 +483,7 @@ def build_html(force: bool = False) -> bool:
         html_files,
         force,
         common_deps,
-        get_html_output_path,
+        lambda typ_file: get_file_output_path(typ_file, "html"),
         build_html_args,
     )
 
@@ -509,6 +498,8 @@ def build_pdf(force: bool = False) -> bool:
     参数:
         force: 是否强制重建所有文件
     """
+    SITE_DIR.mkdir(parents=True, exist_ok=True)
+
     typ_files = find_typ_files()
     pdf_files = [f for f in typ_files if "pdf" in f.stem.lower()]
 
@@ -536,7 +527,7 @@ def build_pdf(force: bool = False) -> bool:
         pdf_files,
         force,
         common_deps,
-        get_pdf_output_path,
+        lambda typ_file: get_file_output_path(typ_file, "pdf"),
         build_pdf_args,
     )
 
@@ -572,6 +563,8 @@ def copy_content_assets(force: bool = False) -> bool:
     参数:
         force: 是否强制复制所有文件
     """
+    SITE_DIR.mkdir(parents=True, exist_ok=True)
+
     if not CONTENT_DIR.exists():
         print(f"  ⚠ 内容目录 {CONTENT_DIR} 不存在，跳过。")
         return True
@@ -698,11 +691,11 @@ def preview(port: int = 8000, open_browser_flag: bool = True) -> bool:
 def get_site_url() -> str:
     """
     从 config.typ 配置文件中解析站点 URL。
-    
+
     功能:
         通过正则表达式从 config.typ 中提取 site-url 字段的值。
         如果配置文件不存在或解析失败，则返回空字符串。
-    
+
     返回:
         str: 站点的根 URL（如 "https://example.com"），末尾不带斜杠。
              如果未配置或解析失败则返回空字符串。
@@ -721,72 +714,43 @@ def get_site_url() -> str:
     return ""
 
 
-def get_feed_config() -> dict:
+def get_feed_categories() -> set[str]:
     """
     从 config.typ 配置文件中解析 RSS Feed 订阅源的配置信息。
-    
+
     功能:
-        解析 config.typ 中的 feed 配置块，提取 filename、limit 和 categories 字段。
-        使用括号计数法处理嵌套结构，确保正确解析多行配置。
-    
+        解析 config.typ 中的 feed 配置块，提取分类列表。
+
     返回:
-        dict: RSS Feed 配置字典，包含以下键：
-            - filename (str): RSS 文件名，默认为 "feed.xml"
-            - limit (int | None): 限制输出的文章数量，None 表示不限制
-            - categories (list[str]): 要包含的文章分类列表，默认为空列表
+        set[str]: 要包含的文章分类列表，默认为空集合
     """
-    config = {"filename": "feed.xml", "limit": None, "categories": []}
     if not CONFIG_FILE.exists():
-        return config
+        return set()
 
     try:
         content = CONFIG_FILE.read_text(encoding="utf-8")
-        
-        match_start = re.search(r"feed:\s*\(", content)
-        if match_start:
-            start_idx = match_start.end()
-            open_parens = 1
-            feed_block = ""
-            
-            # 向后遍历，通过计数括号来处理嵌套结构
-            for char in content[start_idx:]:
-                if char == '(':
-                    open_parens += 1
-                elif char == ')':
-                    open_parens -= 1
-                
-                if open_parens == 0:
-                    break
-                feed_block += char
-            
-            feed_block_clean = re.sub(r"//.*", "", feed_block) 
-            # Match filename: "..."
-            if fn_match := re.search(r'filename:\s*"([^"]*)"', feed_block_clean):
-                config["filename"] = fn_match.group(1).strip()
-            
-            # Match limit: 20
-            if limit_match := re.search(r"limit:\s*(\d+)", feed_block_clean):
-                config["limit"] = int(limit_match.group(1))
-            
-            # Match categories: ("...", "...")
-            if cat_match := re.search(r"categories:\s*\(([^)]*)\)", feed_block_clean, re.DOTALL):
-                cats = re.findall(r'"([^"]*)"', cat_match.group(1))
-                if cats:
-                    config["categories"] = cats
 
+        # 移除注释
+        content = re.sub(r"//.*", "", content)
+        content = re.sub(r"/\*[\s\S]*?\*/", "", content)
+
+        match = re.search(r"feed-categories\s*:\s*\((.*?)\)", content, re.DOTALL)
+        if match:
+            return set(c for c in re.findall(r'"([^"]*)"', match.group(1)) if c)
     except Exception as e:
-        print(f"⚠️ Warning: Failed to parse feed config from config.typ: {e}")
-        
-    return config
+        print(f"⚠️ 解析 feed-categories 失败: {e}")
+
+    return set()
+
 
 def get_site_language() -> str:
     """
     从 config.typ 配置文件中解析网站语言代码。
-    
+
     功能:
         通过正则表达式从 config.typ 中提取 lang 字段的值。
         用于设置网站的主要语言，影响 HTML lang 属性和 RSS Feed。
-    
+
     返回:
         str: 语言代码（如 "zh", "en" 等），默认返回 "zh"。
     """
@@ -803,14 +767,15 @@ def get_site_language() -> str:
 
     return "zh"
 
+
 def get_site_title() -> str:
     """
     从 config.typ 配置文件中解析网站标题。
-    
+
     功能:
         通过正则表达式从 config.typ 中提取 title 字段的值。
         网站标题将用于 RSS Feed 的 channel title。
-    
+
     返回:
         str: 网站标题字符串，默认返回 "Blog"。
     """
@@ -827,14 +792,15 @@ def get_site_title() -> str:
 
     return "Blog"
 
+
 def get_site_description() -> str:
     """
     从 config.typ 配置文件中解析网站描述信息。
-    
+
     功能:
         通过正则表达式从 config.typ 中提取 description 字段的值。
         网站描述将用于 RSS Feed 的 channel description。
-    
+
     返回:
         str: 网站描述字符串，如果未配置则返回空字符串。
     """
@@ -851,15 +817,299 @@ def get_site_description() -> str:
 
     return ""
 
-def generate_sitemap() -> bool:
+
+def extract_post_metadata(item: Path, index_file: Path) -> tuple[str, str, datetime | None]:
+    """
+    从文章目录和 index.typ 文件中提取文章的元数据信息。
+
+    功能:
+        按优先级顺序提取文章元数据：
+        1. 标题 (title): 从 index.typ 的 title 字段或一级标题提取，默认使用目录名
+        2. 描述 (description): 从 index.typ 的 description 字段提取
+        3. 日期 (date): 依次尝试从以下来源获取：
+           - index.typ 中的 date: datetime(...) 语法
+           - 文件夹名中的 YYYY-MM-DD 格式日期
+           - 文件的修改时间戳
+
+    参数:
+        item (Path): 文章所在的目录路径
+        index_file (Path): 文章的 index.typ 文件路径
+
+    返回:
+        tuple[str, str, datetime | None]: 包含三个元素的元组：
+            - str: 文章标题
+            - str: 文章描述（可能为空字符串）
+            - datetime | None: 文章日期（带 UTC 时区），无法获取时为 None
+    """
+    title = item.name
+    description = ""
+    date_obj = None
+
+    if index_file.exists():
+        try:
+            content = index_file.read_text(encoding="utf-8")
+            # 预处理：移除注释
+            content_clean = re.sub(r"/\*[\s\S]*?\*/", "", content)
+            content_clean = re.sub(r"//.*", "", content_clean)
+
+            # 1. 尝试解析 date: datetime(...)
+            date_block_match = re.search(
+                r"date:\s*datetime\s*\((?P<inner>[^)]+)\)", content_clean, re.IGNORECASE | re.DOTALL
+            )
+
+            if date_block_match:
+                inner_content = date_block_match.group("inner")
+                y = re.search(r"year:\s*(\d{4})", inner_content)
+                m = re.search(r"month:\s*(\d{1,2})", inner_content)
+                d = re.search(r"day:\s*(\d{1,2})", inner_content)
+
+                # 也支持位置参数 datetime(2024, 10, 30)
+                pos_match = re.search(r"(\d{4}),\s*(\d{1,2}),\s*(\d{1,2})", inner_content)
+
+                if y and m and d:
+                    date_obj = datetime(
+                        int(y.group(1)), int(m.group(1)), int(d.group(1)), tzinfo=timezone.utc
+                    )
+                elif pos_match:
+                    date_obj = datetime(
+                        int(pos_match.group(1)),
+                        int(pos_match.group(2)),
+                        int(pos_match.group(3)),
+                        tzinfo=timezone.utc,
+                    )
+
+            # 2. 匹配 title: "..." 或一级标题
+            if title_match := re.search(r'title:\s*"((?:\\.|[^"\\])*)"', content_clean):
+                title = title_match.group(1).replace('\\"', '"').replace("\\\\", "\\").strip()
+            elif head_match := re.search(r"^=\s+(.+)$", content_clean, re.MULTILINE):
+                title = head_match.group(1).strip()
+
+            # 3. 匹配 description: "..."
+            if desc_match := re.search(r'description:\s*"((?:\\.|[^"\\])*)"', content_clean):
+                description = desc_match.group(1).replace('\\"', '"').replace("\\\\", "\\").strip()
+        except Exception as e:
+            print(f"⚠️ 警告: 解析 {index_file} 时出错: {e}")
+
+    # 4. 如果没找到日期，尝试从文件夹名提取 (YYYY-MM-DD)
+    if not date_obj:
+        date_match = re.search(r"(\d{4}-\d{2}-\d{2})", item.name)
+        if date_match:
+            try:
+                date_obj = datetime.strptime(date_match.group(1), "%Y-%m-%d").replace(
+                    tzinfo=timezone.utc
+                )
+            except ValueError:
+                pass
+
+    # 5. 最后保底：使用文件修改时间
+    if not date_obj:
+        try:
+            # 优先使用 index.typ，如果没找到则使用文件夹
+            target_path = index_file if index_file.exists() else item
+            date_obj = datetime.fromtimestamp(target_path.stat().st_mtime, tz=timezone.utc)
+        except Exception:
+            pass
+
+    return title, description, date_obj
+
+
+def collect_posts(categories: set[str], site_url: str) -> list[dict]:
+    """
+    从指定的分类目录中收集所有文章的元数据。
+
+    功能:
+        遍历指定分类目录下的所有子目录，提取每个文章的元数据信息。
+        只处理目录（每个目录代表一篇文章），跳过普通文件。
+        如果无法确定文章日期，则跳过该文章并输出警告。
+
+    参数:
+        categories (set[str]): 要扫描的分类目录名称集合（如 {"Blog", "Docs"}）
+        site_url (str): 站点的根 URL（如 "https://example.com"）
+
+    返回:
+        list[dict]: 文章数据字典列表，每个字典包含以下键：
+            - title (str): 文章标题
+            - description (str): 文章描述
+            - category (str): 文章所属分类
+            - link (str): 文章的完整 URL
+            - date (datetime): 文章日期对象（带时区）
+    """
+    posts = []
+
+    for category in categories:
+        cat_dir = CONTENT_DIR / category
+
+        for item in cat_dir.iterdir():
+            if not item.is_dir():
+                continue
+
+            index_file = item / "index.typ"
+            title, description, date_obj = extract_post_metadata(item, index_file)
+
+            if not date_obj:
+                print(f"⚠️ 无法确定文章 '{item.name}' 的日期，已跳过。")
+                continue
+
+            full_link = f"{site_url}/{category}/{item.name}/"
+
+            posts.append(
+                {
+                    "title": title,
+                    "description": description,
+                    "category": category,
+                    "link": full_link,
+                    "date": date_obj,
+                }
+            )
+
+    return posts
+
+
+def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
+    """
+    构建符合 RSS 2.0 规范的 XML 内容字符串。
+
+    功能:
+        使用 feedgen 库根据文章数据和站点配置生成完整的 RSS Feed XML。
+        按日期降序排序文章，使用 feedgen 的 API 自动处理 XML 转义和格式化。
+        支持条件输出 description 标签（仅在有描述时输出）。
+
+    参数:
+        posts (list[dict]): 文章数据列表，每个字典应包含:
+            - title: 标题
+            - description: 描述（可选）
+            - link: 文章链接
+            - date: datetime 对象
+            - category: 分类名称
+        config (dict): 站点配置字典，应包含:
+            - base_url: 站点根 URL
+            - site_title: 站点标题
+            - site_description: 站点描述
+        lang (str): 语言代码（如 "zh", "en"）
+
+    返回:
+        str: 完整的 RSS 2.0 XML 字符串，包含 XML 声明和所有必要的命名空间。
+    """
+    BASE_URL = config["base_url"]
+    site_title = config["site_title"]
+    site_description = config["site_description"]
+    rss_file_name = "feed.xml"
+
+    # 创建 FeedGenerator 对象
+    fg = FeedGenerator()
+    fg.id(BASE_URL)
+    fg.title(site_title)
+    fg.link(href=BASE_URL, rel="alternate")
+    fg.description(site_description)
+    fg.language(lang)
+
+    # 添加自链接（RSS Feed 自身的链接）
+    rss_url = f"{BASE_URL}/{rss_file_name}"
+    fg.link(href=rss_url, rel="self", type="application/rss+xml")
+
+    # 添加文章条目
+    for post in posts:
+        fe = fg.add_entry()
+        fe.id(post["link"])
+        fe.title(post["title"])
+        fe.link(href=post["link"])
+        fe.published(post["date"])
+
+        # 仅在有描述时添加
+        if post["description"]:
+            fe.description(post["description"])
+
+        # 添加分类信息
+        fe.category(term=post["category"])
+
+    # 生成 RSS 2.0 格式的 XML 字符串
+    rss_content = fg.rss_str(pretty=True).decode("utf-8")
+
+    return rss_content
+
+
+def generate_rss(site_url: str) -> bool:
+    """
+    生成网站的 RSS 订阅源文件。
+
+    功能:
+        完整的 RSS Feed 生成流程：
+        1. 检查 site-url 配置（必需）
+        2. 从 config.typ 读取 Feed 配置（文件名、限制数量、分类）
+        3. 收集指定分类下的所有文章元数据
+        4. 按日期排序并限制输出数量（如果配置了 limit）
+        5. 构建 RSS XML 并写入文件
+
+    返回:
+        bool: 生成是否成功。在以下情况返回 True：
+            - 成功生成 RSS 文件
+            - 未配置 site-url（跳过生成）
+            - 未找到任何分类目录（跳过生成）
+            - 未找到任何文章（生成空 Feed）
+          仅在发生异常时返回 False。
+    """
+    rss_file = SITE_DIR / "feed.xml"
+    categories = get_feed_categories()
+
+    if not categories:
+        print("⚠️ 跳过 RSS 订阅源生成: 未配置任何分类目录。")
+        return True
+
+    # 检查是否至少有一个目录存在
+    existing = {category for category in categories if (CONTENT_DIR / category).exists()}
+    missing = categories - existing
+
+    for category in missing:
+        print(f"⚠️ 警告: 配置的分类目录 '{category}' 不存在。")
+
+    if not existing:
+        print("⚠️ 跳过 RSS 订阅源生成: 配置的分类目录都不存在。")
+        return True
+
+    print("正在生成 RSS 订阅源...")
+
+    # 收集文章
+    posts = collect_posts(existing, site_url)
+
+    if not posts:
+        print("⚠️ 未找到任何文章，RSS 订阅源为空。")
+        return True
+
+    # 按日期降序排序
+    posts = sorted(posts, key=lambda x: x["date"], reverse=True)
+
+    # 获取配置信息
+    lang = get_site_language()
+    site_title = get_site_title()
+    site_description = get_site_description()
+
+    config = {
+        "base_url": site_url,
+        "site_title": site_title,
+        "site_description": site_description,
+    }
+
+    # 构建 RSS XML
+    try:
+        rss_content = build_rss_xml(posts, config, lang)
+        rss_file.write_text(rss_content, encoding="utf-8")
+        print(f"  ✅ RSS 订阅源生成成功: {rss_file} ({len(posts)} 篇文章)")
+        return True
+    except ValueError as e:
+        print("❌ 错误: RSS 订阅源生成失败")
+        print(f"   原因: feedgen 库报错 - {e}")
+        print("   解决: 请检查 config.typ 中的必需配置字段（title 和 description）")
+        return False
+    except Exception as e:
+        print("❌ 错误: 生成 RSS 订阅源时出错")
+        print(f"   异常: {type(e).__name__}: {e}")
+        return False
+
+
+def generate_sitemap(site_url: str) -> bool:
     """
     Generate sitemap.xml for the website.
     """
-    base_url = get_site_url()
-    if not base_url:
-        print("⚠️ 跳过 Sitemap 构建: config.typ 中未配置 'site-url'。")
-        return True
-
     sitemap_path = SITE_DIR / "sitemap.xml"
     urls = []
 
@@ -878,7 +1128,7 @@ def generate_sitemap() -> bool:
         else:
             url_path = rel_path
 
-        full_url = f"{base_url}/{url_path}"
+        full_url = f"{site_url}/{url_path}"
 
         # Get last modification time
         mtime = file_path.stat().st_mtime
@@ -904,14 +1154,10 @@ def generate_sitemap() -> bool:
         return False
 
 
-def generate_robots_txt() -> bool:
+def generate_robots_txt(site_url: str) -> bool:
     """
     Generate robots.txt pointing to the sitemap.
     """
-    site_url = get_site_url()
-    if not site_url:
-        return True
-
     robots_content = f"""User-agent: *
 Allow: /
 
@@ -924,296 +1170,6 @@ Sitemap: {site_url}/sitemap.xml
     except Exception as e:
         print(f"❌ 生成 robots.txt 失败: {e}")
         return False
-
-
-def extract_post_metadata(item: Path, index_file: Path) -> tuple[str, str, datetime | None]:
-    """
-    从文章目录和 index.typ 文件中提取文章的元数据信息。
-    
-    功能:
-        按优先级顺序提取文章元数据：
-        1. 标题 (title): 从 index.typ 的 title 字段或一级标题提取，默认使用目录名
-        2. 描述 (description): 从 index.typ 的 description 字段提取
-        3. 日期 (date): 依次尝试从以下来源获取：
-           - index.typ 中的 date: datetime(...) 语法
-           - 文件夹名中的 YYYY-MM-DD 格式日期
-           - 文件的修改时间戳
-    
-    参数:
-        item (Path): 文章所在的目录路径
-        index_file (Path): 文章的 index.typ 文件路径
-    
-    返回:
-        tuple[str, str, datetime | None]: 包含三个元素的元组：
-            - str: 文章标题
-            - str: 文章描述（可能为空字符串）
-            - datetime | None: 文章日期（带 UTC 时区），无法获取时为 None
-    """
-    title = item.name
-    description = ""
-    date_obj = None
-
-    if index_file.exists():
-        try:
-            content = index_file.read_text(encoding="utf-8")
-            # 预处理：移除注释
-            content_clean = re.sub(r'/\*[\s\S]*?\*/', '', content)
-            content_clean = re.sub(r'//.*', '', content_clean)
-            
-            # 1. 尝试解析 date: datetime(...)
-            date_block_match = re.search(
-                r'date:\s*datetime\s*\((?P<inner>[^)]+)\)', 
-                content_clean, 
-                re.IGNORECASE | re.DOTALL
-            )
-
-            if date_block_match:
-                inner_content = date_block_match.group("inner")
-                y = re.search(r'year:\s*(\d{4})', inner_content)
-                m = re.search(r'month:\s*(\d{1,2})', inner_content)
-                d = re.search(r'day:\s*(\d{1,2})', inner_content)
-                
-                # 也支持位置参数 datetime(2024, 10, 30)
-                pos_match = re.search(r'(\d{4}),\s*(\d{1,2}),\s*(\d{1,2})', inner_content)
-                
-                if y and m and d:
-                    date_obj = datetime(int(y.group(1)), int(m.group(1)), int(d.group(1)), tzinfo=timezone.utc)
-                elif pos_match:
-                    date_obj = datetime(int(pos_match.group(1)), int(pos_match.group(2)), int(pos_match.group(3)), tzinfo=timezone.utc)
-            
-            # 2. 匹配 title: "..." 或一级标题
-            if title_match := re.search(r'title:\s*"((?:\\.|[^"\\])*)"', content_clean):
-                title = title_match.group(1).replace('\\"', '"').replace('\\\\', '\\').strip()
-            elif head_match := re.search(r"^=\s+(.+)$", content_clean, re.MULTILINE):
-                title = head_match.group(1).strip()
-            
-            # 3. 匹配 description: "..."
-            if desc_match := re.search(r'description:\s*"((?:\\.|[^"\\])*)"', content_clean):
-                description = desc_match.group(1).replace('\\"', '"').replace('\\\\', '\\').strip()
-        except Exception as e:
-            print(f"⚠️ 警告: 解析 {index_file} 时出错: {e}")
-
-    # 4. 如果没找到日期，尝试从文件夹名提取 (YYYY-MM-DD)
-    if not date_obj:
-        date_match = re.search(r"(\d{4}-\d{2}-\d{2})", item.name)
-        if date_match:
-            try:
-                date_obj = datetime.strptime(date_match.group(1), "%Y-%m-%d").replace(tzinfo=timezone.utc)
-            except ValueError:
-                pass
-
-    # 5. 最后保底：使用文件修改时间
-    if not date_obj:
-        try:
-            # 优先使用 index.typ，如果没找到则使用文件夹
-            target_path = index_file if index_file.exists() else item
-            date_obj = datetime.fromtimestamp(target_path.stat().st_mtime, tz=timezone.utc)
-        except Exception:
-            pass
-
-    return title, description, date_obj
-
-
-def collect_posts(categories: list[str]) -> list[dict]:
-    """
-    从指定的分类目录中收集所有文章的元数据。
-    
-    功能:
-        遍历指定分类目录下的所有子目录，提取每个文章的元数据信息。
-        只处理目录（每个目录代表一篇文章），跳过普通文件。
-        如果无法确定文章日期，则跳过该文章并输出警告。
-    
-    参数:
-        categories (list[str]): 要扫描的分类目录名称列表（如 ["Blog", "Docs"]）
-    
-    返回:
-        list[dict]: 文章数据字典列表，每个字典包含以下键：
-            - title (str): 文章标题
-            - description (str): 文章描述
-            - category (str): 文章所属分类
-            - link (str): 文章的完整 URL
-            - date (datetime): 文章日期对象（带时区）
-    """
-    BASE_URL = get_site_url()
-    posts = []
-
-    for cat in categories:
-        cat_dir = CONTENT_DIR / cat
-        if not cat_dir.exists():
-            continue
-
-        for item in cat_dir.iterdir():
-            if not item.is_dir():
-                continue
-
-            index_file = item / "index.typ"
-            title, description, date_obj = extract_post_metadata(item, index_file)
-
-            if not date_obj:
-                print(f"⚠️ 无法确定文章 '{item.name}' 的日期，已跳过。")
-                continue
-
-            relative_link = f"/{cat}/{item.name}/"
-            full_link = f"{BASE_URL}{relative_link}"
-
-            posts.append({
-                "title": title,
-                "description": description,
-                "category": cat,
-                "link": full_link,
-                "date": date_obj,
-            })
-
-    return posts
-
-
-def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
-    """
-    构建符合 RSS 2.0 规范的 XML 内容字符串。
-    
-    功能:
-        使用 feedgen 库根据文章数据和站点配置生成完整的 RSS Feed XML。
-        按日期降序排序文章，使用 feedgen 的 API 自动处理 XML 转义和格式化。
-        支持条件输出 description 标签（仅在有描述时输出）。
-    
-    参数:
-        posts (list[dict]): 文章数据列表，每个字典应包含:
-            - title: 标题
-            - description: 描述（可选）
-            - link: 文章链接
-            - date: datetime 对象
-            - category: 分类名称
-        config (dict): 站点配置字典，应包含:
-            - base_url: 站点根 URL
-            - site_title: 站点标题
-            - site_description: 站点描述
-            - rss_filename: RSS 文件名
-        lang (str): 语言代码（如 "zh", "en"）
-    
-    返回:
-        str: 完整的 RSS 2.0 XML 字符串，包含 XML 声明和所有必要的命名空间。
-    """
-    BASE_URL = config["base_url"]
-    site_title = config["site_title"]
-    site_description = config["site_description"]
-    rss_file_name = config["rss_filename"]
-    
-    # 创建 FeedGenerator 对象
-    fg = FeedGenerator()
-    fg.id(BASE_URL)
-    fg.title(site_title)
-    fg.link(href=BASE_URL, rel='alternate')
-    fg.description(site_description)
-    fg.language(lang)
-    
-    # 添加自链接（RSS Feed 自身的链接）
-    rss_url = f"{BASE_URL}/{rss_file_name}"
-    fg.link(href=rss_url, rel='self', type='application/rss+xml')
-    
-    # 添加文章条目
-    for post in posts:
-        fe = fg.add_entry()
-        fe.id(post["link"])
-        fe.title(post["title"])
-        fe.link(href=post["link"])
-        fe.published(post["date"])
-        
-        # 仅在有描述时添加
-        if post["description"]:
-            fe.description(post["description"])
-        
-        # 添加分类信息
-        fe.category(term=post["category"])
-    
-    # 生成 RSS 2.0 格式的 XML 字符串
-    rss_content = fg.rss_str(pretty=True).decode('utf-8')
-    
-    return rss_content
-
-
-def generate_rss() -> bool:
-    """
-    生成网站的 RSS 订阅源文件。
-    
-    功能:
-        完整的 RSS Feed 生成流程：
-        1. 检查 site-url 配置（必需）
-        2. 从 config.typ 读取 Feed 配置（文件名、限制数量、分类）
-        3. 收集指定分类下的所有文章元数据
-        4. 按日期排序并限制输出数量（如果配置了 limit）
-        5. 构建 RSS XML 并写入文件
-    
-    返回:
-        bool: 生成是否成功。在以下情况返回 True：
-            - 成功生成 RSS 文件
-            - 未配置 site-url（跳过生成）
-            - 未找到任何分类目录（跳过生成）
-            - 未找到任何文章（生成空 Feed）
-          仅在发生异常时返回 False。
-    """
-    BASE_URL = get_site_url()
-    if not BASE_URL:
-        print("⚠️ 跳过 RSS 订阅源生成: config.typ 中未配置 'site-url'。")
-        return True
-    
-    feed_config = get_feed_config()
-    categories = feed_config["categories"]
-    rss_file_name = feed_config["filename"]
-    RSS_FILE = SITE_DIR / rss_file_name
-    
-    if not categories:
-        print("⚠️ 跳过 RSS 订阅源生成: 未配置任何分类目录。")
-        return True
-
-    # 检查是否至少有一个目录存在
-    if not any((CONTENT_DIR / cat).exists() for cat in categories):
-        print("⚠️ 跳过 RSS 订阅源生成: 配置的分类目录都不存在。")
-        return True
-
-    print("正在生成 RSS 订阅源...")
-    
-    # 收集文章
-    posts = collect_posts(categories)
-    
-    if not posts:
-        print("⚠️ 未找到任何文章，RSS 订阅源为空。")
-        return True
-
-    # 按日期降序排序
-    posts = sorted(posts, key=lambda x: x["date"], reverse=True)
-
-    # 限制输出文章数量
-    if feed_config["limit"]:
-        posts = posts[:feed_config["limit"]]
-
-    # 获取配置信息
-    lang = get_site_language()
-    site_title = get_site_title()
-    site_description = get_site_description()
-    
-    config = {
-        "base_url": BASE_URL,
-        "site_title": site_title,
-        "site_description": site_description,
-        "rss_filename": rss_file_name,
-    }
-    
-    # 构建 RSS XML
-    try:
-        rss_content = build_rss_xml(posts, config, lang)
-        RSS_FILE.write_text(rss_content, encoding="utf-8")
-        print(f"  ✅ RSS 订阅源生成成功: {RSS_FILE} ({len(posts)} 篇文章)")
-        return True
-    except ValueError as e:
-        print(f"❌ 错误: RSS 订阅源生成失败")
-        print(f"   原因: feedgen 库报错 - {e}")
-        print("   解决: 请检查 config.typ 中的必需配置字段（title 和 description）")
-        return False
-    except Exception as e:
-        print(f"❌ 错误: 生成 RSS 订阅源时出错")
-        print(f"   异常: {type(e).__name__}: {e}")
-        return False
-
 
 
 def build(force: bool = False) -> bool:
@@ -1243,9 +1199,12 @@ def build(force: bool = False) -> bool:
 
     results.append(copy_assets())
     results.append(copy_content_assets(force))
-    results.append(generate_sitemap())
-    results.append(generate_robots_txt())
-    results.append(generate_rss())
+
+    site_url = get_site_url()
+    if site_url:
+        results.append(generate_sitemap(site_url))
+        results.append(generate_robots_txt(site_url))
+        results.append(generate_rss(site_url))
 
     print("-" * 60)
     if all(results):
@@ -1330,13 +1289,10 @@ if __name__ == "__main__":
         case "build":
             success = build(force)
         case "html":
-            SITE_DIR.mkdir(parents=True, exist_ok=True)
             success = build_html(force)
         case "pdf":
-            SITE_DIR.mkdir(parents=True, exist_ok=True)
             success = build_pdf(force)
         case "assets":
-            SITE_DIR.mkdir(parents=True, exist_ok=True)
             success = copy_assets()
         case "clean":
             success = clean()

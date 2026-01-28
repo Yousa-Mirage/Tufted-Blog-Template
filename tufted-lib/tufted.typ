@@ -27,13 +27,14 @@
   author: none,
   description: "",
   lang: "zh",
-  feed: (filename: "feed.xml", limit: none, categories: ()),
-  // 可在文章中配置比如 date: datetime(year: 2026, month: 2, day: 1) 来设置文章日期
-  date: none,
+  date: datetime,
 
   // SEO
   site-url: none,
   image-path: none,
+
+  // Feed-RSS
+  feed-categories: (),
 
   // Custom header and footer elements
   header-elements: (),
@@ -64,8 +65,14 @@
 
         html.title(title)
         html.link(rel: "icon", href: "/assets/favicon.ico")
-        if feed != none and feed.at("filename", default: none) != none {
-          html.link(rel: "alternate", type: "application/rss+xml", href: "/" + feed.at("filename"), title: title + " RSS Feed")
+
+        if feed != none {
+          html.link(
+            rel: "alternate",
+            type: "application/rss+xml",
+            href: "/feed.xml",
+            title: title + " RSS Feed"
+          )
         }
 
         // SEO

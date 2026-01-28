@@ -13,7 +13,7 @@
     "/Blog/": "Blog",
     "/CV/": "CV",
   ),
-
+  
   /// 网页标题。会显示在浏览器标签页以及 SEO/社交分享卡片中。
   title: "Tufted Blog Template",
   /// 文章作者。用于生成 <meta name="author"> 标签。
@@ -26,14 +26,11 @@
   lang: "zh",
   /// 订阅源配置，使用这种方式来完成配置。
   feed: (
-    // rss文件名
-    filename: "feed.xml",
-    // 不限制输出，可设置数字来限制输出的个数
-    limit: none,
     // 选择包含 Docs 和 Blog 分类的文章
-    categories: ("Docs", "Blog"),
+    "Docs",
+    "Blog",
   ),
-
+  
   /// 自定义页眉元素列表 (content 数组)。会显示在导航栏上方。
   header-elements: (
     [你好 Ciallo～(∠・ω< )⌒☆],
