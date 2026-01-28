@@ -1,6 +1,8 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = []
+# dependencies = [
+#     "feedgen",
+# ]
 # ///
 
 """
@@ -46,6 +48,9 @@ import webbrowser
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+
+from feedgen.feed import FeedGenerator
+from feedgen.entry import FeedEntry
 
 # ============================================================================
 # 配置
@@ -1028,7 +1033,6 @@ def collect_posts(categories: list[str]) -> list[dict]:
             - category (str): 文章所属分类
             - link (str): 文章的完整 URL
             - date (datetime): 文章日期对象（带时区）
-            - date_rfc822 (str): RFC 822 格式的日期字符串（用于 RSS）
     """
     BASE_URL = get_site_url()
     posts = []
@@ -1058,7 +1062,6 @@ def collect_posts(categories: list[str]) -> list[dict]:
                 "category": cat,
                 "link": full_link,
                 "date": date_obj,
-                "date_rfc822": date_obj.strftime("%a, %d %b %Y %H:%M:%S +0000"),
             })
 
     return posts
@@ -1069,8 +1072,8 @@ def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
     构建符合 RSS 2.0 规范的 XML 内容字符串。
     
     功能:
-        根据文章数据和站点配置生成完整的 RSS Feed XML。
-        按日期降序排序文章，转义特殊字符，生成规范的 RSS 结构。
+        使用 feedgen 库根据文章数据和站点配置生成完整的 RSS Feed XML。
+        按日期降序排序文章，使用 feedgen 的 API 自动处理 XML 转义和格式化。
         支持条件输出 description 标签（仅在有描述时输出）。
     
     参数:
@@ -1096,45 +1099,36 @@ def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
     site_description = config["site_description"]
     rss_file_name = config["rss_filename"]
     
-    # 构建 RSS item（文章已在外部排序）
-    rss_items = []
+    # 创建 FeedGenerator 对象
+    fg = FeedGenerator()
+    fg.id(BASE_URL)
+    fg.title(site_title)
+    fg.link(href=BASE_URL, rel='alternate')
+    fg.description(site_description)
+    fg.language(lang)
+    
+    # 添加自链接（RSS Feed 自身的链接）
+    rss_url = f"{BASE_URL}/{rss_file_name}"
+    fg.link(href=rss_url, rel='self', type='application/rss+xml')
+    
+    # 添加文章条目
     for post in posts:
-        # 条件输出 description 标签
-        desc_xml = ""
+        fe = fg.add_entry()
+        fe.id(post["link"])
+        fe.title(post["title"])
+        fe.link(href=post["link"])
+        fe.published(post["date"])
+        
+        # 仅在有描述时添加
         if post["description"]:
-            desc_xml = f"<description><![CDATA[{post['description']}]]></description>"
+            fe.description(post["description"])
         
-        # 转义特殊字符
-        safe_category = html.escape(post["category"])
-        safe_link = html.escape(post["link"])
-        item_xml = f"""    <item>
-      <title><![CDATA[{post['title']}]]></title>
-      <link>{safe_link}</link>
-      <guid isPermaLink="true">{safe_link}</guid>
-      <pubDate>{post['date_rfc822']}</pubDate>
-      <category>{safe_category}</category>"""
-        
-        if desc_xml:
-            item_xml += f"\n      {desc_xml}"
-        
-        item_xml += "\n    </item>"
-        rss_items.append(item_xml)
-
-    now_rfc822 = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
-
-    rss_content = f"""<?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-<channel>
-  <title>{html.escape(site_title)}</title>
-  <link>{html.escape(BASE_URL)}</link>
-  <description>{html.escape(site_description)}</description>
-  <language>{html.escape(lang)}</language>
-  <lastBuildDate>{now_rfc822}</lastBuildDate>
-  <atom:link href="{html.escape(BASE_URL)}/{html.escape(rss_file_name)}" rel="self" type="application/rss+xml" />
-{chr(10).join(rss_items)}
-</channel>
-</rss>"""
-
+        # 添加分类信息
+        fe.category(term=post["category"])
+    
+    # 生成 RSS 2.0 格式的 XML 字符串
+    rss_content = fg.rss_str(pretty=True).decode('utf-8')
+    
     return rss_content
 
 
