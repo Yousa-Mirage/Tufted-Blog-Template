@@ -1168,8 +1168,13 @@ def generate_rss() -> bool:
     rss_file_name = feed_config["filename"]
     RSS_FILE = SITE_DIR / rss_file_name
     
+    if not categories:
+        print("⚠️ 跳过 RSS 订阅源生成: 未配置任何分类目录。")
+        return True
+
     # 检查是否至少有一个目录存在
     if not any((CONTENT_DIR / cat).exists() for cat in categories):
+        print("⚠️ 跳过 RSS 订阅源生成: 配置的分类目录都不存在。")
         return True
 
     print("正在生成 RSS 订阅源...")
