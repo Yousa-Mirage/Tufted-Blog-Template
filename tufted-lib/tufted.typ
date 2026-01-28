@@ -64,8 +64,8 @@
 
         html.title(title)
         html.link(rel: "icon", href: "/assets/favicon.ico")
-        if feed != none and feed.filename != none {
-          html.link(rel: "alternate", type: "application/rss+xml", href: "/" + feed.filename, title: title + " RSS Feed")
+        if feed != none and feed.at("filename", default: none) != none {
+          html.link(rel: "alternate", type: "application/rss+xml", href: "/" + feed.at("filename"), title: title + " RSS Feed")
         }
 
         // SEO
