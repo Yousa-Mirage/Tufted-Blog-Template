@@ -27,6 +27,9 @@
   author: none,
   description: "",
   lang: "zh",
+  feed: (filename: "feed.xml", limit: none, categories: ()),
+  // 可在文章中配置比如 date: datetime(year: 2026, month: 2, day: 1) 来设置文章日期
+  date: none,
 
   // SEO
   site-url: none,
@@ -61,6 +64,9 @@
 
         html.title(title)
         html.link(rel: "icon", href: "/assets/favicon.ico")
+        if feed != none and feed.filename != none {
+          html.link(rel: "alternate", type: "application/rss+xml", href: "/" + feed.filename, title: title + " RSS Feed")
+        }
 
         // SEO
         seo-tags(

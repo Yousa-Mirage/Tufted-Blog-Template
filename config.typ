@@ -24,7 +24,15 @@
   site-url: "https://tufted-blog.pages.dev/",
   /// 页面语言代码，例如 "zh" 或 "en"，默认为 "zh"。
   lang: "zh",
-
+  /// 订阅源配置，使用这种方式来完成配置。
+  feed: (
+    // rss文件名
+    filename: "feed.xml",
+    // 不限制输出，可设置数字来限制输出的个数
+    limit: none,
+    // 选择包含 Docs 和 Blog 分类的文章
+    categories: ("Docs", "Blog"),
+  ),
 
   /// 自定义页眉元素列表 (content 数组)。会显示在导航栏上方。
   header-elements: (
