@@ -34,7 +34,7 @@
   image-path: none,
 
   // Feed-RSS
-  feed-categories: (),
+  feed-dir: (),
 
   // Custom header and footer elements
   header-elements: (),
@@ -66,7 +66,7 @@
         html.title(title)
         html.link(rel: "icon", href: "/assets/favicon.ico")
 
-        if feed != none {
+        if feed-dir != none and feed-dir.len() > 0 {
           html.link(
             rel: "alternate",
             type: "application/rss+xml",

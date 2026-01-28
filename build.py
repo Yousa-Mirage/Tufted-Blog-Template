@@ -714,15 +714,15 @@ def get_site_url() -> str:
     return ""
 
 
-def get_feed_categories() -> set[str]:
+def get_feed_dirs() -> set[str]:
     """
     从 config.typ 配置文件中解析 RSS Feed 订阅源的配置信息。
 
     功能:
-        解析 config.typ 中的 feed 配置块，提取分类列表。
+        解析 config.typ 中的 feed 配置块，提取目录列表。
 
     返回:
-        set[str]: 要包含的文章分类列表，默认为空集合
+        set[str]: 要包含的文章目录列表，默认为空集合
     """
     if not CONFIG_FILE.exists():
         return set()
@@ -734,11 +734,13 @@ def get_feed_categories() -> set[str]:
         content = re.sub(r"//.*", "", content)
         content = re.sub(r"/\*[\s\S]*?\*/", "", content)
 
-        match = re.search(r"feed-categories\s*:\s*\((.*?)\)", content, re.DOTALL)
+        match = re.search(r"feed-dir\s*:\s*\((.*?)\)", content, re.DOTALL)
         if match:
-            return set(c for c in re.findall(r'"([^"]*)"', match.group(1)) if c)
+            return set(
+                c.strip("/") for c in re.findall(r'"([^"]*)"', match.group(1)) if c and c.strip("/")
+            )
     except Exception as e:
-        print(f"⚠️ 解析 feed-categories 失败: {e}")
+        print(f"⚠️ 解析 feed-dir 失败: {e}")
 
     return set()
 
@@ -913,33 +915,33 @@ def extract_post_metadata(item: Path, index_file: Path) -> tuple[str, str, datet
     return title, description, date_obj
 
 
-def collect_posts(categories: set[str], site_url: str) -> list[dict]:
+def collect_posts(dirs: set[str], site_url: str) -> list[dict]:
     """
-    从指定的分类目录中收集所有文章的元数据。
+    从指定的目录中收集所有文章的元数据。
 
     功能:
-        遍历指定分类目录下的所有子目录，提取每个文章的元数据信息。
+        遍历指定目录下的所有子目录，提取每个文章的元数据信息。
         只处理目录（每个目录代表一篇文章），跳过普通文件。
         如果无法确定文章日期，则跳过该文章并输出警告。
 
     参数:
-        categories (set[str]): 要扫描的分类目录名称集合（如 {"Blog", "Docs"}）
+        dirs (set[str]): 要扫描的目录名称集合（如 {"Blog", "Docs"}）
         site_url (str): 站点的根 URL（如 "https://example.com"）
 
     返回:
         list[dict]: 文章数据字典列表，每个字典包含以下键：
             - title (str): 文章标题
             - description (str): 文章描述
-            - category (str): 文章所属分类
+            - category (str): 文章所属分类（即目录名）
             - link (str): 文章的完整 URL
             - date (datetime): 文章日期对象（带时区）
     """
     posts = []
 
-    for category in categories:
-        cat_dir = CONTENT_DIR / category
+    for d in dirs:
+        dir_path = CONTENT_DIR / d
 
-        for item in cat_dir.iterdir():
+        for item in dir_path.iterdir():
             if not item.is_dir():
                 continue
 
@@ -950,13 +952,13 @@ def collect_posts(categories: set[str], site_url: str) -> list[dict]:
                 print(f"⚠️ 无法确定文章 '{item.name}' 的日期，已跳过。")
                 continue
 
-            full_link = f"{site_url}/{category}/{item.name}/"
+            full_link = f"{site_url}/{d}/{item.name}/"
 
             posts.append(
                 {
                     "title": title,
                     "description": description,
-                    "category": category,
+                    "category": d,
                     "link": full_link,
                     "date": date_obj,
                 }
@@ -1049,21 +1051,21 @@ def generate_rss(site_url: str) -> bool:
           仅在发生异常时返回 False。
     """
     rss_file = SITE_DIR / "feed.xml"
-    categories = get_feed_categories()
+    dirs = get_feed_dirs()
 
-    if not categories:
-        print("⚠️ 跳过 RSS 订阅源生成: 未配置任何分类目录。")
+    if not dirs:
+        print("⚠️ 跳过 RSS 订阅源生成: 未配置任何目录。")
         return True
 
     # 检查是否至少有一个目录存在
-    existing = {category for category in categories if (CONTENT_DIR / category).exists()}
-    missing = categories - existing
+    existing = {d for d in dirs if (CONTENT_DIR / d).exists()}
+    missing = dirs - existing
 
-    for category in missing:
-        print(f"⚠️ 警告: 配置的分类目录 '{category}' 不存在。")
+    for d in missing:
+        print(f"⚠️ 警告: 配置的目录 '{d}' 不存在。")
 
     if not existing:
-        print("⚠️ 跳过 RSS 订阅源生成: 配置的分类目录都不存在。")
+        print("⚠️ 跳过 RSS 订阅源生成: 配置的目录都不存在。")
         return True
 
     print("正在生成 RSS 订阅源...")
