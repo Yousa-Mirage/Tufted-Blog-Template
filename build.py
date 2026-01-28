@@ -1082,7 +1082,6 @@ def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
             - description: 描述（可选）
             - link: 文章链接
             - date: datetime 对象
-            - date_rfc822: RFC 822 格式日期
             - category: 分类名称
         config (dict): 站点配置字典，应包含:
             - base_url: 站点根 URL
