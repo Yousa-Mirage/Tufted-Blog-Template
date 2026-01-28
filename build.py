@@ -976,10 +976,10 @@ def extract_post_metadata(item: Path, index_file: Path) -> tuple[str, str, datet
                 elif pos_match:
                     date_obj = datetime(int(pos_match.group(1)), int(pos_match.group(2)), int(pos_match.group(3)), tzinfo=timezone.utc)
             
-            # 2. 匹配 title: "..." 或一级标题
-            if title_match := re.search(r'title:\s*"([^"]+)"', content_clean):
+            # 2. 匹配 title: "..." / title: '...' 或一级标题
+            if title_match := re.search(r'title:\s*["\']([^"\']+)["\']', content_clean):
                 title = title_match.group(1).strip()
-            elif head_match := re.search(r"^=\s+(.+)$", content, re.MULTILINE):
+            elif head_match := re.search(r"^=\s+(.+)$", content_clean, re.MULTILINE):
                 title = head_match.group(1).strip()
             
             # 3. 匹配 description: "..."
