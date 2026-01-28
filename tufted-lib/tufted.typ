@@ -27,7 +27,7 @@
   author: none,
   description: "",
   lang: "zh",
-  date: datetime,
+  date: none,
 
   // SEO
   site-url: none,
@@ -65,6 +65,12 @@
 
         html.title(title)
         html.link(rel: "icon", href: "/assets/favicon.ico")
+
+        if type(date) == datetime {
+          html.meta(name: "date", content: date.display())
+        } else if type(date) == str {
+          html.meta(name: "date", content: date)
+        }
 
         if feed-dir != none and feed-dir.len() > 0 {
           html.link(

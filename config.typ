@@ -22,7 +22,7 @@
   description: "Tufted Blog Template, Powered by Typst",
   /// 站点的根 URL (例如 "https://example.com")。用于生成 Canonical URL 元数据。
   site-url: "https://tufted-blog.pages.dev/",
-  /// 页面语言代码，例如 "zh" 或 "en"，默认为 "zh"。
+  /// 网站的默认语言，例如 "zh" 或 "en"，默认为 "zh"。
   lang: "zh",
   /// 订阅源配置，使用这种方式来完成配置。
   feed-dir: (

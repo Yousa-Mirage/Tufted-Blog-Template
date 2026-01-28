@@ -37,6 +37,7 @@ Tufted Blog Template 构建脚本
 
 import argparse
 import html
+from html.parser import HTMLParser
 import os
 import re
 import shutil
@@ -86,6 +87,48 @@ class BuildStats:
     def has_failures(self) -> bool:
         """是否存在失败"""
         return self.failed > 0
+
+
+class HTMLMetadataParser(HTMLParser):
+    """
+    从 HTML 文件中提取元数据的解析器。
+
+    解析以下元数据：
+    - lang: 从 <html lang="..."> 属性获取
+    - title: 从 <title> 标签获取
+    - description: 从 <meta name="description" content="..."> 获取
+    - link: 从 <link rel="canonical" href="..."> 获取
+    - date: 从 <meta name="date" content="..."> 获取
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.metadata = {"title": ""}
+        self._in_title = False
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]):
+        attrs_dict = {k: v for k, v in attrs if v}
+
+        match tag:
+            case "html":
+                self.metadata["lang"] = attrs_dict.get("lang", "")
+            case "title":
+                self._in_title = True
+            case "meta":
+                name = attrs_dict.get("name", "")
+                if name in {"description", "date"}:
+                    self.metadata[name] = attrs_dict.get("content", "")
+            case "link":
+                if attrs_dict.get("rel") == "canonical":
+                    self.metadata["link"] = attrs_dict.get("href", "")
+
+    def handle_endtag(self, tag: str):
+        if tag == "title":
+            self._in_title = False
+
+    def handle_data(self, data: str):
+        if self._in_title:
+            self.metadata["title"] += data
 
 
 # ============================================================================
@@ -688,30 +731,39 @@ def preview(port: int = 8000, open_browser_flag: bool = True) -> bool:
         return False
 
 
-def get_site_url() -> str:
+def parse_html_metadata(html_path: Path) -> dict[str, str]:
     """
-    从 config.typ 配置文件中解析站点 URL。
+    解析 HTML 文件并返回元数据解析器实例。
+
+    参数:
+        html_path (Path): HTML 文件路径
+
+    返回:
+        HTMLMetadataParser: 包含解析结果的解析器实例
+    """
+    parser = HTMLMetadataParser()
+    parser.feed(html_path.read_text(encoding="utf-8"))
+    return parser.metadata
+
+
+def get_site_url() -> str | None:
+    """
+    从生成的首页 HTML 文件中解析站点 URL。
 
     功能:
-        通过正则表达式从 config.typ 中提取 site-url 字段的值。
-        如果配置文件不存在或解析失败，则返回空字符串。
+        从 _site/index.html 的 <link rel="canonical" href="..."> 提取 site-url。
 
     返回:
         str: 站点的根 URL（如 "https://example.com"），末尾不带斜杠。
-             如果未配置或解析失败则返回空字符串。
+            如果未配置或解析失败则返回 None。
     """
-    if not CONFIG_FILE.exists():
-        return ""
+    index_html = SITE_DIR / "index.html"
+    parser = parse_html_metadata(index_html)
 
-    try:
-        content = CONFIG_FILE.read_text(encoding="utf-8")
-        # Look for site-url: "..."
-        if match := re.search(r'site-url\s*:\s*"([^"]*)"', content):
-            return match.group(1).strip().rstrip("/")
-    except Exception as e:
-        print(f"⚠️ Warning: Failed to parse site-url from config.typ: {e}")
+    if parser.get("link"):
+        return parser["link"].rstrip("/")
 
-    return ""
+    return None
 
 
 def get_feed_dirs() -> set[str]:
@@ -745,174 +797,55 @@ def get_feed_dirs() -> set[str]:
     return set()
 
 
-def get_site_language() -> str:
+def extract_post_metadata(index_html: Path) -> tuple[str, str, str, datetime | None]:
     """
-    从 config.typ 配置文件中解析网站语言代码。
+    从生成的 HTML 文件中提取文章的元数据信息。
 
     功能:
-        通过正则表达式从 config.typ 中提取 lang 字段的值。
-        用于设置网站的主要语言，影响 HTML lang 属性和 RSS Feed。
-
-    返回:
-        str: 语言代码（如 "zh", "en" 等），默认返回 "zh"。
-    """
-    if not CONFIG_FILE.exists():
-        return "zh"
-
-    try:
-        content = CONFIG_FILE.read_text(encoding="utf-8")
-        # Look for lang: "..."
-        if match := re.search(r'lang\s*:\s*"([^"]*)"', content):
-            return match.group(1).strip()
-    except Exception as e:
-        print(f"⚠️ Warning: Failed to parse lang from config.typ: {e}")
-
-    return "zh"
-
-
-def get_site_title() -> str:
-    """
-    从 config.typ 配置文件中解析网站标题。
-
-    功能:
-        通过正则表达式从 config.typ 中提取 title 字段的值。
-        网站标题将用于 RSS Feed 的 channel title。
-
-    返回:
-        str: 网站标题字符串，默认返回 "Blog"。
-    """
-    if not CONFIG_FILE.exists():
-        return "Blog"
-
-    try:
-        content = CONFIG_FILE.read_text(encoding="utf-8")
-        # Look for title: "..."
-        if match := re.search(r'title\s*:\s*"([^"]*)"', content):
-            return match.group(1).strip()
-    except Exception as e:
-        print(f"⚠️ Warning: Failed to parse title from config.typ: {e}")
-
-    return "Blog"
-
-
-def get_site_description() -> str:
-    """
-    从 config.typ 配置文件中解析网站描述信息。
-
-    功能:
-        通过正则表达式从 config.typ 中提取 description 字段的值。
-        网站描述将用于 RSS Feed 的 channel description。
-
-    返回:
-        str: 网站描述字符串，如果未配置则返回空字符串。
-    """
-    if not CONFIG_FILE.exists():
-        return ""
-
-    try:
-        content = CONFIG_FILE.read_text(encoding="utf-8")
-        # Look for description: "..."
-        if match := re.search(r'description\s*:\s*"([^"]*)"', content):
-            return match.group(1).strip()
-    except Exception as e:
-        print(f"⚠️ Warning: Failed to parse description from config.typ: {e}")
-
-    return ""
-
-
-def extract_post_metadata(item: Path, index_file: Path) -> tuple[str, str, datetime | None]:
-    """
-    从文章目录和 index.typ 文件中提取文章的元数据信息。
-
-    功能:
-        按优先级顺序提取文章元数据：
-        1. 标题 (title): 从 index.typ 的 title 字段或一级标题提取，默认使用目录名
-        2. 描述 (description): 从 index.typ 的 description 字段提取
-        3. 日期 (date): 依次尝试从以下来源获取：
-           - index.typ 中的 date: datetime(...) 语法
-           - 文件夹名中的 YYYY-MM-DD 格式日期
-           - 文件的修改时间戳
+        提取文章元数据：
+        1. 标题 (title): 从 <title> 标签提取
+        2. 描述 (description): 从 <meta name="description"> 提取
+        3. 链接 (link): 从 <link rel="canonical" href="..."> 提取
+        4. 日期 (date): 依次尝试从以下来源获取：
+            - HTML 中的 <meta name="date" content="...">
+            - 文件夹名中的 YYYY-MM-DD 格式日期
 
     参数:
-        item (Path): 文章所在的目录路径
-        index_file (Path): 文章的 index.typ 文件路径
+        index_html (Path): 文章的 index.html 文件路径
 
     返回:
-        tuple[str, str, datetime | None]: 包含三个元素的元组：
+        tuple[str, str, str, datetime | None]: 包含四个元素的元组：
             - str: 文章标题
             - str: 文章描述（可能为空字符串）
+            - str: 文章链接（完整 URL）
             - datetime | None: 文章日期（带 UTC 时区），无法获取时为 None
     """
-    title = item.name
-    description = ""
+    parser = parse_html_metadata(index_html)
+
+    title = parser["title"].strip()
+    description = parser["description"].strip()
+    link = parser["link"].rstrip("/")
     date_obj = None
 
-    if index_file.exists():
+    # 尝试从 <meta name="date"> 解析日期
+    if parser.get("date"):
         try:
-            content = index_file.read_text(encoding="utf-8")
-            # 预处理：移除注释
-            content_clean = re.sub(r"/\*[\s\S]*?\*/", "", content)
-            content_clean = re.sub(r"//.*", "", content_clean)
-
-            # 1. 尝试解析 date: datetime(...)
-            date_block_match = re.search(
-                r"date:\s*datetime\s*\((?P<inner>[^)]+)\)", content_clean, re.IGNORECASE | re.DOTALL
-            )
-
-            if date_block_match:
-                inner_content = date_block_match.group("inner")
-                y = re.search(r"year:\s*(\d{4})", inner_content)
-                m = re.search(r"month:\s*(\d{1,2})", inner_content)
-                d = re.search(r"day:\s*(\d{1,2})", inner_content)
-
-                # 也支持位置参数 datetime(2024, 10, 30)
-                pos_match = re.search(r"(\d{4}),\s*(\d{1,2}),\s*(\d{1,2})", inner_content)
-
-                if y and m and d:
-                    date_obj = datetime(
-                        int(y.group(1)), int(m.group(1)), int(d.group(1)), tzinfo=timezone.utc
-                    )
-                elif pos_match:
-                    date_obj = datetime(
-                        int(pos_match.group(1)),
-                        int(pos_match.group(2)),
-                        int(pos_match.group(3)),
-                        tzinfo=timezone.utc,
-                    )
-
-            # 2. 匹配 title: "..." 或一级标题
-            if title_match := re.search(r'title:\s*"((?:\\.|[^"\\])*)"', content_clean):
-                title = title_match.group(1).replace('\\"', '"').replace("\\\\", "\\").strip()
-            elif head_match := re.search(r"^=\s+(.+)$", content_clean, re.MULTILINE):
-                title = head_match.group(1).strip()
-
-            # 3. 匹配 description: "..."
-            if desc_match := re.search(r'description:\s*"((?:\\.|[^"\\])*)"', content_clean):
-                description = desc_match.group(1).replace('\\"', '"').replace("\\\\", "\\").strip()
-        except Exception as e:
-            print(f"⚠️ 警告: 解析 {index_file} 时出错: {e}")
-
-    # 4. 如果没找到日期，尝试从文件夹名提取 (YYYY-MM-DD)
-    if not date_obj:
-        date_match = re.search(r"(\d{4}-\d{2}-\d{2})", item.name)
-        if date_match:
-            try:
-                date_obj = datetime.strptime(date_match.group(1), "%Y-%m-%d").replace(
-                    tzinfo=timezone.utc
-                )
-            except ValueError:
-                pass
-
-    # 5. 最后保底：使用文件修改时间
-    if not date_obj:
-        try:
-            # 优先使用 index.typ，如果没找到则使用文件夹
-            target_path = index_file if index_file.exists() else item
-            date_obj = datetime.fromtimestamp(target_path.stat().st_mtime, tz=timezone.utc)
+            date_obj = datetime.strptime(parser["date"].split("T")[0], "%Y-%m-%d")
+            date_obj = date_obj.replace(tzinfo=timezone.utc)
         except Exception:
             pass
 
-    return title, description, date_obj
+    # 如果没找到日期，尝试从文件夹名提取 (YYYY-MM-DD)
+    if not date_obj:
+        date_match = re.search(r"(\d{4}-\d{2}-\d{2})", index_html.parent.name)
+        if date_match:
+            try:
+                date_obj = datetime.strptime(date_match.group(1), "%Y-%m-%d")
+                date_obj = date_obj.replace(tzinfo=timezone.utc)
+            except ValueError:
+                pass
+
+    return title, description, link, date_obj
 
 
 def collect_posts(dirs: set[str], site_url: str) -> list[dict]:
@@ -920,7 +853,7 @@ def collect_posts(dirs: set[str], site_url: str) -> list[dict]:
     从指定的目录中收集所有文章的元数据。
 
     功能:
-        遍历指定目录下的所有子目录，提取每个文章的元数据信息。
+        遍历 _site 目录下指定目录中的所有子目录，提取每个文章的元数据信息。
         只处理目录（每个目录代表一篇文章），跳过普通文件。
         如果无法确定文章日期，则跳过该文章并输出警告。
 
@@ -932,34 +865,35 @@ def collect_posts(dirs: set[str], site_url: str) -> list[dict]:
         list[dict]: 文章数据字典列表，每个字典包含以下键：
             - title (str): 文章标题
             - description (str): 文章描述
-            - category (str): 文章所属分类（即目录名）
+            - dir (str): 文章所属分类（即目录名）
             - link (str): 文章的完整 URL
             - date (datetime): 文章日期对象（带时区）
     """
     posts = []
 
     for d in dirs:
-        dir_path = CONTENT_DIR / d
+        dir_path = SITE_DIR / d
 
         for item in dir_path.iterdir():
             if not item.is_dir():
                 continue
 
-            index_file = item / "index.typ"
-            title, description, date_obj = extract_post_metadata(item, index_file)
+            index_html = item / "index.html"
+            if not index_html.exists():
+                continue
+
+            title, description, link, date_obj = extract_post_metadata(index_html)
 
             if not date_obj:
                 print(f"⚠️ 无法确定文章 '{item.name}' 的日期，已跳过。")
                 continue
 
-            full_link = f"{site_url}/{d}/{item.name}/"
-
             posts.append(
                 {
                     "title": title,
                     "description": description,
-                    "category": d,
-                    "link": full_link,
+                    "dir": d,
+                    "link": link,
                     "date": date_obj,
                 }
             )
@@ -982,7 +916,7 @@ def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
             - description: 描述（可选）
             - link: 文章链接
             - date: datetime 对象
-            - category: 分类名称
+            - dir: 分类名称 (即路径名)
         config (dict): 站点配置字典，应包含:
             - base_url: 站点根 URL
             - site_title: 站点标题
@@ -992,21 +926,21 @@ def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
     返回:
         str: 完整的 RSS 2.0 XML 字符串，包含 XML 声明和所有必要的命名空间。
     """
-    BASE_URL = config["base_url"]
+    site_url = config["site_url"]
     site_title = config["site_title"]
     site_description = config["site_description"]
     rss_file_name = "feed.xml"
 
     # 创建 FeedGenerator 对象
     fg = FeedGenerator()
-    fg.id(BASE_URL)
+    fg.id(site_url)
     fg.title(site_title)
-    fg.link(href=BASE_URL, rel="alternate")
+    fg.link(href=site_url, rel="alternate")
     fg.description(site_description)
     fg.language(lang)
 
     # 添加自链接（RSS Feed 自身的链接）
-    rss_url = f"{BASE_URL}/{rss_file_name}"
+    rss_url = f"{site_url}/{rss_file_name}"
     fg.link(href=rss_url, rel="self", type="application/rss+xml")
 
     # 添加文章条目
@@ -1022,7 +956,7 @@ def build_rss_xml(posts: list[dict], config: dict, lang: str) -> str:
             fe.description(post["description"])
 
         # 添加分类信息
-        fe.category(term=post["category"])
+        fe.category(term=post["dir"])
 
     # 生成 RSS 2.0 格式的 XML 字符串
     rss_content = fg.rss_str(pretty=True).decode("utf-8")
@@ -1036,19 +970,17 @@ def generate_rss(site_url: str) -> bool:
 
     功能:
         完整的 RSS Feed 生成流程：
-        1. 检查 site-url 配置（必需）
-        2. 从 config.typ 读取 Feed 配置（文件名、限制数量、分类）
-        3. 收集指定分类下的所有文章元数据
-        4. 按日期排序并限制输出数量（如果配置了 limit）
-        5. 构建 RSS XML 并写入文件
+        1. 从 config.typ 读取目标目录（分类）
+        2. 收集指定目录下的所有文章元数据
+        3. 按日期排序
+        4. 构建 RSS XML 并写入文件
 
     返回:
         bool: 生成是否成功。在以下情况返回 True：
             - 成功生成 RSS 文件
-            - 未配置 site-url（跳过生成）
             - 未找到任何分类目录（跳过生成）
             - 未找到任何文章（生成空 Feed）
-          仅在发生异常时返回 False。
+        仅在发生异常时返回 False。
     """
     rss_file = SITE_DIR / "feed.xml"
     dirs = get_feed_dirs()
@@ -1058,7 +990,7 @@ def generate_rss(site_url: str) -> bool:
         return True
 
     # 检查是否至少有一个目录存在
-    existing = {d for d in dirs if (CONTENT_DIR / d).exists()}
+    existing = {d for d in dirs if (SITE_DIR / d).exists()}
     missing = dirs - existing
 
     for d in missing:
@@ -1067,8 +999,6 @@ def generate_rss(site_url: str) -> bool:
     if not existing:
         print("⚠️ 跳过 RSS 订阅源生成: 配置的目录都不存在。")
         return True
-
-    print("正在生成 RSS 订阅源...")
 
     # 收集文章
     posts = collect_posts(existing, site_url)
@@ -1080,13 +1010,16 @@ def generate_rss(site_url: str) -> bool:
     # 按日期降序排序
     posts = sorted(posts, key=lambda x: x["date"], reverse=True)
 
-    # 获取配置信息
-    lang = get_site_language()
-    site_title = get_site_title()
-    site_description = get_site_description()
+    # 获取配置信息：从首页 HTML 解析一次即可获取所有元数据
+    index_html = SITE_DIR / "index.html"
+    parser = parse_html_metadata(index_html)
+
+    lang = parser.get("lang", "zh")
+    site_title = parser.get("title", "").strip()
+    site_description = parser.get("description", "").strip()
 
     config = {
-        "base_url": site_url,
+        "site_url": site_url,
         "site_title": site_title,
         "site_description": site_description,
     }
@@ -1202,8 +1135,7 @@ def build(force: bool = False) -> bool:
     results.append(copy_assets())
     results.append(copy_content_assets(force))
 
-    site_url = get_site_url()
-    if site_url:
+    if site_url := get_site_url():
         results.append(generate_sitemap(site_url))
         results.append(generate_robots_txt(site_url))
         results.append(generate_rss(site_url))
