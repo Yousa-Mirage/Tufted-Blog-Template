@@ -32,7 +32,7 @@
 
 === 基本参数
 
-`tufted-web()` 函数包含 `title`、`description`、`author` 等元数据参数。这些参数会被用于生成页面的元数据。
+`tufted-web()` 函数包含 `title`、`description`、`author`、`date` 等元数据参数。这些参数会被用于生成页面的元数据。
 
 `header-links` 参数用于定义顶部导航栏的链接和标签。它是一个字典，键是链接的路径，值是链接的标签。
 
@@ -73,6 +73,30 @@ SEO (Search Engine Optimization，搜索引擎优化) 参数用于优化网站�
   image-path: "/assets/image.png",
   ...,
 )
+```
+
+默认的 `sitemap.xml` 文件会被生成在网站根目录下，你可以通过 `https://example.com/sitemap.xml` 访问该文件。
+
+=== RSS 订阅参数
+
+你可以通过 `feed-dir` 参数开启 RSS 订阅功能（同时必须提供 `website-url` 参数）。该参数接受一个字符串数组，数组中的每个字符串代表一个需要被收录进 RSS 订阅源的目录路径（相对于 `content/` 目录）。
+
+此外，你还可以通过 `website-title` 参数设置 RSS 订阅源的标题，若未设置则会默认使用 `title` 参数。
+
+```typst
+#let template = tufted.tufted-web.with(
+  ...,
+  // 开启 RSS 订阅，收录 Blog 目录下的文章
+  feed-dir: ("Blog/",),
+
+  // RSS 订阅源标题
+  website-title: "我的博客订阅",
+  ...,
+)
+
+如果针对 `Blog/` 目录下的文章开启了 RSS 订阅功能，那么该路径下的所有文章页面都必须填写 `title`、`description`、`date` 等元数据。
+
+一切配置正确后，构建脚本会自动生成 RSS 订阅源文件 `feed.xml`，你可以通过 `https://example.com/feed.xml` 访问该订阅源。
 ```
 
 === 自定义样式和脚本
@@ -122,11 +146,15 @@ SEO (Search Engine Optimization，搜索引擎优化) 参数用于优化网站�
 
 `content/` 目录中所有的 `**/index.typ` 文件都会成为可访问的页面，其路径对应文件夹的路径（例如 `content/Blog/index.typ` → `example.github.io/Blog`）。所有子页面均从其父目录的 `../index.typ` 中导入 `template` 和 `tufted`，从而实现层层继承，无需重复定义模板。
 
-你可以在任何层级、任何页面中使用 `.with()` 修改 `template` 的定义，子页面都会继承这些更改。例如，要修改当前页面的标题和描述，可以这样：
+你可以在任何层级、任何页面中使用 `.with()` 修改 `template` 的定义，子页面都会继承这些更改。例如，要修改当前页面的标题、描述并添加文章日期，可以这样：
 
 ```typst
 #import "../index.typ": template, tufted
-#show: template.with(title: "新标题", description: "新描述")
+#show: template.with(
+  title: "新标题",
+  description: "新描述",
+  date: datetime(year: 2026, month: 1, day: 29),
+)
 ```
 
 == 自定义网站图标

@@ -76,6 +76,30 @@ Once `website-url` is set, the build script will automatically generate accurate
 )
 ```
 
+The default `sitemap.xml` file will be generated in the root directory of the website, and you can access the file through `https://example.com/sitemap.xml`.
+
+=== RSS Feed Parameters
+
+You can enable the RSS feed by setting the `feed-dir` parameter (the `website-url` parameter must also be provided). This parameter accepts an array of strings, where each string represents a directory path (relative to the `content/` directory) that should be included in the RSS feed.
+
+Additionally, you can use the `website-title` parameter to set the title of the RSS feed. If not set, it will default to the `title` parameter.
+
+```typst
+#let template = tufted.tufted-web.with(
+  ...,
+  // Enable RSS feed and include posts from the Blog directory
+  feed-dir: ("Blog",),
+
+  // RSS feed title
+  website-title: "My Blog Feed",
+  ...,
+)
+```
+
+If the RSS subscription function is enabled for articles in the `Blog/` directory, then all article pages under this path must fill in metadata such as `title`, `description`, and `date`.
+
+Once everything is configured correctly, the build script will automatically generate the RSS feed file `feed.xml`, which you can access through `https://example.com/feed.xml`.
+
 === Custom Styles and Scripts
 
 See #link("../custom-styling-en/")[Custom Styling & Scripts].
@@ -123,11 +147,15 @@ This inherits all default configuration.
 
 All `**/index.typ` files under `content/` become accessible pages. The URL path corresponds to the folder path (e.g. `content/Blog/index.typ` → `example.github.io/Blog`). Each subpage imports `template` and `tufted` from its parent directory's `../index.typ`, enabling inheritance layer by layer without redefining the template.
 
-You can modify the template at any level using `.with()`, and subpages will inherit the changes. For example, to change the current page title and description:
+You can modify the template at any level using `.with()`, and subpages will inherit the changes. For example, to change the current page title, description, and add a publication date:
 
 ```typst
 #import "../index.typ": template, tufted
-#show: template.with(title: "New Title", description: "New Description")
+#show: template.with(
+  title: "New Title",
+  description: "New Description",
+  date: datetime(year: 2026, month: 1, day: 29),
+)
 ```
 
 == Custom Site Icon
