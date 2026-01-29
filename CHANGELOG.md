@@ -6,6 +6,8 @@
 
 开发中的更新内容将在此记录。
 
+- 修复：修复主题切换问题，重新打开网页时会自动跟随系统主题，而不是使用上次手动选择的主题
+
 ## v1.0.0
 
 - 功能：在新标签页中打开外部链接和 PDF 链接（[#15](https://github.com/Yousa-Mirage/Tufted-Blog-Template/pull/15), [@yanwenwang24](https://github.com/yanwenwang24)）

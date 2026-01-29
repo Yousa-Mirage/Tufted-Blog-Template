@@ -6,6 +6,8 @@
 
 Development updates will be recorded here.
 
+- fix: fix theme toggle issue where reopening the webpage automatically follows the system theme instead of the last manually selected theme
+
 ## v1.0.0
 
 - feat: open external links and PDF links in new tabs ([#15](https://github.com/Yousa-Mirage/Tufted-Blog-Template/pull/15), [@yanwenwang24](https://github.com/yanwenwang24))

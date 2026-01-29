@@ -1,10 +1,12 @@
 /**
  * 主题切换功能
  *
- * 支持三种状态：
- * 1. 用户未设置偏好 - 跟随系统
- * 2. 用户手动选择深色模式
- * 3. 用户手动选择浅色模式
+ * 行为逻辑：
+ * 1. 每次打开新标签页/窗口时，自动跟随系统主题
+ * 2. 用户手动切换主题后，在当前会话（标签页）内保持该选择
+ * 3. 关闭标签页后，下次打开会重新跟随系统主题
+ *
+ * 使用 sessionStorage 而非 localStorage，确保不会跨会话缓存
  */
 (function () {
     const STORAGE_KEY = "theme-preference";
@@ -15,21 +17,21 @@
         moon: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M235.54,150.21a104.84,104.84,0,0,1-37,52.91A104,104,0,0,1,32,120,103.09,103.09,0,0,1,52.88,57.48a104.84,104.84,0,0,1,52.91-37,8,8,0,0,1,10,10,88.08,88.08,0,0,0,109.8,109.8,8,8,0,0,1,10,10Z"></path></svg>`,
     };
 
-    // 获取用户保存的主题偏好
+    // 获取用户保存的主题偏好（仅限当前会话）
     function getStoredTheme() {
         try {
-            return localStorage.getItem(STORAGE_KEY);
+            return sessionStorage.getItem(STORAGE_KEY);
         } catch (e) {
             return null;
         }
     }
 
-    // 保存用户主题偏好
+    // 保存用户主题偏好（仅限当前会话）
     function setStoredTheme(theme) {
         try {
-            localStorage.setItem(STORAGE_KEY, theme);
+            sessionStorage.setItem(STORAGE_KEY, theme);
         } catch (e) {
-            // localStorage not available
+            // sessionStorage not available
         }
     }
 
