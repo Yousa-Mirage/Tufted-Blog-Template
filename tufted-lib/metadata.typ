@@ -5,6 +5,7 @@
   site-url: none,
   canonical-url: none,
   image-path: none,
+  page-path: none,
 ) = {
   // Process Absolute image path
   let og-image = if image-path == none {
@@ -82,7 +83,14 @@
   html.meta(name: "generator", content: "Typst")
 
   // Page title and favicon
-  html.title(title)
+  let page-title = if title != "" {
+    title
+  } else if website-title != "" {
+    website-title
+  } else {
+    "Untitled Page"
+  }
+  html.title(page-title)
   html.link(rel: "icon", href: "/assets/favicon.ico")
 
   // Date
@@ -106,8 +114,8 @@
   // Link
   let page-path = sys.inputs.at("page-path", default: none)
 
-  let canonical-url = if site-url != none and page-path != none {
-    let clean-site-url = site-url.trim("/", at: end)
+  let canonical-url = if website-url != none and page-path != none {
+    let clean-site-url = website-url.trim("/", at: end)
     let clean-path = page-path.trim("/")
     if clean-path == "" {
       clean-site-url + "/"
@@ -129,6 +137,7 @@
     description: description,
     site-url: website-url,
     image-path: image-path,
-    canonical-url: canonical-url
+    page-path: page-path,
+    canonical-url: canonical-url,
   )
 }

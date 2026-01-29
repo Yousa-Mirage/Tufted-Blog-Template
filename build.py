@@ -819,7 +819,7 @@ def extract_post_metadata(index_html: Path) -> tuple[str, str, str, datetime | N
 
     title = parser["title"].strip()
     description = parser.get("description", "").strip()
-    link = parser.get("link", "").rstrip("/")
+    link = parser.get("link", "")
     date_obj = None
 
     # 尝试从 <meta name="date"> 解析日期

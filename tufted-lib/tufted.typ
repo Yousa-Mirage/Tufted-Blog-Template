@@ -102,9 +102,9 @@
         )
 
         // Add website navigation
-        if links.len() > 0 {
+        if header-links.len() > 0 {
           html.nav(
-            for (href, title) in links {
+            for (href, title) in header-links {
               html.a(href: href, title)
             },
           )
