@@ -1,5 +1,11 @@
 #import "../index.typ": template, tufted
-#show: template.with(lang: "en")
+// 如需生成 RSS feed，必须填写 title、description 和 date 元数据
+#show: template.with(
+  title: "Monkeys vs Apes: Understanding the Difference",
+  description: "Exploring the key differences between monkeys and apes, including physical traits, intelligence, and evolutionary relationships.",
+  date: datetime(year: 2025, month: 4, day: 16),
+  lang: "en",
+)
 
 = Monkeys vs Apes: Understanding the Difference
 
