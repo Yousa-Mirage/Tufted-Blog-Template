@@ -102,13 +102,17 @@
         )
 
         // Add website navigation
-        if header-links.len() > 0 {
-          html.nav(
-            for (href, title) in header-links {
-              html.a(href: href, title)
-            },
-          )
-        }
+        html.header(
+          class: "site-header",
+          if header-links != none and header-links.len() > 0 {
+            html.nav(
+              class: "site-nav",
+              for (href, title) in header-links {
+                html.a(href: href, title)
+              },
+            )
+          }
+        )
 
         // Main content
         html.article(
