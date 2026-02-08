@@ -612,7 +612,10 @@ a.footnote-ref-link {
     }
 }
 
-
+/* Fix code size in margin notes (including inside links) */
+.marginnote code {
+    font-size: inherit;
+}
 
 /*******************************************************************************
 POST TILES
