@@ -6,6 +6,7 @@
 
 开发中的更新内容将在此记录。
 
+- 功能：引入了基于 [actions-template-sync](https://github.com/marketplace/actions/actions-template-sync) 的自动更新工作流（[#28](https://github.com/Yousa-Mirage/Tufted-Blog-Template/pull/28), [@HerveyB3B4](https://github.com/HerveyB3B4)）
 - 修复：修复主题切换问题，重新打开网页时会自动跟随系统主题，而不是使用上次手动选择的主题
 
 ## v1.0.0
