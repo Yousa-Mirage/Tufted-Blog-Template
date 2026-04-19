@@ -1,6 +1,9 @@
 #!/usr/bin/env -S uv run
 # /// script
 # requires-python = ">=3.10"
+# dependencies = [
+#   "pillow>=10.0.0",
+# ]
 # ///
 
 """
@@ -34,6 +37,9 @@ Tufted Blog Template 构建脚本
 """
 
 import argparse
+import base64
+import hashlib
+import json
 import os
 import re
 import shutil
@@ -574,6 +580,9 @@ def build_pdf(force: bool = False) -> bool:
 def copy_assets() -> bool:
     """
     复制静态资源到输出目录。
+
+    注意：会保留 _site/assets/inline-images 下由后处理生成的文件，
+    避免增量构建时被覆盖后导致页面图片断链。
     """
     if not ASSETS_DIR.exists():
         print(f"  ⚠ 静态资源目录 {ASSETS_DIR} 不存在。")
@@ -581,13 +590,33 @@ def copy_assets() -> bool:
 
     SITE_DIR.mkdir(parents=True, exist_ok=True)
     target_dir = SITE_DIR / "assets"
+    inline_backup_dir = SITE_DIR / ".inline-images-backup"
 
     try:
+        # 先备份运行时生成的 inline-images
+        if inline_backup_dir.exists():
+            shutil.rmtree(inline_backup_dir)
+
         if target_dir.exists():
+            existing_inline_dir = target_dir / "inline-images"
+            if existing_inline_dir.exists() and any(existing_inline_dir.rglob("*")):
+                shutil.copytree(existing_inline_dir, inline_backup_dir)
+
             shutil.rmtree(target_dir)
+
         shutil.copytree(ASSETS_DIR, target_dir)
+
+        # 还原 inline-images（仅覆盖同名文件，不影响 assets 源目录内容）
+        if inline_backup_dir.exists():
+            restored_inline_dir = target_dir / "inline-images"
+            restored_inline_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copytree(inline_backup_dir, restored_inline_dir, dirs_exist_ok=True)
+            shutil.rmtree(inline_backup_dir)
+
         return True
     except Exception as e:
+        if inline_backup_dir.exists():
+            shutil.rmtree(inline_backup_dir, ignore_errors=True)
         print(f"  ❌ 复制静态资源失败: {e}")
         return False
 
@@ -639,6 +668,475 @@ def copy_content_assets(force: bool = False) -> bool:
         return True
     except Exception as e:
         print(f"  ❌ 复制内容资源文件失败: {e}")
+        return False
+
+
+def extract_inline_images(site_dir: Path) -> bool:
+    """
+    将 HTML 中的 data:image/*;base64,... 抽离为静态文件，避免页面体积过大。
+
+    支持匹配:
+    - src="data:image/..."
+    - xlink:href="data:image/..."
+
+    输出目录:
+        _site/assets/inline-images/
+    """
+
+    inline_dir = site_dir / "assets" / "inline-images"
+
+    def mime_to_ext(mime: str) -> str:
+        subtype = mime.split("/", 1)[1].lower()
+        if subtype in {"jpeg", "jpg"}:
+            return "jpg"
+        if subtype == "svg+xml":
+            return "svg"
+        if subtype == "x-icon":
+            return "ico"
+        return subtype.replace("+xml", "")
+
+    pattern = re.compile(
+        r"(?P<prefix>\b(?:src|xlink:href)=(?P<quote>['\"]))data:(?P<mime>image/[a-zA-Z0-9.+-]+);base64,(?P<data>[^'\"]+)(?P=quote)",
+        re.IGNORECASE,
+    )
+
+    try:
+        inline_dir.mkdir(parents=True, exist_ok=True)
+
+        replaced_count = 0
+        written_count = 0
+        updated_html_count = 0
+
+        for html_file in site_dir.rglob("*.html"):
+            content = html_file.read_text(encoding="utf-8")
+            changed = False
+
+            def _replace(match: re.Match[str]) -> str:
+                nonlocal changed, replaced_count, written_count
+
+                mime = match.group("mime").lower()
+                raw_data = match.group("data").strip()
+
+                try:
+                    blob = base64.b64decode(raw_data, validate=False)
+                except Exception:
+                    return match.group(0)
+
+                if not blob:
+                    return match.group(0)
+
+                digest = hashlib.sha256(blob).hexdigest()[:16]
+                ext = mime_to_ext(mime)
+                filename = f"{digest}.{ext}"
+
+                target_file = inline_dir / filename
+                if not target_file.exists():
+                    target_file.write_bytes(blob)
+                    written_count += 1
+
+                replaced_count += 1
+                changed = True
+
+                return f"{match.group('prefix')}/assets/inline-images/{filename}{match.group('quote')}"
+
+            new_content = pattern.sub(_replace, content)
+
+            if changed and new_content != content:
+                html_file.write_text(new_content, encoding="utf-8")
+                updated_html_count += 1
+
+        if replaced_count > 0:
+            print(
+                f"✅ 内联图片抽离完成: 替换 {replaced_count} 处，生成 {written_count} 个文件，更新 {updated_html_count} 个 HTML"
+            )
+
+        return True
+    except Exception as e:
+        print(f"❌ 内联图片抽离失败: {e}")
+        return False
+
+
+def optimize_inline_images(site_dir: Path, max_edge: int = 1920, jpeg_quality: int = 78) -> bool:
+    """
+    压缩 _site/assets/inline-images 中的 JPEG 图片，降低总下载体积。
+
+    说明:
+    - 仅处理 .jpg/.jpeg 文件
+    - 最长边限制为 max_edge（保持比例）
+    - 使用 progressive + optimize 重新编码
+    - 需要 Pillow；若未安装则跳过（不影响构建）
+    """
+
+    inline_dir = site_dir / "assets" / "inline-images"
+    if not inline_dir.exists():
+        return True
+
+    try:
+        from PIL import Image
+    except ImportError:
+        print("⚠ Pillow 未安装，跳过内联图片压缩（可安装: pip install pillow）")
+        return True
+
+    manifest_path = inline_dir / ".optimize-manifest.json"
+    optimizer_tag = f"jpeg-q{jpeg_quality}-max{max_edge}"
+
+    try:
+        if manifest_path.exists():
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if not isinstance(manifest, dict):
+                manifest = {}
+        else:
+            manifest = {}
+    except Exception:
+        manifest = {}
+
+    optimized_count = 0
+    skipped_count = 0
+    saved_bytes = 0
+
+    try:
+        resample = Image.Resampling.LANCZOS
+    except Exception:
+        resample = Image.LANCZOS
+
+    try:
+        for file in inline_dir.iterdir():
+            if not file.is_file() or file.suffix.lower() not in {".jpg", ".jpeg"}:
+                continue
+
+            if manifest.get(file.name) == optimizer_tag:
+                skipped_count += 1
+                continue
+
+            old_size = file.stat().st_size
+            temp_file = file.with_suffix(file.suffix + ".tmp")
+
+            with Image.open(file) as img:
+                if img.mode not in {"RGB", "L"}:
+                    img = img.convert("RGB")
+
+                if max(img.size) > max_edge:
+                    img.thumbnail((max_edge, max_edge), resample=resample)
+
+                img.save(
+                    temp_file,
+                    format="JPEG",
+                    quality=jpeg_quality,
+                    optimize=True,
+                    progressive=True,
+                )
+
+            new_size = temp_file.stat().st_size
+
+            if new_size < old_size:
+                temp_file.replace(file)
+                optimized_count += 1
+                saved_bytes += old_size - new_size
+            else:
+                temp_file.unlink(missing_ok=True)
+
+            manifest[file.name] = optimizer_tag
+
+        manifest_path.write_text(
+            json.dumps(manifest, ensure_ascii=False, separators=(",", ":")),
+            encoding="utf-8",
+        )
+
+        if optimized_count > 0:
+            print(
+                "✅ 内联图片压缩完成: "
+                f"优化 {optimized_count} 张 JPEG，节省 {saved_bytes / 1024 / 1024:.2f} MB"
+            )
+        elif skipped_count > 0:
+            print("✅ 内联图片压缩检查完成: 图片已是当前压缩配置，无需更新")
+
+        return True
+    except Exception as e:
+        print(f"❌ 内联图片压缩失败: {e}")
+        return False
+
+
+def generate_responsive_images(
+    site_dir: Path,
+    target_widths: tuple[int, ...] = (480, 768, 1024, 1366),
+    default_sizes: str = "(max-width: 900px) 100vw, 760px",
+    prefer_webp: bool = True,
+    webp_quality: int = 80,
+) -> bool:
+    """
+    为 HTML 中本地 <img> 自动生成多尺寸文件并注入 srcset/sizes。
+
+    说明:
+    - 仅处理本地栅格图片: .jpg/.jpeg/.png/.webp
+    - 忽略 http(s)、data URI、已存在 srcset 的外部资源
+    - 生成规则: <name>-w{width}.<ext>
+    - 默认优先输出 WebP（可通过 prefer_webp 关闭）
+    - 注入 width/height 属性，帮助浏览器预留布局并改进 lazy-load 生效时机
+    """
+
+    try:
+        from PIL import Image
+    except ImportError:
+        print("⚠ Pillow 未安装，跳过多尺寸图片生成（可安装: pip install pillow）")
+        return True
+
+    raster_exts = {".jpg", ".jpeg", ".png", ".webp"}
+    img_tag_pattern = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
+    src_pattern = re.compile(r"\bsrc=(?P<quote>['\"])(?P<src>[^'\"]+)(?P=quote)", re.IGNORECASE)
+
+    def _set_or_replace_attr(tag: str, name: str, value: str) -> str:
+        attr_pattern = re.compile(rf"\b{name}\s*=\s*(['\"]).*?\1", re.IGNORECASE)
+        replacement = f'{name}="{value}"'
+
+        if attr_pattern.search(tag):
+            return attr_pattern.sub(replacement, tag, count=1)
+
+        close_pos = tag.rfind(">")
+        if close_pos == -1:
+            return tag
+        return f"{tag[:close_pos]} {replacement}{tag[close_pos:]}"
+
+    def _split_url(url: str) -> tuple[str, str, str]:
+        no_frag, _, frag = url.partition("#")
+        base, _, query = no_frag.partition("?")
+        return base, query, frag
+
+    def _resolve_local_file(base_url: str, html_file: Path) -> Path | None:
+        if base_url.startswith(("http://", "https://", "//", "data:")):
+            return None
+
+        if base_url.startswith("/"):
+            candidate = site_dir / base_url.lstrip("/")
+        else:
+            candidate = (html_file.parent / base_url).resolve()
+
+        try:
+            candidate.resolve().relative_to(site_dir.resolve())
+        except Exception:
+            return None
+
+        return candidate
+
+    def _replace_url_ext(url: str, new_ext: str) -> str:
+        slash_idx = url.rfind("/")
+        dot_idx = url.rfind(".")
+        if dot_idx > slash_idx:
+            return f"{url[:dot_idx]}{new_ext}"
+        return f"{url}{new_ext}"
+
+    def _normalize_mode(img, output_ext: str):
+        if output_ext in {".jpg", ".jpeg"} and img.mode not in {"RGB", "L"}:
+            return img.convert("RGB")
+
+        if output_ext == ".webp" and img.mode not in {"RGB", "RGBA", "L", "LA"}:
+            return img.convert("RGBA" if "A" in img.getbands() else "RGB")
+
+        return img
+
+    def _save_resized_image(img, output_path: Path, output_ext: str) -> None:
+        if output_ext in {".jpg", ".jpeg"}:
+            img.save(
+                output_path,
+                format="JPEG",
+                quality=78,
+                optimize=True,
+                progressive=True,
+            )
+        elif output_ext == ".png":
+            img.save(output_path, format="PNG", optimize=True)
+        elif output_ext == ".webp":
+            img.save(output_path, format="WEBP", quality=webp_quality, method=6)
+
+    try:
+        resample = Image.Resampling.LANCZOS
+    except Exception:
+        resample = Image.LANCZOS
+
+    generated_variants = 0
+    updated_img_tags = 0
+    updated_html_files = 0
+    image_dim_cache: dict[str, tuple[int, int]] = {}
+
+    try:
+        for html_file in site_dir.rglob("*.html"):
+            content = html_file.read_text(encoding="utf-8")
+
+            def _replace_img(match: re.Match[str]) -> str:
+                nonlocal generated_variants, updated_img_tags
+
+                original_tag = match.group(0)
+                src_match = src_pattern.search(original_tag)
+                if not src_match:
+                    return original_tag
+
+                src_url = src_match.group("src")
+                base_url, _, _ = _split_url(src_url)
+                local_file = _resolve_local_file(base_url, html_file)
+                if local_file is None or not local_file.exists():
+                    return original_tag
+
+                ext = local_file.suffix.lower()
+                if ext not in raster_exts:
+                    return original_tag
+
+                output_ext = ".webp" if prefer_webp else ext
+                output_base_file = local_file.with_suffix(output_ext)
+                output_base_url = _replace_url_ext(base_url, output_ext)
+
+                cache_key = str(local_file)
+                if cache_key in image_dim_cache:
+                    src_w, src_h = image_dim_cache[cache_key]
+                else:
+                    try:
+                        with Image.open(local_file) as src_img:
+                            src_w, src_h = src_img.size
+                    except Exception:
+                        return original_tag
+                    image_dim_cache[cache_key] = (src_w, src_h)
+
+                # 始终补齐原始尺寸，帮助浏览器提前建立布局与懒加载判定
+                new_tag = _set_or_replace_attr(original_tag, "width", str(src_w))
+                new_tag = _set_or_replace_attr(new_tag, "height", str(src_h))
+
+                # 自动生成 WebP 主图并切换 src（若已是 WebP 则仅更新时间戳逻辑）
+                try:
+                    source_mtime = local_file.stat().st_mtime
+                    if (
+                        output_base_file != local_file
+                        and (
+                            (not output_base_file.exists())
+                            or (output_base_file.stat().st_mtime < source_mtime)
+                        )
+                    ):
+                        with Image.open(local_file) as src_img:
+                            working = _normalize_mode(src_img, output_ext)
+                            _save_resized_image(working, output_base_file, output_ext)
+                            generated_variants += 1
+                except Exception:
+                    return original_tag
+
+                new_tag = _set_or_replace_attr(new_tag, "src", output_base_url)
+
+                widths = [w for w in target_widths if 0 < w < src_w]
+                if not widths:
+                    if new_tag != original_tag:
+                        updated_img_tags += 1
+                    return new_tag
+
+                variant_entries: list[tuple[str, int]] = []
+
+                try:
+                    with Image.open(local_file) as src_img:
+                        for w in widths:
+                            variant_name = f"{local_file.stem}-w{w}{output_ext}"
+                            variant_path = local_file.with_name(variant_name)
+
+                            if (not variant_path.exists()) or (variant_path.stat().st_mtime < local_file.stat().st_mtime):
+                                working = _normalize_mode(src_img, output_ext)
+
+                                new_h = max(1, round(src_h * (w / src_w)))
+                                resized = working.resize((w, new_h), resample=resample)
+
+                                _save_resized_image(resized, variant_path, output_ext)
+
+                                generated_variants += 1
+
+                            variant_url = f"{base_url.rsplit('/', 1)[0]}/{variant_name}"
+                            variant_entries.append((variant_url, w))
+                except Exception:
+                    return original_tag
+
+                variant_entries.append((output_base_url, src_w))
+                variant_entries.sort(key=lambda item: item[1])
+                srcset_value = ", ".join(f"{url} {w}w" for url, w in variant_entries)
+
+                new_tag = _set_or_replace_attr(new_tag, "srcset", srcset_value)
+
+                # 对生成过的标签统一校正 sizes：
+                # - 新标签补齐 sizes
+                # - 旧版本的 sizes="100vw" 自动升级为更贴近正文宽度的默认值
+                sizes_match = re.search(r"\bsizes\s*=\s*(['\"])(?P<value>.*?)\1", new_tag, re.IGNORECASE)
+                if sizes_match is None or sizes_match.group("value").strip().lower() in {"100vw", "auto"}:
+                    new_tag = _set_or_replace_attr(new_tag, "sizes", default_sizes)
+
+                if new_tag != original_tag:
+                    updated_img_tags += 1
+
+                return new_tag
+
+            new_content = img_tag_pattern.sub(_replace_img, content)
+
+            if new_content != content:
+                html_file.write_text(new_content, encoding="utf-8")
+                updated_html_files += 1
+
+        if updated_img_tags > 0:
+            print(
+                "✅ 多尺寸图片生成完成: "
+                f"新增/更新 {generated_variants} 个变体文件，更新 {updated_img_tags} 个 <img>，涉及 {updated_html_files} 个 HTML"
+            )
+
+        return True
+    except Exception as e:
+        print(f"❌ 多尺寸图片生成失败: {e}")
+        return False
+
+
+def add_image_lazy_loading(site_dir: Path) -> bool:
+    """
+    为 HTML 中的 <img> 标签补充懒加载属性。
+
+    注入规则（仅在属性不存在时补充）：
+    - loading="lazy"
+    - decoding="async"
+    - fetchpriority="low"
+    """
+
+    img_pattern = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
+
+    def ensure_attr(tag: str, name: str, value: str) -> str:
+        if re.search(rf"\b{name}\s*=", tag, re.IGNORECASE):
+            return tag
+
+        close_pos = tag.rfind(">")
+        if close_pos == -1:
+            return tag
+
+        return f'{tag[:close_pos]} {name}="{value}"{tag[close_pos:]}'
+
+    try:
+        updated_html_count = 0
+        updated_img_count = 0
+
+        for html_file in site_dir.rglob("*.html"):
+            content = html_file.read_text(encoding="utf-8")
+
+            def _replace(match: re.Match[str]) -> str:
+                nonlocal updated_img_count
+
+                original_tag = match.group(0)
+                new_tag = original_tag
+                new_tag = ensure_attr(new_tag, "loading", "lazy")
+                new_tag = ensure_attr(new_tag, "decoding", "async")
+                new_tag = ensure_attr(new_tag, "fetchpriority", "low")
+
+                if new_tag != original_tag:
+                    updated_img_count += 1
+
+                return new_tag
+
+            new_content = img_pattern.sub(_replace, content)
+
+            if new_content != content:
+                html_file.write_text(new_content, encoding="utf-8")
+                updated_html_count += 1
+
+        if updated_img_count > 0:
+            print(f"✅ 图片懒加载注入完成: 更新 {updated_img_count} 个 <img>，涉及 {updated_html_count} 个 HTML")
+
+        return True
+    except Exception as e:
+        print(f"❌ 图片懒加载注入失败: {e}")
         return False
 
 
@@ -1143,6 +1641,10 @@ def build(force: bool = False) -> bool:
 
     results.append(copy_assets())
     results.append(copy_content_assets(force))
+    results.append(extract_inline_images(SITE_DIR))
+    results.append(optimize_inline_images(SITE_DIR))
+    results.append(generate_responsive_images(SITE_DIR))
+    results.append(add_image_lazy_loading(SITE_DIR))
 
     if site_url := get_site_url():
         results.append(generate_sitemap(site_url))
