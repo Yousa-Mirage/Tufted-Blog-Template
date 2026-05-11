@@ -34,6 +34,7 @@ CSS CUSTOM PROPERTIES (Theme Variables)
 	--theme-table-row-even: #fafafa;
 	--theme-table-row-hover: #f0f0f0;
 	--theme-math-filter: none;
+	--theme-date-text: #888;
 	--theme-back-to-top: #555;
 	--theme-back-to-top-hover: #111;
 }
@@ -64,6 +65,7 @@ html:not([data-theme]) {
 	--theme-table-row-even: #2a2a2a;
 	--theme-table-row-hover: #383838;
 	--theme-math-filter: invert(1) hue-rotate(180deg);
+	--theme-date-text: #999;
 	--theme-back-to-top: #bbb;
 	--theme-back-to-top-hover: #fff;
 }
@@ -94,6 +96,7 @@ html:not([data-theme]) {
 		--theme-table-row-even: #fafafa;
 		--theme-table-row-hover: #f0f0f0;
 		--theme-math-filter: none;
+		--theme-date-text: #888;
 		--theme-back-to-top: #555;
 		--theme-back-to-top-hover: #111;
 	}

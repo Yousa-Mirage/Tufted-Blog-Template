@@ -62,6 +62,7 @@
 /// - description: page description
 /// - lang: website language
 /// - date: publication date (datetime or string)
+/// - updated: updated date (datetime or string)
 /// - website-title: website title (for RSS feed)
 /// - website-url: website URL (for SEO and RSS feed)
 /// - image-path: page image path (for Open Graph)
@@ -72,6 +73,7 @@
   description: "",
   lang: "zh",
   date: none,
+  updated: none,
   website-title: "",
   website-url: none,
   image-path: none,
@@ -98,6 +100,14 @@
     html.meta(name: "date", content: date.display())
   } else if type(date) == str {
     html.meta(name: "date", content: date)
+    html.elem("meta", attrs: (property: "article:published_time", content: date))
+  }
+
+  if type(updated) == datetime {
+    html.meta(name: "updated", content: updated.display())
+  } else if type(updated) == str {
+    html.meta(name: "updated", content: updated)
+    html.elem("meta", attrs: (property: "article:modified_time", content: updated))
   }
 
   // RSS feed link

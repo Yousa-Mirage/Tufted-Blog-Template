@@ -30,6 +30,8 @@
 - 📝 支持生成 HTML 网页和 PDF 文档，支持链接到 PDF
 - 🌐 内置 GitHub Actions 工作流，一键部署网站
 - 🌙 支持浅色/深色模式自动选择和一键切换
+- 🕒 支持文章发布时间、更新时间，以及可选的地理位置时间和地点显示
+- 🔁 内置 `run.sh` 本地工作流，支持初次构建、预览、依赖提示和保存后自动重建
 - 📄 丰富的示例和文档，无需任何前置知识，[简单学习 Typst](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/Typst-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E8%B5%84%E6%96%99) 后即可开始编写
 
 ## 📦 环境准备（仅需一次）
@@ -159,6 +161,15 @@ uv run build.py preview
 python build.py preview
 ```
 
+在 macOS 和 Linux 上，也可以使用辅助脚本：
+
+```bash
+./run.sh
+./run.sh -p 3000
+```
+
+`run.sh` 会检查必需工具；如果缺少依赖，它只会打印安装命令并退出，不会自动安装任何内容。初次构建后，它会启动预览服务器，并监听 `content/`、`tufted-lib/`、`assets/` 和 `config.typ`，保存源文件后自动增量重建。
+
 <details>
 <summary>预览命令说明</summary>
 
@@ -184,6 +195,19 @@ uv run build.py preview -p 12345
 
 1. **修改配置**：编辑 `config.typ` 设置网站标题和导航栏，还可以在 `assets/` 下放置一个 `favicon.ico` 文件作为你网站的标签页图标。
 2. **添加文章**：在 `content/` 下创建新的 `.typ` 文件，可以参考目前的 `content/` 获得示例。
+   如果要显示文章日期，可以向页面模板传入 ISO 8601 日期字符串：
+
+    ```typst
+    #show: template.with(
+      title: "我的文章",
+      date: "2026-05-11T23:00:00+08:00",
+      date_geo: "39.90575633274352, 116.39754524301722",
+      updated: auto,
+      updated_geo: "39.90575633274352, 116.39754524301722",
+    )
+    ```
+
+   `date_geo` 和 `updated_geo` 是可选的 `"lat,lng"` 坐标。设置后，浏览器会按该位置格式化时间并尝试显示地点名；如果网络查询失败，页面会保留日期回退显示。
 3. **生成 PDF**：如果文件名中包含 `PDF` (如 `CV-PDF.typ`)，构建脚本会自动将其编译为 PDF 文件，此时你可以在网页中添加链接指向该 PDF。
 4. **部署网站**：在你的 GitHub 仓库中**将 Pages 的 `Build and deployment > Source` 设置为 `GitHub Actions`**，然后将修改后的内容推送到 GitHub，GitHub Actions 会自动构建、部署、更新网站。具体内容可参考 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/GitHub-Pages-%E9%83%A8%E7%BD%B2%E7%BD%91%E7%AB%99)。
 
@@ -200,8 +224,8 @@ Tufted-Blog-Template/
 ├── assets/                # 静态资源 (CSS、JS、字体、图标等)
 │   ├── tufted.css             # 主样式表
 │   ├── custom.css             # 自定义样式表（用户可编辑）
-│   ├── copy-code.js           # 代码块复制功能
-│   ├── line-numbers.js        # 代码行号显示
+│   ├── code-blocks.js         # 代码行号和复制功能
+│   ├── date-location.js       # 文章日期和可选地点显示
 │   └── format-headings.js     # 标题格式化
 ├── content/               # 网站内容源文件 (.typ)
 │   ├── index.typ               # 网站首页
@@ -213,6 +237,7 @@ Tufted-Blog-Template/
 │   ├── tufted.typ             # 主模板和配置
 │   ├── layout.typ             # 页面布局定义
 │   ├── math.typ               # 数学公式处理
+│   ├── date.typ               # 文章日期显示
 │   ├── figures.typ            # 图片和图表处理
 │   ├── refs.typ               # 参考文献处理
 │   └── notes.typ              # 脚注和侧边注处理
