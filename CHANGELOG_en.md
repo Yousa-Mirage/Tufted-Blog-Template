@@ -12,6 +12,8 @@ Development updates will be recorded here.
 - feat: add back-to-top button ([#32](https://github.com/Yousa-Mirage/Tufted-Blog-Template/issues/32))
 - feat: add blog entry function to display blog entries on the blog index page (thanks [@etiennebacher](https://github.com/etiennebacher))
 - feat: automatically generate table of contents for pages with ≥3 secondary headings
+- feat: add article publication/update date display with optional geo-aware local time and place lookup
+- feat: add `run.sh` local development helper with dependency hints, preview, and automatic rebuilds
 - fix: fix theme toggle issue where reopening the webpage automatically follows the system theme instead of the last manually selected theme
 - refactor: move theme toggle button element from JS script to Typst generation (thanks [@etiennebacher](https://github.com/etiennebacher))
 - chore: use biome for code linting and formatting

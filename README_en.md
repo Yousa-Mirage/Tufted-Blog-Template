@@ -30,6 +30,8 @@ Update log available at [Changelog](CHANGELOG_en.md) .
 - 📝 Support for generating both HTML pages and PDF documents, with support for linking to PDFs
 - 🌐 Built-in GitHub Actions workflow for one-click website deployment
 - 🌙 Support light/dark mode automatic selection and one-click switching
+- 🕒 Support article publication/update dates with optional geo-aware local time and place display
+- 🔁 Built-in `run.sh` local workflow for initial build, preview, dependency hints, and automatic rebuilds
 - 📄 Rich examples and documentation, no prior knowledge required, start writing after [learning Typst basics](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/Typst-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E8%B5%84%E6%96%99)
 
 ## 📦 Environment Setup (One-time Only)
@@ -159,6 +161,15 @@ uv run build.py preview
 python build.py preview
 ```
 
+On macOS and Linux, you can also use the helper script:
+
+```bash
+./run.sh
+./run.sh -p 3000
+```
+
+`run.sh` checks for required tools and prints installation commands when something is missing. It does not install anything automatically. After the initial build, it starts the preview server and watches `content/`, `tufted-lib/`, `assets/`, and `config.typ`; saving a source file triggers an incremental rebuild.
+
 <details>
 <summary>Preview Command Explanation</summary>
 
@@ -184,6 +195,19 @@ After understanding the web page structure and how to write, you can replace the
 
 1. **Modify Configuration**: Edit `config.typ` to set the website title and navigation bar. You can also place a `favicon.ico` file in `assets/` as your website's tab icon.
 2. **Add Articles**: Create new `.typ` files in `content/`. You can refer to the current `content/` for examples.
+   To display article dates, pass ISO 8601 strings to the page template:
+
+    ```typst
+    #show: template.with(
+      title: "My Article",
+      date: "2026-05-06T21:00:00+08:00",
+      date_geo: "31.8206,117.2272",
+      updated: auto,
+      updated_geo: "31.8206,117.2272",
+    )
+    ```
+
+   `date_geo` and `updated_geo` are optional `"lat,lng"` coordinates. When present, the browser formats the time for that location and tries to show a place name; if the network lookup fails, the page keeps the date-only fallback.
 3. **Generate PDFs**: If the filename contains `PDF` (e.g., `CV-PDF.typ`), the build script will automatically compile it into a PDF file, and you can add links in the web page pointing to that PDF.
 4. **Deploy Website**: Configure Pages in your GitHub repository, push the modified content to GitHub, and GitHub Actions will automatically build, deploy, and update the website. For details, see the [Wiki page](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/GitHub-Pages-%E9%83%A8%E7%BD%B2%E7%BD%91%E7%AB%99).
 
@@ -200,8 +224,8 @@ Tufted-Blog-Template/
 ├── assets/                # Static resources (CSS, JS, fonts, icons, etc.)
 │   ├── tufted.css             # Main stylesheet
 │   ├── custom.css             # Custom stylesheet (user-editable)
-│   ├── copy-code.js           # Code block copy functionality
-│   ├── line-numbers.js        # Code line number display
+│   ├── code-blocks.js         # Code line numbers and copy functionality
+│   ├── date-location.js       # Article date and optional location display
 │   └── format-headings.js     # Heading formatting
 ├── content/               # Website content source files (.typ)
 │   ├── index.typ              # Website homepage
@@ -213,6 +237,7 @@ Tufted-Blog-Template/
 │   ├── tufted.typ             # Main template and configuration
 │   ├── layout.typ             # Page layout definitions
 │   ├── math.typ               # Mathematics formula handling
+│   ├── date.typ               # Article date display helpers
 │   ├── figures.typ            # Image and chart handling
 │   ├── refs.typ               # Reference and bibliography handling
 │   └── notes.typ              # Footnotes and margin notes handling

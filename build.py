@@ -145,6 +145,77 @@ def get_file_mtime(path: Path) -> float:
         return 0.0
 
 
+def get_file_updated_time(path: Path) -> str:
+    """
+    Get the last updated time for a source file as an ISO 8601 string.
+
+    Prefer the last git commit timestamp because it reflects content history
+    after cloning or deploying the site. Fall back to the filesystem mtime when
+    git is unavailable or the file is not tracked.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "log", "-1", "--format=%cI", "--", str(path)],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            cwd=Path(__file__).parent,
+        )
+        if result.returncode == 0:
+            git_date = result.stdout.strip()
+            if git_date:
+                datetime.fromisoformat(git_date)
+                return git_date
+    except Exception:
+        pass
+
+    mtime = path.stat().st_mtime
+    return datetime.fromtimestamp(mtime, tz=timezone.utc).isoformat()
+
+
+def get_page_path(typ_file: Path) -> str:
+    """
+    Convert a Typst source path under content/ into the page-path build input.
+    """
+    try:
+        rel_path = typ_file.relative_to(CONTENT_DIR)
+
+        if rel_path.name == "index.typ":
+            page_path = rel_path.parent.as_posix()
+            if page_path == ".":
+                return ""
+            return page_path
+
+        return rel_path.with_suffix("").as_posix()
+    except ValueError:
+        return ""
+
+
+def build_html_args(typ_file: Path, output_path: Path, updated: str | None = None) -> list[str]:
+    """
+    Build the Typst CLI arguments for an HTML page.
+    """
+    updated_time = updated or get_file_updated_time(typ_file)
+
+    return [
+        "compile",
+        "--root",
+        ".",
+        "--font-path",
+        str(ASSETS_DIR),
+        "--features",
+        "html",
+        "--format",
+        "html",
+        "--input",
+        f"page-path={get_page_path(typ_file)}",
+        "--input",
+        f"updated={updated_time}",
+        str(typ_file),
+        str(output_path),
+    ]
+
+
 def is_dep_file(path: Path) -> bool:
     """
     判断一个文件是否被追踪为依赖）。
@@ -480,41 +551,6 @@ def build_html(force: bool = False) -> bool:
     # 获取公共依赖
     common_deps = find_common_dependencies()
 
-    def build_html_args(typ_file: Path, output_path: Path) -> list[str]:
-        """构建 HTML 编译参数"""
-        try:
-            rel_path = typ_file.relative_to(CONTENT_DIR)
-
-            if rel_path.name == "index.typ":
-                # index.typ uses the parent directory name as the path
-                # content/Blog/index.typ -> "Blog"
-                # content/index.typ -> "" (Homepage)
-                page_path = rel_path.parent.as_posix()
-                if page_path == ".":
-                    page_path = ""
-            else:
-                # Common files use the filename as the path
-                # content/about.typ -> "about"
-                page_path = rel_path.with_suffix("").as_posix()
-        except ValueError:
-            page_path = ""
-
-        return [
-            "compile",
-            "--root",
-            ".",
-            "--font-path",
-            str(ASSETS_DIR),
-            "--features",
-            "html",
-            "--format",
-            "html",
-            "--input",
-            f"page-path={page_path}",
-            str(typ_file),
-            str(output_path),
-        ]
-
     stats = _compile_files(
         html_files,
         force,
@@ -826,8 +862,9 @@ def extract_post_metadata(index_html: Path) -> tuple[str, str, str, datetime | N
     # 尝试从 <meta name="date"> 解析日期
     if parser.get("date"):
         try:
-            date_obj = datetime.strptime(parser["date"].split("T")[0], "%Y-%m-%d")
-            date_obj = date_obj.replace(tzinfo=timezone.utc)
+            date_obj = datetime.fromisoformat(parser["date"])
+            if date_obj.tzinfo is None:
+                date_obj = date_obj.replace(tzinfo=timezone.utc)
         except Exception:
             pass
 
