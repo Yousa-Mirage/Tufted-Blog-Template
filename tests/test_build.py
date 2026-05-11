@@ -34,6 +34,28 @@ class BuildMetadataTests(unittest.TestCase):
             self.assertEqual(link, "https://example.com/Blog/example/")
             self.assertEqual(date_obj, datetime.fromisoformat("2026-05-06T21:00:00+08:00"))
 
+    def test_extract_post_metadata_accepts_zulu_iso_timezone(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            post_dir = Path(tmp) / "2026-05-06-example"
+            post_dir.mkdir()
+            html_path = post_dir / "index.html"
+            html_path.write_text(
+                """
+                <!doctype html>
+                <html lang="en">
+                  <head>
+                    <title>Example</title>
+                    <meta name="date" content="2026-05-06T13:00:00Z">
+                  </head>
+                </html>
+                """,
+                encoding="utf-8",
+            )
+
+            *_, date_obj = build.extract_post_metadata(html_path)
+
+            self.assertEqual(date_obj, datetime.fromisoformat("2026-05-06T13:00:00+00:00"))
+
     def test_build_html_args_include_updated_input(self):
         typ_file = Path("content/Blog/2026-05-06-example/index.typ")
         output_path = Path("_site/Blog/2026-05-06-example/index.html")

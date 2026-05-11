@@ -216,6 +216,16 @@ def build_html_args(typ_file: Path, output_path: Path, updated: str | None = Non
     ]
 
 
+def parse_iso_datetime(value: str) -> datetime:
+    """
+    Parse an ISO 8601 datetime string across supported Python versions.
+    """
+    normalized = value.strip()
+    if normalized.endswith("Z"):
+        normalized = normalized[:-1] + "+00:00"
+    return datetime.fromisoformat(normalized)
+
+
 def is_dep_file(path: Path) -> bool:
     """
     判断一个文件是否被追踪为依赖）。
@@ -862,7 +872,7 @@ def extract_post_metadata(index_html: Path) -> tuple[str, str, str, datetime | N
     # 尝试从 <meta name="date"> 解析日期
     if parser.get("date"):
         try:
-            date_obj = datetime.fromisoformat(parser["date"])
+            date_obj = parse_iso_datetime(parser["date"])
             if date_obj.tzinfo is None:
                 date_obj = date_obj.replace(tzinfo=timezone.utc)
         except Exception:
