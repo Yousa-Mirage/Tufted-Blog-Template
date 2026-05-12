@@ -7,6 +7,50 @@
 #import "links.typ": template-links
 #import "metadata.typ": metadata
 
+/// Render the optional article byline below the first level-one heading.
+///
+/// The byline is shown when a page provides a date or extra information. This
+/// avoids showing the global site author on pages without article metadata.
+#let article-byline(author: none, date: none, extra-info: none) = {
+  if date != none or extra-info != none {
+    let date-display = if type(date) == datetime {
+      date.display()
+    } else {
+      date
+    }
+
+    html.div(
+      class: "article-byline",
+      {
+        if author != none or date != none {
+          html.p(
+            class: "article-byline-main",
+            {
+              if author != none {
+                html.span(class: "article-author", author)
+              }
+              if author != none and date != none {
+                html.span(class: "article-byline-separator", " · ")
+              }
+              if date != none {
+                html.elem(
+                  "time",
+                  attrs: (class: "article-date", datetime: date-display),
+                  date-display,
+                )
+              }
+            },
+          )
+        }
+
+        if extra-info != none {
+          html.p(class: "article-extra-info", extra-info)
+        }
+      },
+    )
+  }
+}
+
 /// The main wrapper function of Tufted Blog Template.
 ///
 /// Used to generate a complete HTML page structure,
@@ -20,6 +64,7 @@
   description: "",
   lang: "zh",
   date: none,
+  extra-info: none,
   website-title: "",
   website-url: none,
 
@@ -45,6 +90,14 @@
   show: template-notes
   show: template-figures
   show: template-links
+  let byline-injected = state("article-byline-injected", false)
+  show heading.where(level: 1): it => {
+    it
+    if (date != none or extra-info != none) and not byline-injected.get() {
+      byline-injected.update(true)
+      article-byline(author: author, date: date, extra-info: extra-info)
+    }
+  }
 
   set text(lang: lang)
 

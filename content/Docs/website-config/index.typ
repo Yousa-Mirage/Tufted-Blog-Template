@@ -32,7 +32,7 @@
 
 === 基本参数
 
-`tufted-web()` 函数包含 `title`、`description`、`author`、`date` 等元数据参数。这些参数会被用于生成页面的元数据。
+`tufted-web()` 函数包含 `title`、`description`、`author`、`date` 等元数据参数。这些参数会被用于生成页面的元数据。当页面设置了 `date` 或 `extra-info` 时，模板也会在第一个一级标题下方显示作者、日期和额外信息。
 
 `header-links` 参数用于定义顶部导航栏的链接和标签。它是一个字典，键是链接的路径，值是链接的标签。
 
@@ -154,6 +154,7 @@ SEO (Search Engine Optimization，搜索引擎优化) 参数用于优化网站�
   title: "新标题",
   description: "新描述",
   date: datetime(year: 2026, month: 1, day: 29),
+  extra-info: [写于北京市东城区，雪来临时。],
 )
 ```
 

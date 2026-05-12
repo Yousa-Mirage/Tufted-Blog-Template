@@ -33,7 +33,7 @@ In `config.typ`, you can define your own template by changing the parameters of 
 
 === Basic Parameters
 
-The `tufted-web()` function contains metadata parameters such as `title`, `description`, and `author`. These parameters are used to generate the page metadata.
+The `tufted-web()` function contains metadata parameters such as `title`, `description`, and `author`. These parameters are used to generate the page metadata. When a page sets `date` or `extra-info`, the template also shows the author, date, and extra information below the first level-one heading.
 
 The `header-links` parameter defines the links and labels in the top navigation bar. It is a dictionary: keys are paths, and values are labels.
 
@@ -155,6 +155,7 @@ You can modify the template at any level using `.with()`, and subpages will inhe
   title: "New Title",
   description: "New Description",
   date: datetime(year: 2026, month: 1, day: 29),
+  extra-info: [Written in Dongcheng District, Beijing, before the snow.],
 )
 ```
 

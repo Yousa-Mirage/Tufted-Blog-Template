@@ -145,6 +145,28 @@ h5 {
 	margin-bottom: 0.5rem;
 }
 
+/* Article metadata shown directly below the title */
+.article-byline {
+	width: 55%;
+	margin: -0.4rem 0 1.6rem;
+	color: var(--theme-text, #111);
+	font-size: 1.2rem;
+	line-height: 1.5;
+	opacity: 0.7;
+}
+
+.article-byline p {
+	width: 100%;
+	margin: 0;
+	text-align: left;
+	line-height: inherit;
+}
+
+.article-extra-info {
+	margin-top: 0.2rem;
+	font-size: 0.85em;
+}
+
 /* English/numeric text in headings */
 .heading-en {
 	font-style: italic;
@@ -511,6 +533,10 @@ RESPONSIVE LAYOUT
 
 	/* Blog index rows take full width on mobile */
 	.blog-entry {
+		width: 100%;
+	}
+
+	.article-byline {
 		width: 100%;
 	}
 }
