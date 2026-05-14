@@ -17,6 +17,9 @@ uv.lock
 *.swp
 *.swo
 
+# local tooling
+biome.json
+
 # build outputs
 _site/
 target/

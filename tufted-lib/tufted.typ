@@ -2,13 +2,15 @@
 #import "refs.typ": template-refs
 #import "notes.typ": template-notes
 #import "figures.typ": template-figures
+#import "blog-entry.typ": blog-entry
 #import "layout.typ": full-width, margin-note
 #import "links.typ": template-links
 #import "metadata.typ": metadata
 
-/// Tufted 博客模板的主包装函数。
+/// The main wrapper function of Tufted Blog Template.
 ///
-/// 用于生成完整的 HTML 页面结构，包含 SEO 元数据、CSS/JS 资源加载以及页眉页脚布局。
+/// Used to generate a complete HTML page structure,
+/// including SEO metadata, CSS/JS resource loading, and header and footer layout.
 #let tufted-web(
   header-links: (:),
 
@@ -80,6 +82,8 @@
           "/assets/format-headings.js",
           "/assets/theme-toggle.js",
           "/assets/marginnote-toggle.js",
+          "/assets/toc.js",
+          "/assets/back-to-top.js",
         )
         for (js-src) in (base-js + js-scripts).dedup() {
           html.script(src: js-src)
@@ -104,11 +108,23 @@
         // Add website navigation
         html.header(
           class: "site-header",
-          if header-links != none and header-links.len() > 0 {
+          if header-links != none {
             html.nav(
               class: "site-nav",
-              for (href, title) in header-links {
-                html.a(href: href, title)
+              {
+                for (href, title) in header-links {
+                  html.a(href: href, title)
+                }
+                html.elem(
+                  "button",
+                  attrs: (
+                    id: "theme-toggle",
+                    class: "theme-toggle-btn",
+                    type: "button",
+                    aria-label: "Toggle theme",
+                  ),
+                  "",
+                )
               },
             )
           }

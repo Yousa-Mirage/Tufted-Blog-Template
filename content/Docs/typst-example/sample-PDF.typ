@@ -1,4 +1,4 @@
-#import "@preview/zebraw:0.6.1": *
+#import "@preview/zebraw:0.6.3": *
 #import "@preview/tablem:0.3.0": *
 
 #set page(height: auto)

@@ -6,8 +6,15 @@
 
 开发中的更新内容将在此记录。
 
+## v1.1.0
+
 - 功能：引入了基于 [actions-template-sync](https://github.com/marketplace/actions/actions-template-sync) 的自动更新工作流（[#28](https://github.com/Yousa-Mirage/Tufted-Blog-Template/pull/28), [@HerveyB3B4](https://github.com/HerveyB3B4)）
+- 功能：添加了返回顶部按钮（[#32](https://github.com/Yousa-Mirage/Tufted-Blog-Template/issues/32)）
+- 功能：增加了 Blog 的 Entry 函数，用于在博客索引页面显示博客条目（感谢 [@etiennebacher](https://github.com/etiennebacher)）
+- 功能：为 ≥3 个二级标题的页面自动生成目录
 - 修复：修复主题切换问题，重新打开网页时会自动跟随系统主题，而不是使用上次手动选择的主题
+- 重构：将主题切换按钮元素从 JS 脚本中插入移动到 Typst 生成（感谢 [@etiennebacher](https://github.com/etiennebacher)）
+- 杂项：使用 biome 进行了代码检查和格式化。
 
 ## v1.0.0
 

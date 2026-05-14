@@ -54,18 +54,18 @@
   }
 }
 
-/// 生成完整的页面元数据，包括基础 meta 标签、SEO 标签和 RSS feed 链接
+/// Generate complete page metadata, including basic meta tags, SEO tags, and RSS feed links
 ///
-/// 参数：
-/// - title: 页面标题
-/// - author: 作者名称
-/// - description: 页面描述
-/// - lang: 网站语言
-/// - date: 发布日期（datetime 或 string）
-/// - website-title: 网站标题（用于 RSS feed）
-/// - website-url: 网站 URL（用于 SEO 和 RSS feed）
-/// - image-path: 页面图片路径（用于 Open Graph）
-/// - feed-dir: RSS feed 目录配置
+/// args：
+/// - title: page title
+/// - author: author name
+/// - description: page description
+/// - lang: website language
+/// - date: publication date (datetime or string)
+/// - website-title: website title (for RSS feed)
+/// - website-url: website URL (for SEO and RSS feed)
+/// - image-path: page image path (for Open Graph)
+/// - feed-dir: RSS feed directory configuration
 #let metadata(
   title: "",
   author: none,

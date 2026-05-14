@@ -1,9 +1,9 @@
 #import "../index.typ": template, tufted
-#import "@preview/theorion:0.4.1": *
+#import "@preview/theorion:0.6.0": *
 #import "@preview/tablem:0.3.0": *
-#import "@preview/citegeist:0.2.0": load-bibliography
+#import "@preview/citegeist:0.2.2": load-bibliography
 #import "@preview/cmarker:0.1.8"
-#import "@preview/mitex:0.2.6": *
+#import "@preview/mitex:0.2.7": *
 
 #show: template.with(
   title: "Typst 功能速览与样例",
@@ -14,7 +14,7 @@
 
 这份文档展示了 Typst 的功能以及在当前网页模板下的效果。上方是实际渲染效果，下方的代码块是对应的源代码。
 
-#note-box[
+#note-block[
   本文档不是详细的 Typst 教程。本文档的目的是展示各种 Typst 元素在当前模板下的渲染效果，顺带展示写法。
 
   如果你之前从未接触过 Typst 和标记语言，建议先阅读 #link("https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/Typst-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E8%B5%84%E6%96%99")[Wiki 页面] 及其中的资料，进行了解和学习后再来阅读本文档。
@@ -183,7 +183,7 @@
 }
 
 ```typ
-#import "@preview/citegeist:0.2.0": load-bibliography
+#import "@preview/citegeist:0.2.2": load-bibliography
 
 #{
   let bib = load-bibliography(read("papers.bib"))
@@ -309,32 +309,32 @@
 
 你可以使用同样是 #link("https://blog.orangex4.workers.dev/")[\@OrangeX4] 大佬写的定理包 #link("https://typst.app/universe/package/theorion")[`theorion`] 来实现各种特殊的段落样式，例如：
 
-#quote-box[
+#quote-block[
   这是一个引用块。你可以在这里引用相当长的内容。你可以在这里引用相当长的内容。你可以在这里引用相当长的内容。你可以在这里引用相当长的内容。支持换行、分段，甚至可以在其中添加新的引用块。
-  #quote-box[这是引用块内部的引用块。]
+  #quote-block[这是引用块内部的引用块。]
   - 列表
   `This is a code block.`
 ]
-#tip-box[这是一个提示块。]
-#note-box[这是一个注意块。]
-#important-box[这是一个强调块。]
-#warning-box[这是一个警告块。]
-#caution-box[这也是一个警告块。]
+#tip-block[这是一个提示块。]
+#note-block[这是一个注意块。]
+#important-block[这是一个强调块。]
+#warning-block[这是一个警告块。]
+#caution-block[这也是一个警告块。]
 
 ```typ
-#import "@preview/theorion:0.4.1": *
+#import "@preview/theorion:0.6.0": *
 
-#quote-box[
+#quote-block[
   这是一个引用块。你可以在这里引用相当长的内容。你可以在这里引用相当长的内容。你可以在这里引用相当长的内容。你可以在这里引用相当长的内容。支持换行、分段，甚至可以在其中添加新的引用块。
-  #quote-box[这是引用块内部的引用块。]
+  #quote-block[这是引用块内部的引用块。]
   - 列表
   `This is a code block.`
 ]
-#tip-box[这是一个提示块。]
-#note-box[这是一个注意块。]
-#important-box[这是一个强调块。]
-#warning-box[这是一个警告块。]
-#caution-box[这也是一个警告块。]
+#tip-block[这是一个提示块。]
+#note-block[这是一个注意块。]
+#important-block[这是一个强调块。]
+#warning-block[这是一个警告块。]
+#caution-block[这也是一个警告块。]
 ```
 
 == 10. 数学公式
@@ -498,7 +498,7 @@ Typst 不但是一个标记排版语言，还是一门编程排版语言：
 
 ```
 #import "@preview/cmarker:0.1.8"
-#import "@preview/mitex:0.2.6": *
+#import "@preview/mitex:0.2.7": *
 
 // 这个 scope 是必要的
 // 参见 https://typst.app/universe/package/cmarker#resolving-paths-correctly

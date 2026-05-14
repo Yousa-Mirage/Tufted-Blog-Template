@@ -3,7 +3,7 @@
 // 注意：目标是 PDF 的 Typst 文件中不能使用 `#show: template` 和来自 `tufted` 的命令
 // 同时网页样式与 PDF 样式无关，你应该在 PDF 文件中自行控制 PDF 的样式效果
 
-#import "@preview/citegeist:0.2.0": load-bibliography
+#import "@preview/citegeist:0.2.2": load-bibliography
 #set page(height: auto)
 #show link: it => underline(it)
 

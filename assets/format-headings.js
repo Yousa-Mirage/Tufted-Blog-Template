@@ -1,49 +1,67 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // 选择所有级别的标题
-    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    
-    headings.forEach(el => {
-        processNode(el);
-    });
+/**
+ * Wraps ASCII runs inside headings so Latin text can use separate heading
+ * styling without affecting surrounding CJK content.
+ */
+document.addEventListener("DOMContentLoaded", () => {
+	// Process all heading levels on the page.
+	const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+	const isAscii = (char) => char.charCodeAt(0) <= 0x7f;
+	const hasAscii = (text) => Array.from(text).some(isAscii);
 
-    function processNode(node) {
-        if (node.nodeType === 3) { // 3 代表文本节点
-            const text = node.nodeValue;
-            
-            // 如果包含 ASCII 字符 (英文、数字、半角标点)
-            if (/[\x00-\x7F]/.test(text)) {
-                const fragment = document.createDocumentFragment();
-                let lastIndex = 0;
-                // 正则：匹配连续的 ASCII 字符
-                const regex = /[\x00-\x7F]+/g;
-                let match;
-                
-                while ((match = regex.exec(text)) !== null) {
-                    // 1. 添加匹配前的中文文本
-                    if (match.index > lastIndex) {
-                        fragment.appendChild(document.createTextNode(text.substring(lastIndex, match.index)));
-                    }
-                    
-                    // 2. 添加匹配到的英文文本，包裹 span
-                    const span = document.createElement('span');
-                    span.className = 'heading-en';
-                    span.textContent = match[0];
-                    fragment.appendChild(span);
-                    
-                    lastIndex = regex.lastIndex;
-                }
-                
-                // 3. 添加剩余的文本
-                if (lastIndex < text.length) {
-                    fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
-                }
-                
-                // 用新的片段替换原来的文本节点
-                node.parentNode.replaceChild(fragment, node);
-            }
-        } else if (node.nodeType === 1) { // 1 代表元素节点 (如 h2 里的 a 标签)
-            // 递归处理子节点
-            Array.from(node.childNodes).forEach(processNode);
-        }
-    }
+	headings.forEach((el) => {
+		processNode(el);
+	});
+
+	function processNode(node) {
+		if (node.nodeType === 3) {
+			// Node type 3 is a text node.
+			const text = node.nodeValue ?? "";
+
+			// Only split text nodes that contain ASCII characters.
+			if (hasAscii(text)) {
+				const fragment = document.createDocumentFragment();
+				let lastIndex = 0;
+				let index = 0;
+
+				while (index < text.length) {
+					if (!isAscii(text[index])) {
+						index += 1;
+						continue;
+					}
+
+					if (index > lastIndex) {
+						fragment.appendChild(
+							document.createTextNode(text.substring(lastIndex, index)),
+						);
+					}
+
+					let endIndex = index + 1;
+					while (endIndex < text.length && isAscii(text[endIndex])) {
+						endIndex += 1;
+					}
+
+					const span = document.createElement("span");
+					span.className = "heading-en";
+					span.textContent = text.substring(index, endIndex);
+					fragment.appendChild(span);
+
+					lastIndex = endIndex;
+					index = endIndex;
+				}
+
+				// Append any remaining non-ASCII text after the last ASCII run.
+				if (lastIndex < text.length) {
+					fragment.appendChild(
+						document.createTextNode(text.substring(lastIndex)),
+					);
+				}
+
+				// Replace the original text node with the mixed text/span fragment.
+				node.parentNode.replaceChild(fragment, node);
+			}
+		} else if (node.nodeType === 1) {
+			// Node type 1 is an element node, such as an anchor inside a heading.
+			Array.from(node.childNodes).forEach(processNode);
+		}
+	}
 });

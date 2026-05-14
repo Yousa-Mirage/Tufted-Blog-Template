@@ -1,9 +1,9 @@
 #import "../index.typ": template, tufted
-#import "@preview/theorion:0.4.1": *
+#import "@preview/theorion:0.6.0": *
 #import "@preview/tablem:0.3.0": *
-#import "@preview/citegeist:0.2.0": load-bibliography
+#import "@preview/citegeist:0.2.2": load-bibliography
 #import "@preview/cmarker:0.1.8"
-#import "@preview/mitex:0.2.6": *
+#import "@preview/mitex:0.2.7": *
 
 #show: template.with(
   title: "Typst Example",
@@ -15,7 +15,7 @@
 
 This document showcases Typst features and how they look in the current web template. The rendered result is shown above, and the code blocks below are the corresponding source code.
 
-#note-box[
+#note-block[
   This is not a comprehensive Typst tutorial. The goal is to show how various Typst elements render in this template, and to demonstrate the syntax along the way.
 
   If you have never used Typst or any markup language before, I recommend reading the #link("https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/Typst-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E8%B5%84%E6%96%99")[Wiki page] and the resources there first.
@@ -184,7 +184,7 @@ You can even write a `for` loop to manually typeset items from a `.bib` file:
 }
 
 ```typ
-#import "@preview/citegeist:0.2.0": load-bibliography
+#import "@preview/citegeist:0.2.2": load-bibliography
 
 #{
   let bib = load-bibliography(read("../typst-example/papers.bib"))
@@ -310,34 +310,34 @@ Currently, Typst's HTML export does not support paragraph alignment or multi-col
 
 You can use the theorem package #link("https://typst.app/universe/package/theorion")[`theorion`] by #link("https://blog.orangex4.workers.dev/")[\@OrangeX4] to create special block styles, for example:
 
-#quote-box[
+#quote-block[
   This is a quote block. You can place fairly long content here. You can place fairly long content here. You can place fairly long content here. You can place fairly long content here.
   It supports line breaks and paragraphs, and you can even nest another quote block inside.
-  #quote-box[This is a nested quote block.]
+  #quote-block[This is a nested quote block.]
   - A list
   `This is a code block.`
 ]
-#tip-box[This is a tip box.]
-#note-box[This is a note box.]
-#important-box[This is an important box.]
-#warning-box[This is a warning box.]
-#caution-box[This is also a warning box.]
+#tip-block[This is a tip box.]
+#note-block[This is a note box.]
+#important-block[This is an important box.]
+#warning-block[This is a warning box.]
+#caution-block[This is also a warning box.]
 
 ```typ
-#import "@preview/theorion:0.4.1": *
+#import "@preview/theorion:0.6.0": *
 
-#quote-box[
+#quote-block[
   This is a quote block. You can place fairly long content here. You can place fairly long content here. You can place fairly long content here. You can place fairly long content here.
   It supports line breaks and paragraphs, and you can even nest another quote block inside.
-  #quote-box[This is a nested quote block.]
+  #quote-block[This is a nested quote block.]
   - A list
   `This is a code block.`
 ]
-#tip-box[This is a tip box.]
-#note-box[This is a note box.]
-#important-box[This is an important box.]
-#warning-box[This is a warning box.]
-#caution-box[This is also a warning box.]
+#tip-block[This is a tip box.]
+#note-block[This is a note box.]
+#important-block[This is an important box.]
+#warning-block[This is a warning box.]
+#caution-block[This is also a warning box.]
 ```
 
 == 10. Math
@@ -387,8 +387,7 @@ Multi-line aligned equations:
 
 #figure(caption: "Multi-line aligned equations")[
   $
-    f(x) & = (x + 1)^2 \\
-         & = x^2 + 2x + 1
+    f(x) & = (x + 1)^2 \\ & = x^2 + 2x + 1
   $
 ]
 
@@ -501,7 +500,7 @@ You can use `cmarker` to embed Markdown content in Typst documents. This is espe
 
 ```
 #import "@preview/cmarker:0.1.8"
-#import "@preview/mitex:0.2.6": *
+#import "@preview/mitex:0.2.7": *
 
 // This scope is required
 // See https://typst.app/universe/package/cmarker#resolving-paths-correctly
