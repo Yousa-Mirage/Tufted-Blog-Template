@@ -3,3 +3,10 @@ CUSTOM STYLES
 
 Add your custom CSS styles here to override or extend the default styles.
 *******************************************************************************/
+
+/* Fix native lazy loading: reserve vertical space so the browser can correctly
+   determine which images are below the fold. Without this, images have 0 height
+   before loading, causing the browser to think they are all in the viewport. */
+figure > img[loading="lazy"] {
+  min-height: 400px;
+}
