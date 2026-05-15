@@ -45,6 +45,12 @@ svg {
 	width: auto;
 }
 
+/* Give lazy-loaded images a non-zero offscreen placeholder for layout. */
+img[loading="lazy"] {
+	content-visibility: auto;
+	contain-intrinsic-size: auto 400px;
+}
+
 /*
    CONTENT ALIGNMENT & CENTERING
    Shared logic for images, SVGs

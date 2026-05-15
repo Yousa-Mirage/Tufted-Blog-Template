@@ -12,12 +12,30 @@
     if target() == "html" and type(it.source) == str {
       let alt = if it.alt == none { "" } else { it.alt }
 
-      html.img(
-        src: it.source,
-        alt: alt,
-        loading: "lazy",
-        decoding: "async",
-      )
+      let dims = measure(it)
+      let img-w = int(dims.width.pt())
+      let img-h = int(dims.height.pt())
+
+      // When use scale to resize an image (e.g., `width: 50%`),
+      // the measured dimensions are zero.
+      // `layout` is not available when exporting to HTML.
+      if img-w > 0 and img-h > 0 {
+        html.img(
+          src: it.source,
+          alt: alt,
+          loading: "lazy",
+          decoding: "async",
+          width: img-w,
+          height: img-h,
+        )
+      } else {
+        html.img(
+          src: it.source,
+          alt: alt,
+          loading: "lazy",
+          decoding: "async",
+        )
+      }
     } else {
       it
     }
