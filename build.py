@@ -131,6 +131,37 @@ def _parse_date(value: str | None, fallback_mtime: float) -> datetime:
     return datetime.fromtimestamp(fallback_mtime)
 
 
+def _copy_markdown_assets(md_file: Path, post_dir: Path) -> int:
+    """
+    复制 Markdown 文章对应的资源目录。
+
+    约定：content/Blog/_md/example.md 的图片等资源放在
+    content/Blog/_md/example/ 目录下，构建时会复制到生成的文章目录。
+    """
+    asset_dir = md_file.with_suffix("")
+    if not asset_dir.exists() or not asset_dir.is_dir():
+        return 0
+
+    copied = 0
+    for asset in asset_dir.rglob("*"):
+        if asset.is_dir():
+            continue
+
+        relative_path = asset.relative_to(asset_dir)
+        if any(part.startswith(".") for part in relative_path.parts):
+            continue
+
+        target_path = post_dir / relative_path
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        if target_path.exists() and get_file_mtime(asset) <= get_file_mtime(target_path):
+            continue
+
+        shutil.copy2(asset, target_path)
+        copied += 1
+
+    return copied
+
+
 def generate_markdown_posts() -> bool:
     """
     将 content/Blog/_md/ 下的 Markdown 文件自动包装为 Typst 博客文章。
@@ -146,6 +177,7 @@ def generate_markdown_posts() -> bool:
         return True
 
     generated = 0
+    assets_copied = 0
     for md_file in md_files:
         try:
             raw = md_file.read_text(encoding="utf-8")
@@ -163,6 +195,7 @@ def generate_markdown_posts() -> bool:
             rel_body_md = body_md_path.name
 
             post_dir.mkdir(parents=True, exist_ok=True)
+            assets_copied += _copy_markdown_assets(md_file, post_dir)
             if not body_md_path.exists() or body_md_path.read_text(encoding="utf-8") != body:
                 body_md_path.write_text(body, encoding="utf-8")
 
@@ -180,7 +213,15 @@ def generate_markdown_posts() -> bool:
 )
 
 #let scope = (
-  image: (source, alt: none, format: auto) => figure(image(source, alt: alt, format: format)),
+  image: (source, alt: none, format: auto) => figure(
+    image(source, alt: alt, format: format),
+    caption: if alt == none {{ none }} else {{ [#alt] }},
+  ),
+  mnote: tufted.margin-note,
+  margin-note: tufted.margin-note,
+  mi: mi,
+  mitex: mitex,
+  mimath: mimath,
 )
 
 #let md-content = read("{rel_body_md}")
@@ -194,8 +235,8 @@ def generate_markdown_posts() -> bool:
             print(f"❌ Markdown 文章生成失败: {md_file} ({type(e).__name__}: {e})")
             return False
 
-    if generated:
-        print(f"✅ 已从 Markdown 生成 {generated} 篇 Typst 博客文章。")
+    if generated or assets_copied:
+        print(f"✅ 已从 Markdown 生成 {generated} 篇 Typst 博客文章，复制 {assets_copied} 个资源文件。")
     return True
 
 
