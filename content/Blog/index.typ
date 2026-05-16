@@ -6,8 +6,6 @@
 
 = 博客 / Blog
 
-这里按主题整理文章。Markdown 文章可以上传到 `content/Blog/_md/`，构建时会自动生成页面；在 front matter 里写 `category` 即可归入对应分区。
-
 == 数学算法
 
 #tufted.blog-entry(
