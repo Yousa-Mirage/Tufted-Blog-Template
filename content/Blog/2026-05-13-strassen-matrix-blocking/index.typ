@@ -5,6 +5,7 @@
   title: "线性代数｜矩阵分块优化与 Strassen 算法",
   description: "从传统矩阵乘法出发，理解分块矩阵、Strassen 七次乘法公式、复杂度下降的原因，以及快速矩阵乘法的后续发展。",
   date: datetime(year: 2026, month: 5, day: 13),
+  category: "数学算法",
   lang: "zh",
 )
 

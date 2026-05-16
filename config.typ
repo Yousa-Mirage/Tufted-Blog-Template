@@ -9,18 +9,16 @@
   // 例如，如果你想添加一个 Entry 页，你需要添加 `"/Entry/": "Entry"`
   // 然后在 `content/` 路径中新建 `Entry/`路径，在其中添加 `index.typ` 作为 Entry 页的内容
   header-links: (
-    "/": "Home",
-    "/Docs/": "Docs",
     "/Blog/": "Blog",
     "/CV/": "CV",
   ),
   
   /// 网站的站点标题。会显示在浏览器标签页以及 SEO/社交分享卡片中。
-  website-title: "Shiyi Lee Blog",
+  website-title: "Shiyi Li Blog",
   /// 网站作者。用于生成 <meta name="author"> 标签。（可选）
   author: "Shiyi Li",
   /// 网站描述。用于 SEO 搜索引擎摘要和社交媒体分享预览。（可选）
-  description: "Shiyi Li 的个人博客，记录数学、算法和学习笔记。",
+  description: "Shiyi Li 的个人博客，记录数学算法、个人评论、绘画方法心得与日记。",
   /// 站点的根 URL (例如 "https://example.com")。用于生成 Canonical URL 元数据。（可选）
   website-url: "https://shiyilee11.github.io/Tufted-Blog-Template/",
   /// GitHub Pages 项目站点部署在子路径下时填写仓库名；如果部署到域名根目录则留空。
@@ -33,8 +31,8 @@
   
   /// 自定义页眉元素列表 (content 数组)。显示在页面顶部。
   header-elements: (
-    [Shiyi Lee Blog],
-    [数学、算法与学习笔记],
+    [Shiyi Li Blog],
+    [不断探索学习与分享],
   ),
   /// 自定义页脚元素列表 (content 数组)，显示在页面底部。
   footer-elements: (

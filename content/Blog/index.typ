@@ -1,14 +1,14 @@
 #import "../index.typ": template, tufted
 #show: template.with(
   title: "Blog",
-  description: "Some blog examples",
+  description: "数学算法、个人评论、绘画方法心得与日记。",
 )
 
 = 博客 / Blog
 
-这里会自动列出 `content/Blog/` 下的文章。Markdown 文章可以上传到 `content/Blog/_md/`，构建时会自动生成页面。
+这里按主题整理文章。Markdown 文章可以上传到 `content/Blog/_md/`，构建时会自动生成页面；在 front matter 里写 `category` 即可归入对应分区。
 
-== 2026
+== 数学算法
 
 #tufted.blog-entry(
   date: datetime(year: 2026, month: 5, day: 13),
@@ -16,23 +16,14 @@
   title: "线性代数｜矩阵分块优化与 Strassen 算法",
 )
 
-== 2025
+== 个人评论
 
-#tufted.blog-entry(
-  date: datetime(year: 2025, month: 10, day: 30),
-  path: "2025-10-30-normal-distribution/",
-  title: "The Normal Distribution: A Fundamental Concept in Statistics",
-)
-#tufted.blog-entry(
-  date: datetime(year: 2025, month: 4, day: 16),
-  path: "2025-04-16-monkeys-apes/",
-  title: "Monkeys vs Apes: Understanding the Difference",
-)
+暂无文章。
 
-== 2024
+== 绘画方法心得
 
-#tufted.blog-entry(
-  date: datetime(year: 2024, month: 10, day: 4),
-  path: "2024-10-04-iterators-generators/",
-  title: "Iterators vs Generators in Python",
-)
+暂无文章。
+
+== 日记模块
+
+暂无文章。

@@ -57,6 +57,7 @@ SITE_DIR = Path("_site")  # 输出目录
 ASSETS_DIR = Path("assets")  # 静态资源目录
 CONFIG_FILE = Path("config.typ")  # 全局配置文件
 BLOG_MD_DIR = CONTENT_DIR / "Blog" / "_md"  # Markdown 文章源目录
+BLOG_CATEGORIES = ("数学算法", "个人评论", "绘画方法心得", "日记模块")
 
 
 def _slugify(value: str) -> str:
@@ -76,6 +77,7 @@ def _parse_simple_frontmatter(text: str) -> tuple[dict[str, str], str]:
         ---
         title: 文章标题
         date: 2026-05-16
+        category: 数学算法
         tags: 线性代数, 算法
         description: 简介
         slug: custom-url
@@ -151,6 +153,7 @@ def generate_markdown_posts() -> bool:
 
             title = meta.get("title") or _first_markdown_heading(body) or md_file.stem
             description = meta.get("description", "")
+            category = meta.get("category", "日记模块")
             date = _parse_date(meta.get("date"), md_file.stat().st_mtime)
             slug = meta.get("slug") or _slugify(title)
             post_dir = CONTENT_DIR / "Blog" / f"{date:%Y-%m-%d}-{slug}"
@@ -172,6 +175,7 @@ def generate_markdown_posts() -> bool:
   title: "{_typst_string(title)}",
   description: "{_typst_string(description)}",
   date: datetime(year: {date.year}, month: {date.month}, day: {date.day}),
+  category: "{_typst_string(category)}",
   lang: "zh",
 )
 
@@ -234,16 +238,17 @@ def generate_blog_index() -> bool:
     if not blog_dir.exists():
         return True
 
-    posts: list[tuple[datetime, str, str]] = []
+    posts: list[tuple[datetime, str, str, str]] = []
     for typ_path in sorted(blog_dir.glob("*/index.typ")):
         try:
             rel_dir = typ_path.parent.name
             content = typ_path.read_text(encoding="utf-8")
             title = _extract_typst_string_arg(content, "title")
+            category = _extract_typst_string_arg(content, "category") or "日记模块"
             date = _extract_typst_date(content, rel_dir)
             if not title or not date:
                 continue
-            posts.append((date, rel_dir + "/", title))
+            posts.append((date, rel_dir + "/", title, category))
         except Exception as e:
             print(f"⚠️ 无法读取博客文章元数据: {typ_path} ({type(e).__name__}: {e})")
 
@@ -253,32 +258,41 @@ def generate_blog_index() -> bool:
         '#import "../index.typ": template, tufted',
         "#show: template.with(",
         '  title: "Blog",',
-        '  description: "Some blog examples",',
+        '  description: "数学算法、个人评论、绘画方法心得与日记。",',
         ")",
         "",
         "= 博客 / Blog",
         "",
-        "这里会自动列出 `content/Blog/` 下的文章。Markdown 文章可以上传到 `content/Blog/_md/`，构建时会自动生成页面。",
+        "这里按主题整理文章。Markdown 文章可以上传到 `content/Blog/_md/`，构建时会自动生成页面；在 front matter 里写 `category` 即可归入对应分区。",
         "",
     ]
 
-    current_year: int | None = None
-    for date, path, title in posts:
-        if date.year != current_year:
-            if current_year is not None:
-                lines.append("")
-            lines.append(f"== {date.year}")
+    grouped: dict[str, list[tuple[datetime, str, str, str]]] = {}
+    for post in posts:
+        grouped.setdefault(post[3], []).append(post)
+
+    category_order = list(BLOG_CATEGORIES)
+    category_order.extend(sorted(category for category in grouped if category not in BLOG_CATEGORIES))
+
+    for category in category_order:
+        lines.append(f"== {category}")
+        lines.append("")
+        category_posts = grouped.get(category, [])
+        if not category_posts:
+            lines.append("暂无文章。")
             lines.append("")
-            current_year = date.year
-        lines.extend(
-            [
-                "#tufted.blog-entry(",
-                f"  date: datetime(year: {date.year}, month: {date.month}, day: {date.day}),",
-                f'  path: "{_typst_string(path)}",',
-                f'  title: "{_typst_string(title)}",',
-                ")",
-            ]
-        )
+            continue
+        for date, path, title, _category in category_posts:
+            lines.extend(
+                [
+                    "#tufted.blog-entry(",
+                    f"  date: datetime(year: {date.year}, month: {date.month}, day: {date.day}),",
+                    f'  path: "{_typst_string(path)}",',
+                    f'  title: "{_typst_string(title)}",',
+                    ")",
+                ]
+            )
+        lines.append("")
 
     content = "\n".join(lines).rstrip() + "\n"
     if not index_path.exists() or index_path.read_text(encoding="utf-8") != content:

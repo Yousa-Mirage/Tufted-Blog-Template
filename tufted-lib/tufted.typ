@@ -20,6 +20,7 @@
   description: "",
   lang: "zh",
   date: none,
+  category: none,
   website-title: "",
   website-url: none,
   base-path: "",
