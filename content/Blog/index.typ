@@ -8,6 +8,14 @@
 
 中文博客样例可参考 #link("https://yousa-mirage.github.io/Blog")[我的个人网站]。
 
+== 2026
+
+#tufted.blog-entry(
+  date: datetime(year: 2026, month: 5, day: 13),
+  path: "2026-05-13-strassen-matrix-blocking/",
+  title: "线性代数｜矩阵分块优化与 Strassen 算法",
+)
+
 == 2025
 
 #tufted.blog-entry(
