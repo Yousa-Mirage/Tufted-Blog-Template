@@ -217,6 +217,7 @@ def generate_markdown_posts() -> bool:
     image(source, alt: alt, format: format),
     caption: if alt == none {{ none }} else {{ [#alt] }},
   ),
+  raw-image: image,
   mnote: tufted.margin-note,
   margin-note: tufted.margin-note,
   mi: mi,
