@@ -23,6 +23,8 @@
   description: "Shiyi Li 的个人博客，记录数学、算法和学习笔记。",
   /// 站点的根 URL (例如 "https://example.com")。用于生成 Canonical URL 元数据。（可选）
   website-url: "https://shiyilee11.github.io/Tufted-Blog-Template/",
+  /// GitHub Pages 项目站点部署在子路径下时填写仓库名；如果部署到域名根目录则留空。
+  base-path: "/Tufted-Blog-Template",
   /// 网站的默认语言，例如 "zh" 或 "en"，默认为 "zh"。
   lang: "zh",
   /// 订阅源配置 (字符串数组)，指定包含在 RSS 订阅源中的内容目录列表。（可选）

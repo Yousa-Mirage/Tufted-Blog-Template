@@ -1,6 +1,18 @@
 #import "layout.typ": margin-note
 
-#let template-figures(content) = {
+#let template-figures(base-path: "", content) = {
+  let with-base(path) = {
+    if type(path) != str or base-path == none or base-path == "" or base-path == "/" {
+      path
+    } else if path.starts-with("http") or path.starts-with("#") {
+      path
+    } else if path.starts-with("/") {
+      base-path.trim("/", at: end) + path
+    } else {
+      path
+    }
+  }
+
   // Redefine figure caption to use marginnote
   show figure.caption: it => html.span(
     class: "marginnote",
@@ -21,7 +33,7 @@
       // `layout` is not available when exporting to HTML.
       if img-w > 0 and img-h > 0 {
         html.img(
-          src: it.source,
+          src: with-base(it.source),
           alt: alt,
           loading: "lazy",
           decoding: "async",
@@ -30,7 +42,7 @@
         )
       } else {
         html.img(
-          src: it.source,
+          src: with-base(it.source),
           alt: alt,
           loading: "lazy",
           decoding: "async",

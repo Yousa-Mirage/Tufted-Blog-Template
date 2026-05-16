@@ -22,6 +22,7 @@
   date: none,
   website-title: "",
   website-url: none,
+  base-path: "",
 
   // For SEO
   image-path: none,
@@ -39,12 +40,24 @@
 
   content,
 ) = {
+  let with-base(path) = {
+    if type(path) != str or base-path == none or base-path == "" or base-path == "/" {
+      path
+    } else if path.starts-with("http") or path.starts-with("#") {
+      path
+    } else if path.starts-with("/") {
+      base-path.trim("/", at: end) + path
+    } else {
+      path
+    }
+  }
+
   // Apply styling
   show: template-math
   show: template-refs
   show: template-notes
-  show: template-figures
-  show: template-links
+  show: template-figures.with(base-path: base-path)
+  show: template-links.with(base-path: base-path)
 
   set text(lang: lang)
 
@@ -64,6 +77,7 @@
           website-url: website-url,
           image-path: image-path,
           feed-dir: feed-dir,
+          base-path: base-path,
         )
 
         // load CSS
@@ -73,7 +87,7 @@
           "/assets/theme.css",
         )
         for (css-link) in (base-css + css).dedup() {
-          html.link(rel: "stylesheet", href: css-link)
+          html.link(rel: "stylesheet", href: with-base(css-link))
         }
 
         // load JS scripts
@@ -86,7 +100,7 @@
           "/assets/back-to-top.js",
         )
         for (js-src) in (base-js + js-scripts).dedup() {
-          html.script(src: js-src)
+          html.script(src: with-base(js-src))
         }
       })
 
@@ -113,7 +127,7 @@
               class: "site-nav",
               {
                 for (href, title) in header-links {
-                  html.a(href: href, title)
+                  html.a(href: with-base(href), title)
                 }
                 html.elem(
                   "button",

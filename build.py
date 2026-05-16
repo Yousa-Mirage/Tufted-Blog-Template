@@ -46,6 +46,7 @@ from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Literal
+import unicodedata
 
 # ============================================================================
 # 配置
@@ -55,6 +56,236 @@ CONTENT_DIR = Path("content")  # 源文件目录
 SITE_DIR = Path("_site")  # 输出目录
 ASSETS_DIR = Path("assets")  # 静态资源目录
 CONFIG_FILE = Path("config.typ")  # 全局配置文件
+BLOG_MD_DIR = CONTENT_DIR / "Blog" / "_md"  # Markdown 文章源目录
+
+
+def _slugify(value: str) -> str:
+    """
+    将文章标题转换为适合 URL 的 slug。
+    """
+    value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
+    value = re.sub(r"[^a-zA-Z0-9]+", "-", value).strip("-").lower()
+    return value or "post"
+
+
+def _parse_simple_frontmatter(text: str) -> tuple[dict[str, str], str]:
+    """
+    解析 Markdown 文件开头的简单 YAML front matter。
+
+    支持格式:
+        ---
+        title: 文章标题
+        date: 2026-05-16
+        tags: 线性代数, 算法
+        description: 简介
+        slug: custom-url
+        ---
+    """
+    if not text.startswith("---"):
+        return {}, text
+
+    match = re.match(r"^---\s*\n(.*?)\n---\s*\n?", text, re.DOTALL)
+    if not match:
+        return {}, text
+
+    meta: dict[str, str] = {}
+    for line in match.group(1).splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        meta[key.strip().lower()] = value.strip().strip("\"'")
+
+    return meta, text[match.end() :]
+
+
+def _first_markdown_heading(markdown: str) -> str | None:
+    """
+    从 Markdown 正文中提取第一个一级标题。
+    """
+    for line in markdown.splitlines():
+        match = re.match(r"^#\s+(.+?)\s*$", line)
+        if match:
+            return match.group(1).strip()
+    return None
+
+
+def _typst_string(value: str) -> str:
+    """
+    转义 Typst 字符串。
+    """
+    return value.replace("\\", "\\\\").replace("\"", "\\\"")
+
+
+def _parse_date(value: str | None, fallback_mtime: float) -> datetime:
+    """
+    解析 YYYY-MM-DD 日期；没有提供时使用文件修改日期。
+    """
+    if value:
+        try:
+            return datetime.strptime(value.strip(), "%Y-%m-%d")
+        except ValueError:
+            print(f"⚠️ Markdown front matter 日期格式无效: {value!r}，已使用文件修改日期。")
+    return datetime.fromtimestamp(fallback_mtime)
+
+
+def generate_markdown_posts() -> bool:
+    """
+    将 content/Blog/_md/ 下的 Markdown 文件自动包装为 Typst 博客文章。
+
+    这是静态站点可实现的“上传 Markdown 自动发布”方式：把 .md 上传到
+    content/Blog/_md/，GitHub Actions 构建时会生成对应的 Typst 页面。
+    """
+    if not BLOG_MD_DIR.exists():
+        return True
+
+    md_files = sorted(BLOG_MD_DIR.glob("*.md"))
+    if not md_files:
+        return True
+
+    generated = 0
+    for md_file in md_files:
+        try:
+            raw = md_file.read_text(encoding="utf-8")
+            meta, body = _parse_simple_frontmatter(raw)
+
+            title = meta.get("title") or _first_markdown_heading(body) or md_file.stem
+            description = meta.get("description", "")
+            date = _parse_date(meta.get("date"), md_file.stat().st_mtime)
+            slug = meta.get("slug") or _slugify(title)
+            post_dir = CONTENT_DIR / "Blog" / f"{date:%Y-%m-%d}-{slug}"
+            typ_path = post_dir / "index.typ"
+            body_md_path = post_dir / "post.md"
+            rel_md = os.path.relpath(md_file, post_dir).replace(os.sep, "/")
+            rel_body_md = body_md_path.name
+
+            post_dir.mkdir(parents=True, exist_ok=True)
+            if not body_md_path.exists() or body_md_path.read_text(encoding="utf-8") != body:
+                body_md_path.write_text(body, encoding="utf-8")
+
+            typ_content = f'''#import "../index.typ": template, tufted
+#import "@preview/cmarker:0.1.8"
+#import "@preview/mitex:0.2.7": *
+
+// 此文件由 build.py 从 {rel_md} 自动生成。请编辑 Markdown 源文件。
+#show: template.with(
+  title: "{_typst_string(title)}",
+  description: "{_typst_string(description)}",
+  date: datetime(year: {date.year}, month: {date.month}, day: {date.day}),
+  lang: "zh",
+)
+
+#let scope = (
+  image: (source, alt: none, format: auto) => figure(image(source, alt: alt, format: format)),
+)
+
+#let md-content = read("{rel_body_md}")
+#cmarker.render(md-content, math: mitex, scope: scope)
+'''
+
+            if not typ_path.exists() or typ_path.read_text(encoding="utf-8") != typ_content:
+                typ_path.write_text(typ_content, encoding="utf-8")
+                generated += 1
+        except Exception as e:
+            print(f"❌ Markdown 文章生成失败: {md_file} ({type(e).__name__}: {e})")
+            return False
+
+    if generated:
+        print(f"✅ 已从 Markdown 生成 {generated} 篇 Typst 博客文章。")
+    return True
+
+
+def _extract_typst_string_arg(content: str, name: str) -> str | None:
+    """
+    从 template.with(...) 中提取简单字符串参数。
+    """
+    match = re.search(rf"{re.escape(name)}\s*:\s*\"((?:\\.|[^\"])*)\"", content)
+    if not match:
+        return None
+    value = match.group(1)
+    return value.replace('\\"', '"').replace("\\\\", "\\")
+
+
+def _extract_typst_date(content: str, fallback_name: str) -> datetime | None:
+    """
+    从 template.with(...) 中提取 datetime(year, month, day)。
+    """
+    match = re.search(
+        r"date\s*:\s*datetime\s*\(\s*year\s*:\s*(\d{4})\s*,\s*month\s*:\s*(\d{1,2})\s*,\s*day\s*:\s*(\d{1,2})\s*,?\s*\)",
+        content,
+        re.DOTALL,
+    )
+    if match:
+        return datetime(int(match.group(1)), int(match.group(2)), int(match.group(3)))
+
+    match = re.search(r"(\d{4})-(\d{2})-(\d{2})", fallback_name)
+    if match:
+        return datetime(int(match.group(1)), int(match.group(2)), int(match.group(3)))
+
+    return None
+
+
+def generate_blog_index() -> bool:
+    """
+    根据 content/Blog 下的文章目录自动生成博客列表页。
+    """
+    blog_dir = CONTENT_DIR / "Blog"
+    index_path = blog_dir / "index.typ"
+    if not blog_dir.exists():
+        return True
+
+    posts: list[tuple[datetime, str, str]] = []
+    for typ_path in sorted(blog_dir.glob("*/index.typ")):
+        try:
+            rel_dir = typ_path.parent.name
+            content = typ_path.read_text(encoding="utf-8")
+            title = _extract_typst_string_arg(content, "title")
+            date = _extract_typst_date(content, rel_dir)
+            if not title or not date:
+                continue
+            posts.append((date, rel_dir + "/", title))
+        except Exception as e:
+            print(f"⚠️ 无法读取博客文章元数据: {typ_path} ({type(e).__name__}: {e})")
+
+    posts.sort(key=lambda item: item[0], reverse=True)
+
+    lines = [
+        '#import "../index.typ": template, tufted',
+        "#show: template.with(",
+        '  title: "Blog",',
+        '  description: "Some blog examples",',
+        ")",
+        "",
+        "= 博客 / Blog",
+        "",
+        "这里会自动列出 `content/Blog/` 下的文章。Markdown 文章可以上传到 `content/Blog/_md/`，构建时会自动生成页面。",
+        "",
+    ]
+
+    current_year: int | None = None
+    for date, path, title in posts:
+        if date.year != current_year:
+            if current_year is not None:
+                lines.append("")
+            lines.append(f"== {date.year}")
+            lines.append("")
+            current_year = date.year
+        lines.extend(
+            [
+                "#tufted.blog-entry(",
+                f"  date: datetime(year: {date.year}, month: {date.month}, day: {date.day}),",
+                f'  path: "{_typst_string(path)}",',
+                f'  title: "{_typst_string(title)}",',
+                ")",
+            ]
+        )
+
+    content = "\n".join(lines).rstrip() + "\n"
+    if not index_path.exists() or index_path.read_text(encoding="utf-8") != content:
+        index_path.write_text(content, encoding="utf-8")
+        print("✅ 已自动更新博客列表页。")
+
+    return True
 
 
 @dataclass
@@ -1136,6 +1367,9 @@ def build(force: bool = False) -> bool:
 
     results = []
 
+    results.append(generate_markdown_posts())
+    results.append(generate_blog_index())
+    print()
     print()
     results.append(build_html(force))
     results.append(build_pdf(force))
@@ -1232,7 +1466,7 @@ if __name__ == "__main__":
         case "build":
             success = build(force)
         case "html":
-            success = build_html(force)
+            success = generate_markdown_posts() and generate_blog_index() and build_html(force)
         case "pdf":
             success = build_pdf(force)
         case "assets":

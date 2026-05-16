@@ -76,7 +76,20 @@
   website-url: none,
   image-path: none,
   feed-dir: (),
+  base-path: "",
 ) = {
+  let with-base(path) = {
+    if type(path) != str or base-path == none or base-path == "" or base-path == "/" {
+      path
+    } else if path.starts-with("http") or path.starts-with("#") {
+      path
+    } else if path.starts-with("/") {
+      base-path.trim("/", at: end) + path
+    } else {
+      path
+    }
+  }
+
   // Basic meta tags
   html.meta(charset: "utf-8")
   html.meta(name: "viewport", content: "width=device-width, initial-scale=1")
@@ -91,7 +104,7 @@
     "Untitled Page"
   }
   html.title(page-title)
-  html.link(rel: "icon", href: "/assets/favicon.ico")
+  html.link(rel: "icon", href: with-base("/assets/favicon.ico"))
 
   // Date
   if type(date) == datetime {
@@ -106,7 +119,7 @@
     html.link(
       rel: "alternate",
       type: "application/rss+xml",
-      href: "/feed.xml",
+      href: with-base("/feed.xml"),
       title: rss-title + " RSS Feed",
     )
   }

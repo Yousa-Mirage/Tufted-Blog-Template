@@ -1,4 +1,16 @@
-#let template-links(content) = {
+#let template-links(base-path: "", content) = {
+  let with-base(path) = {
+    if type(path) != str or base-path == none or base-path == "" or base-path == "/" {
+      path
+    } else if path.starts-with("http") or path.starts-with("#") {
+      path
+    } else if path.starts-with("/") {
+      base-path.trim("/", at: end) + path
+    } else {
+      path
+    }
+  }
+
   // Open external links and non-web resources in a new tab
   show link: it => {
     if type(it.dest) == str {
@@ -10,9 +22,14 @@
 
       if is-external or is-resource {
         html.a(
-          href: it.dest,
+          href: with-base(it.dest),
           target: "_blank",
           rel: ("noopener", "noreferrer"),
+          it.body,
+        )
+      } else if it.dest.starts-with("/") {
+        html.a(
+          href: with-base(it.dest),
           it.body,
         )
       } else {

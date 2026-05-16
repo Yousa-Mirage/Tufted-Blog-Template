@@ -6,7 +6,7 @@
 
 = 博客 / Blog
 
-中文博客样例可参考 #link("https://yousa-mirage.github.io/Blog")[我的个人网站]。
+这里会自动列出 `content/Blog/` 下的文章。Markdown 文章可以上传到 `content/Blog/_md/`，构建时会自动生成页面。
 
 == 2026
 
@@ -21,18 +21,18 @@
 #tufted.blog-entry(
   date: datetime(year: 2025, month: 10, day: 30),
   path: "2025-10-30-normal-distribution/",
-  title: "Normal Distribution",
+  title: "The Normal Distribution: A Fundamental Concept in Statistics",
 )
 #tufted.blog-entry(
   date: datetime(year: 2025, month: 4, day: 16),
-  path: "2025-04-16-monkeys-apes",
-  title: "Monkeys vs Apes",
+  path: "2025-04-16-monkeys-apes/",
+  title: "Monkeys vs Apes: Understanding the Difference",
 )
 
 == 2024
 
 #tufted.blog-entry(
-  date: "2024-10-04",
+  date: datetime(year: 2024, month: 10, day: 4),
   path: "2024-10-04-iterators-generators/",
   title: "Iterators vs Generators in Python",
 )
