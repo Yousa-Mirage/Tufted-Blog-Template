@@ -683,10 +683,10 @@ TABLE OF CONTENTS
 .toc-sidebar {
 	position: fixed;
 	top: 15rem;
-	left: 1rem;
+	left: 1%;
 	z-index: 10;
 	display: none;
-	width: 13%;
+	width: 10.5%;
 	max-height: calc(100vh - 11rem);
 	overflow-y: auto;
 	color: var(--theme-line-numbers-text, #aaa);
