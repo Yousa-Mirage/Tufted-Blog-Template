@@ -6,6 +6,17 @@
 
 = 博客 / Blog
 
+#line(length: 100%, stroke: 0.4pt + luma(180))
+
+#align(center)[
+  #text(size: 0.9em, fill: luma(80))[
+    If you enjoy my blog, feel free to bookmark the site: \
+    #link("https://shiyilee11.github.io/Tufted-Blog-Template/Blog/")[shiyilee11.github.io/Blog] \
+    If you have any ideas or suggestions, don't hesitate to reach out via #link("mailto:1747819157@qq.com")[email]. \
+    I'd love to hear your feedback! 🙌
+  ]
+]
+
 == 数学算法
 
 #tufted.blog-entry(
