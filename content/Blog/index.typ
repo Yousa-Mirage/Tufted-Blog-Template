@@ -4,9 +4,9 @@
   description: "数学算法、个人评论、绘画方法心得与日记。",
 )
 
-= 博客 / Blog
+= 博客
 
-#quote[
+#tufted.margin-note[
   If you enjoy my blog, feel free to bookmark the site:
   #link("https://shiyilee11.github.io/Tufted-Blog-Template/Blog/")[shiyilee11.github.io/Blog].
   If you have any ideas or suggestions, don't hesitate to reach out via #link("mailto:1747819157@qq.com")[email].
