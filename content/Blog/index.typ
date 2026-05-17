@@ -11,7 +11,7 @@
   If you have any ideas or suggestions, don't hesitate to reach out via #link("mailto:1747819157@qq.com")[email].
   I'd love to hear your feedback! 🙌
 ]
-== 数学算法
+== 数学与算法
 
 #tufted.blog-entry(
   date: datetime(year: 2026, month: 5, day: 13),
@@ -19,14 +19,14 @@
   title: "线性代数｜矩阵分块优化与 Strassen 算法",
 )
 
-== 个人评论
+== 杂谈
 
 暂无文章。
 
-== 绘画方法心得
+== 绘画记录
 
 暂无文章。
 
-== 日记模块
+== 日记
 
 暂无文章。
