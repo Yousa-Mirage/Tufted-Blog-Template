@@ -6,16 +6,10 @@
 
 = 博客 / Blog
 
-#block(
-  width: 100%,
-  inset: 12pt,
-  radius: 6pt,
-  fill: rgb("#f0f4ff"),
-  stroke: 0.5pt + rgb("#b0c4de"),
-)[
-  💡 If you enjoy my blog, feel free to bookmark the site:
-  #link("https://shiyilee11.github.io/Tufted-Blog-Template/Blog/")[shiyilee11.github.io/Blog]. \
-  Got any ideas or suggestions? Don't hesitate to reach out via #link("mailto:1747819157@qq.com")[email].
+#quote[
+  If you enjoy my blog, feel free to bookmark the site:
+  #link("https://shiyilee11.github.io/Tufted-Blog-Template/Blog/")[shiyilee11.github.io/Blog].
+  If you have any ideas or suggestions, don't hesitate to reach out via #link("mailto:1747819157@qq.com")[email].
   I'd love to hear your feedback! 🙌
 ]
 
