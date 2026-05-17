@@ -21,7 +21,12 @@
 
 == 杂谈
 
-暂无文章。
+#tufted.blog-entry(
+  date: datetime(year: 2026, month: 5, day: 17),
+  path: "5-17",
+  title: "影评杂谈｜浅析《沉默的羔羊》：女性困境“凝视”与当代文化延伸",
+)
+
 
 == 绘画记录
 
