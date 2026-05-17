@@ -20,8 +20,11 @@
 == 一个问题
 
 #tufted.margin-note[
-  #image("imgs/post.png", width: 100%)
-  #text(size: 0.8em, fill: luma(100))[The Silence of the Lambs 海报]
+  #block[
+    #image("imgs/post.png", width: 100%)
+    #v(4pt)
+    #text(size: 0.8em, fill: luma(100))[The Silence of the Lambs 海报]
+  ]
 ]
 
 在我第一次看到这部电影的名字以及它的海报时就一直在想一个问题（不知道其他人是否都有相似的困惑）：这部片子为什么要叫《沉默的羔羊》？
@@ -68,9 +71,13 @@ _*简单来说：羔羊象征着正在被屠杀、被压迫、被不公正对待
 
 
 #tufted.margin-note[
-  #image("imgs/laura-mulvey.png", width: 90pt)
-  #text(size: 0.8em, fill: luma(100))[Laura Mulvey]
+  #block[
+    #image("imgs/laura-mulvey.png", width: 100%)
+    #v(4pt)
+    #text(size: 0.8em, fill: luma(100))[Laura Mulvey]
+  ]
 ]
+
 
 1975年，*Laura Mulvey*发表了一篇改变电影研究史的文章：*《Visual Pleasure and Narrative Cinema》*。她借用拉康和弗洛伊德的精神分析框架，提出了"男性凝视"（male gaze）这个概念。
 
@@ -149,9 +156,13 @@ Demme和摄影师Tak Fujimoto做了一个极为反直觉的技术决策：每当
 
 
 
+
 #tufted.margin-note[
-  #image("imgs/bill-dead.png", width: 100pt)
-  #text(size: 0.8em, fill: luma(100))[被杀死的 Bill]
+  #block[
+    #image("imgs/bill-dead.png", width: 100%)
+    #v(4pt)
+    #text(size: 0.8em, fill: luma(100))[被杀死的 Bill]
+  ]
 ]
 
 而Clarice赢得那一枪，靠的不是视觉优势，靠的是她的训练和本能。即使她在肉体上完全无法控制"被看见"这件事，但她还是赢了——代价是什么？这个问题稍后我们会回来。
@@ -231,8 +242,11 @@ Demme和摄影师Tak Fujimoto做了一个极为反直觉的技术决策：每当
 
 
 #tufted.margin-note[
-  #image("imgs/clover.png", width: 70pt)
-  #text(size: 0.8em, fill: luma(100))[Carol Clover]
+  #block[
+    #image("imgs/clover.png", width: 100%)
+    #v(4pt)
+    #text(size: 0.8em, fill: luma(100))[Carol Clover]
+  ]
 ]
 
 1992年，Carol Clover出版了《Men, Women, and Chain Saws》  ，提出了"最后的女孩"（Final Girl）这个概念：*砍杀片里那个唯一的幸存者，她与凶手进行最终对决，在所有人死光之后，她活下来。*
@@ -266,8 +280,11 @@ Clarice是"最后的女孩"谱系里一个格外进化的版本。影片有意�
 
 
 #tufted.margin-note[
-  #image("imgs/kiss-girls.png", width: 80pt)
-  #text(size: 0.8em, fill: luma(100))[《Kiss the Girls》]
+  #block[
+    #image("imgs/kiss-girls.png", width: 100%)
+    #v(4pt)
+    #text(size: 0.8em, fill: luma(100))[《Kiss the Girls》]
+  ]
 ]
 
 问题在于，"强女性角色"这个标签，很快从一个期待变成了一套制式。尽管电影批评者和营销团队把这个词扔向观众，"强女性角色"和"写得好的女性角色"之间存在本质区别：大多数占据好莱坞视野的，是那种刻板化的"沉默动作女英雄"，而非真正立体的人。
@@ -298,8 +315,11 @@ Clarice之所以在三十年后仍然有力量，正是因为她不是无缺陷�
 
 
 #tufted.margin-note[
-  #image("imgs/poor-things.png", width: 80pt)
-  #text(size: 0.8em, fill: luma(100))[《可怜的东西》]
+  #block[
+    #image("imgs/poor-things.png", width: 100%)
+    #v(4pt)
+    #text(size: 0.8em, fill: luma(100))[《可怜的东西》]
+  ]
 ]
 
 这部获得奥斯卡最佳影片提名、并让Emma Stone拿下影后的电影，被大量媒体和营销包装成了"2023年度女性主义电影"。它的设定足够大胆：一个被医生将婴儿大脑植入成年女性身体里的"弗兰肯斯坦式"人物Bella Baxter，通过性的探索与游历，完成了她的"自我解放"。
