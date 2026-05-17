@@ -4,16 +4,13 @@
   description: "数学算法、个人评论、绘画方法心得与日记。",
 )
 
-= 博客
-
-#tufted.margin-note[
+= 博客 / Blog
+#quote[
   If you enjoy my blog, feel free to bookmark the site:
   #link("https://shiyilee11.github.io/Tufted-Blog-Template/Blog/")[shiyilee11.github.io/Blog].
   If you have any ideas or suggestions, don't hesitate to reach out via #link("mailto:1747819157@qq.com")[email].
   I'd love to hear your feedback! 🙌
 ]
-
-
 == 数学算法
 
 #tufted.blog-entry(
