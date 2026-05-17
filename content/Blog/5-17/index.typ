@@ -17,12 +17,9 @@
 
 
 == 一个问题
-#tufted.margin-note[
-  #block[
-    #image("imgs/post.png", width: 100%)
-    #v(4pt)
-    #text(size: 0.8em, fill: luma(100))[The Silence of the Lambs 海报]
-  ]
+
+#figure(caption: "The Silence of the Lambs 海报")[
+  #image("imgs/post.png", width: 50%)
 ]
 
 在我第一次看到这部电影的名字以及它的海报时就一直在想一个问题（不知道其他人是否都有相似的困惑）：这部片子为什么要叫《沉默的羔羊》？
@@ -68,12 +65,8 @@ _*简单来说：羔羊象征着正在被屠杀、被压迫、被不公正对待
 === 从Mulvey出发
 
 
-#tufted.margin-note[
-  #block[
-    #image("imgs/laura-mulvey.png", width: 100%)
-    #v(4pt)
-    #text(size: 0.8em, fill: luma(100))[Laura Mulvey]
-  ]
+#figure(caption: "The Silence of the Lambs 海报")[
+  #image("imgs/post.png", width: 50%)
 ]
 
 
@@ -155,12 +148,8 @@ Demme和摄影师Tak Fujimoto做了一个极为反直觉的技术决策：每当
 
 
 
-#tufted.margin-note[
-  #block[
-    #image("imgs/bill-dead.png", width: 100%)
-    #v(4pt)
-    #text(size: 0.8em, fill: luma(100))[被杀死的 Bill]
-  ]
+#figure(caption: "被杀死的 Bill")[
+  #image("imgs/bill-dead.png", width: 60%)
 ]
 
 而Clarice赢得那一枪，靠的不是视觉优势，靠的是她的训练和本能。即使她在肉体上完全无法控制"被看见"这件事，但她还是赢了——代价是什么？这个问题稍后我们会回来。
@@ -239,12 +228,8 @@ Demme和摄影师Tak Fujimoto做了一个极为反直觉的技术决策：每当
 === Carol Clover与Final Girl
 
 
-#tufted.margin-note[
-  #block[
-    #image("imgs/clover.png", width: 100%)
-    #v(4pt)
-    #text(size: 0.8em, fill: luma(100))[Carol Clover]
-  ]
+#figure(caption: "Carol Clover")[
+  #image("imgs/clover.png", width: 30%)
 ]
 
 1992年，Carol Clover出版了《Men, Women, and Chain Saws》  ，提出了"最后的女孩"（Final Girl）这个概念：*砍杀片里那个唯一的幸存者，她与凶手进行最终对决，在所有人死光之后，她活下来。*
@@ -277,12 +262,8 @@ Clarice是"最后的女孩"谱系里一个格外进化的版本。影片有意�
 《沉默的羔羊》之后，好莱坞很快发现了一件事：女性主角是可以卖座的。于是在1990年代开始出现一批女性侦探片——_《Kiss the Girls》、《Copycat》、《The Bone Collector》_——它们在卖相上都是"强女性主角"，但仔细看，你会发就是“换汤不换药”罢了。
 
 
-#tufted.margin-note[
-  #block[
-    #image("imgs/kiss-girls.png", width: 100%)
-    #v(4pt)
-    #text(size: 0.8em, fill: luma(100))[《Kiss the Girls》]
-  ]
+#figure(caption: "《Kiss the Girls》")[
+  #image("imgs/kiss-girls.png", width: 50%)
 ]
 
 问题在于，"强女性角色"这个标签，很快从一个期待变成了一套制式。尽管电影批评者和营销团队把这个词扔向观众，"强女性角色"和"写得好的女性角色"之间存在本质区别：大多数占据好莱坞视野的，是那种刻板化的"沉默动作女英雄"，而非真正立体的人。
