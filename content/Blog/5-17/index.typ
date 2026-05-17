@@ -20,9 +20,8 @@
 == 一个问题
 
 #tufted.margin-note[
-  #figure(caption: [The Silence of the Lambs 海报])[
-    #image("imgs/post.png", width: 100%)
-  ]
+  #image("imgs/post.png", width: 100%)
+  #text(size: 0.8em, gray)[图：The Silence of the Lambs 海报]
 ]
 
 在我第一次看到这部电影的名字以及它的海报时就一直在想一个问题（不知道其他人是否都有相似的困惑）：这部片子为什么要叫《沉默的羔羊》？
@@ -67,10 +66,10 @@ _*简单来说：羔羊象征着正在被屠杀、被压迫、被不公正对待
 
 === 从Mulvey出发
 
+
 #tufted.margin-note[
-  #figure(caption: "Laura Mulvey")[
     #image("imgs/laura-mulvey.png", width: 100%)
-  ]
+  #text(size: 0.8em, gray)[ "Laura Mulvey"]
 ]
 
 1975年，*Laura Mulvey*发表了一篇改变电影研究史的文章：*《Visual Pleasure and Narrative Cinema》*。她借用拉康和弗洛伊德的精神分析框架，提出了"男性凝视"（male gaze）这个概念。
@@ -148,11 +147,13 @@ Demme和摄影师Tak Fujimoto做了一个极为反直觉的技术决策：每当
 
 令人庆幸的是Clarice赢了，子弹穿透恶魔，破开的墙洞透进了自然光，我们观众也终于从夜视视角解放出来了。
 
+
+
 #tufted.margin-note[
-  #figure(caption: "被杀死的Bill")[
-    #image("imgs/bill-dead.png", width: 100%)
-  ]
+  #image("imgs/bill-dead.png", width: 100%)
+  #text(size: 0.8em, gray)[图：被杀死的Bill]
 ]
+
 而Clarice赢得那一枪，靠的不是视觉优势，靠的是她的训练和本能。即使她在肉体上完全无法控制"被看见"这件事，但她还是赢了——代价是什么？这个问题稍后我们会回来。
 
 #line(length: 100%, stroke: 0.6pt)
@@ -177,7 +178,7 @@ Demme和摄影师Tak Fujimoto做了一个极为反直觉的技术决策：每当
 
 1991年的《沉默的羔羊》，不只为心理惊悚片设立了新标准，更实际地激励了一代女性加入FBI。这句话听起来是一句称赞，但仔细想想，它意味深长——一部虚构电影成了现实中女性职业选择的参照系，说明的不只是这部电影有多好，也说明了现实中的正面参照有多匮乏。 
 
-#figure(caption: "女性与FBI的真实历史")[
+#figure(caption: "女性与FBI")[
   #image("imgs/fbi-women.png", width: 80%)
 ]
 
@@ -263,11 +264,12 @@ Clarice是"最后的女孩"谱系里一个格外进化的版本。影片有意�
 
 《沉默的羔羊》之后，好莱坞很快发现了一件事：女性主角是可以卖座的。于是在1990年代开始出现一批女性侦探片——_《Kiss the Girls》、《Copycat》、《The Bone Collector》_——它们在卖相上都是"强女性主角"，但仔细看，你会发就是“换汤不换药”罢了。
 
+
 #tufted.margin-note[
-  #figure(caption: "《Kiss the Girls》海报")[
-    #image("imgs/kiss-girls.png", width: 100%)
-  ]
+  #image("imgs/kiss-girls.png", width: 100%)
+  #text(size: 0.8em, gray)[图：《Kiss the Girls》海报]
 ]
+
 问题在于，"强女性角色"这个标签，很快从一个期待变成了一套制式。尽管电影批评者和营销团队把这个词扔向观众，"强女性角色"和"写得好的女性角色"之间存在本质区别：大多数占据好莱坞视野的，是那种刻板化的"沉默动作女英雄"，而非真正立体的人。
 
 更具体地说：强女性角色（SFC）的套路无论肤色、眼色如何都惊人地相似——纤细、通常是白人、美丽、并且极其擅长打架或射击；在一个失误的努力里，强女性角色被创造出来了，但她在体能上强大，这和一个有细腻层次、立体人性的强女性角色有本质不同。
@@ -294,10 +296,10 @@ Clarice之所以在三十年后仍然有力量，正是因为她不是无缺陷�
 
 《沉默的羔羊》之后，这个问题被反复重提，但最近几年里最有代表性的案例，是2023年的《可怜的东西》（_Poor Things_）。
 
+
 #tufted.margin-note[
-  #figure(caption: "《可怜的东西》")[
-    #image("imgs/poor-things.png", width: 100%)
-  ]
+  #image("imgs/poor-things.png", width: 100%)
+  #text(size: 0.8em, gray)[图：《Poor Things》]
 ]
 
 这部获得奥斯卡最佳影片提名、并让Emma Stone拿下影后的电影，被大量媒体和营销包装成了"2023年度女性主义电影"。它的设定足够大胆：一个被医生将婴儿大脑植入成年女性身体里的"弗兰肯斯坦式"人物Bella Baxter，通过性的探索与游历，完成了她的"自我解放"。
