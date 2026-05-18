@@ -386,9 +386,9 @@ FFN 的每一层：
 
 - 2个传播公式的推导以及理解
 
-$ (partial L)/(partial W) = h^T dot.op Delta_"logits" wide "（参数的梯度，交给优化器）" $
+$ (partial L)/(partial W) = h^T dot.op Delta_"logits" wide $
 
-$ Delta_h = Delta_"logits" dot.op W^T wide "（输入的误差，继续往前传）" $
+$ Delta_h = Delta_"logits" dot.op W^T wide $
 
 #quote[
   掌握了这两个公式，你就掌握了 Transformer 反向传播推导的大部分内容。剩下的是针对特殊的Softmax、RMSNorm、残差连接这些非线性部分，以及Attention多token交联的特殊推导，但它们的推导思路也完全一样：链式法则，一步一步往回追。这是大模型基于Transformer架构学习优化的根本方式。
