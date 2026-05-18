@@ -336,9 +336,9 @@ W^T 是 W 的"原路返回"版本
   让我们看看我们得到了什么战利品：
 ]
 
-$ (partial L)/(partial W) = h^T dot.op Delta_"logits" wide "（参数的梯度，交给优化器）" $
+$ (partial L)/(partial W) = h^T dot.op Delta_"logits" wide $
 
-$ Delta_h = Delta_"logits" dot.op W^T wide "（输入的误差，继续往前传）" $
+$ Delta_h = Delta_"logits" dot.op W^T wide $
 
 #line(length: 100%, stroke: 0.6pt)
 
