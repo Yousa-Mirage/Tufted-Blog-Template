@@ -291,12 +291,8 @@ Clarice之所以在三十年后仍然有力量，正是因为她不是无缺陷�
 《沉默的羔羊》之后，这个问题被反复重提，但最近几年里最有代表性的案例，是2023年的《可怜的东西》（_Poor Things_）。
 
 
-#tufted.margin-note[
-  #block[
-    #image("imgs/poor-things.png", width: 100%)
-    #v(4pt)
-    #text(size: 0.8em, fill: luma(100))[《可怜的东西》]
-  ]
+#figure(caption: "《可怜的东西》")[
+  #image("imgs/poor-things.png", width: 50%)
 ]
 
 这部获得奥斯卡最佳影片提名、并让Emma Stone拿下影后的电影，被大量媒体和营销包装成了"2023年度女性主义电影"。它的设定足够大胆：一个被医生将婴儿大脑植入成年女性身体里的"弗兰肯斯坦式"人物Bella Baxter，通过性的探索与游历，完成了她的"自我解放"。
