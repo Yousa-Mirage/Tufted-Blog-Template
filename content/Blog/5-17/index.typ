@@ -65,8 +65,8 @@ _*简单来说：羔羊象征着正在被屠杀、被压迫、被不公正对待
 === 从Mulvey出发
 
 
-#figure(caption: "The Silence of the Lambs 海报")[
-  #image("imgs/post.png", width: 50%)
+#figure(caption: "Laura Mulvey")[
+  #image("imgs/laura-mulvey.png", width: 40%)
 ]
 
 
