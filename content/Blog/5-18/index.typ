@@ -404,7 +404,7 @@ $ Delta_h = Delta_"logits" dot.op W^T wide $
 
 = 笔者的话
 
-后续将分模块介绍FFN，Attenion，RMSNorm等Transformer经典架构的传反向播过程，以及将通过这里的探讨对Pre与Post-Norm的设计的选择等问题做一些探究～
+后续将分模块介绍FFN，Attenion，RMSNorm等Transformer经典架构的反向传播过程，以及将通过这里的探讨对Pre与Post-Norm的设计的选择等问题做一些探究～
 
 = 参考资料
 
