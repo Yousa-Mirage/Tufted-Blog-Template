@@ -32,6 +32,7 @@
   title: "Transformer｜反向传播 (Backpropagation)（2）：两个特殊模块：Softmax 与 RMSNorm",
 )
 
+
 == 杂谈
 
 #tufted.blog-entry(

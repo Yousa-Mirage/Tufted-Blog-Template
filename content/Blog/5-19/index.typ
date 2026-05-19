@@ -420,7 +420,7 @@ $  Delta_x = 1/"rms" (Delta_hat(x) - hat(x) dot.op c), quad c = 1/d sum_j Delta_
 
 #line(length: 100%, stroke: 0.6pt)
 
-= 小结
+== 小结
 
 ```
                     Softmax                      RMSNorm
@@ -443,7 +443,7 @@ Token 之间        同一行内不同位置耦合            同一 token 内�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 整个输出层的完整反向传播路径
+=== 整个输出层的完整反向传播路径
 
 现在把所有东西串起来，看看从损失 $L$ 到 Transformer Block 输出 $h$ 之间，完整的反向传播顺序：
 
@@ -470,11 +470,11 @@ L（损失）
 Δ_x_in  → 传给上一个 Block
 ```
 
-= 笔者的话
+== *笔者的话*
 
 _*你会发现我们将要进入Block里面最重要的两个模块：FFN以及Attention，笔者接下来会以SwiGLU为代表的前馈网络以及Self-Attention作为推导背景来展开推导*_
 
-= 参考资料
+== *参考资料*
 
 - Laurent Bou´,_Deep learning for pedestrians: backpropagation in Transformers_
 - Stanford lecture,_cs336(2025-2026)_
