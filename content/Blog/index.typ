@@ -26,6 +26,12 @@
   title: "Transformer｜反向传播 (Backpropagation)（1）：误差和梯度在Linear层的基础推导",
 )
 
+#tufted.blog-entry(
+  date: datetime(year: 2026, month: 5, day: 19),
+  path: "5-19",
+  title: "Transformer｜反向传播 (Backpropagation)（2）：两个特殊模块：Softmax 与 RMSNorm",
+)
+
 == 杂谈
 
 #tufted.blog-entry(
