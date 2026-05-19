@@ -14,11 +14,13 @@
 
 == 数学与算法
 
+
 #tufted.blog-entry(
-  date: datetime(year: 2026, month: 5, day: 13),
-  path: "2026-05-13-strassen-matrix-blocking/",
-  title: "线性代数｜矩阵分块优化与 Strassen 算法",
+  date: datetime(year: 2026, month: 5, day: 19),
+  path: "5-19",
+  title: "Transformer｜反向传播 (Backpropagation)（2）：两个特殊模块：Softmax 与 RMSNorm",
 )
+
 
 #tufted.blog-entry(
   date: datetime(year: 2026, month: 5, day: 18),
@@ -27,10 +29,11 @@
 )
 
 #tufted.blog-entry(
-  date: datetime(year: 2026, month: 5, day: 19),
-  path: "5-19",
-  title: "Transformer｜反向传播 (Backpropagation)（2）：两个特殊模块：Softmax 与 RMSNorm",
+  date: datetime(year: 2026, month: 5, day: 13),
+  path: "2026-05-13-strassen-matrix-blocking/",
+  title: "线性代数｜矩阵分块优化与 Strassen 算法",
 )
+
 
 
 == 杂谈
