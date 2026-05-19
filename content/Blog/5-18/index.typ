@@ -255,7 +255,7 @@ $ (partial L)/(partial W_(k j)) = Delta_("logits" , j) times h_k $
 $ (partial L)/(partial W_(l m)) = mat(delim: "[", h_1; h_2; h_3; h_4) dot.op mat(delim: "[", +0.70, -0.80, +0.10) = mat(delim: "[", h_1 times 0.70, h_1 times(- 0.80), h_1 times 0.10; h_2 times 0.70, h_2 times(- 0.80), h_2 times 0.10; h_3 times 0.70, h_3 times(- 0.80), h_3 times 0.10; h_4 times 0.70, h_4 times(- 0.80), h_4 times 0.10) $
 写成矩阵公式：
 
-#boxeq[$ (partial L)/(partial W_(l m)) = h^T dot.op Delta_"logits" $]
+$ (partial L)/(partial W_(l m)) = h^T dot.op Delta_"logits" $
 
 *语言理解*：
 
@@ -315,7 +315,7 @@ $ Delta_h = mat(delim: "[", Delta_"chair" dot.op W_(1 comma 1) + Delta_"throne" 
 
 写成矩阵公式：
 
-#boxeq[$ Delta_h = Delta_"logits" dot.op W_(l m)^T $]
+$ Delta_h = Delta_"logits" dot.op W_(l m)^T $
 
 *直觉总结*：
 
