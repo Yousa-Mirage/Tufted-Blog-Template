@@ -19,7 +19,7 @@
 ]
 
 #figure(caption: "一张有趣的Softmax poster")[
-  #image("imgs/p.png", width: 50%)
+  #image("imgs/p.png", width: 40%)
 ]
 #line(length: 100%, stroke: 0.6pt)
 
