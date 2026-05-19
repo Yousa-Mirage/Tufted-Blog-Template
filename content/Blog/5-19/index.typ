@@ -18,6 +18,9 @@
   *阅读提醒*：上一篇我们推导了线性层的两个核心公式。但 Transformer 里不全是线性层——还有 Softmax 和 RMSNorm 这两个"非线性"模块。作为数据归一化的“主力”它们的共同特点是：*几乎没有可学习参数*（在经典Transformer中RMSNorm 有一个 γ，但主体运算没有权重矩阵），但是这两个模块都涉及到了对误差计算的耦合，学习了这一块对耦合的处理之后，再进入对Attention模块的耦合处理就会显得比较亲切了，祝食用愉快～😌
 ]
 
+#figure(caption: "一张有趣的Softmax poster")[
+  #image("imgs/p.png", width: 50%)
+]
 #line(length: 100%, stroke: 0.6pt)
 
 == *导言：logits 到底在哪里？*
@@ -73,10 +76,6 @@ _*让我们把这两种情况都说清楚。*_
 
 这是输出层的情况。Softmax 和交叉熵总是成对出现。
 
-#figure(caption: "Softmax处理本质：归一化")[
-  #image("imgs/s.png", width: 50%)
-]
-
 
 === 前向传播
 
@@ -111,6 +110,10 @@ $ Delta_"logits" = (partial L)/(partial "logits") = y_(p r e d) - y_(g t) $
 #line(length: 100%, stroke: 0.6pt)
 
 == *情况二：Softmax 单独出现*
+
+#figure(caption: "Softmax处理本质：归一化")[
+  #image("imgs/s.png", width: 50%)
+]
 
 #quote[
   在 Self-Attention 中，Softmax 单独出现，后面不是交叉熵，而是矩阵乘法 $P dot.op V$：
