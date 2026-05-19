@@ -20,7 +20,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 导言：logits 到底在哪里？
+== *导言：logits 到底在哪里？*
 
 #quote[
   很多人会混淆 logits 和 Softmax 的位置关系。让我们把整个流程画清楚：
@@ -69,7 +69,7 @@ _*让我们把这两种情况都说清楚。*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 情况一：Softmax + 交叉熵
+== *情况一：Softmax + 交叉熵*
 
 这是输出层的情况。Softmax 和交叉熵总是成对出现。
 
@@ -110,7 +110,7 @@ $ Delta_"logits" = (partial L)/(partial "logits") = y_(p r e d) - y_(g t) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 情况二：Softmax 单独出现
+== *情况二：Softmax 单独出现*
 
 #quote[
   在 Self-Attention 中，Softmax 单独出现，后面不是交叉熵，而是矩阵乘法 $P dot.op V$：
@@ -245,7 +245,7 @@ Attention 里（Softmax 单独出现）：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== RMSNorm 的反向传播
+== *RMSNorm 的反向传播*
 
 === RMSNorm 出现在哪里？
 
@@ -420,7 +420,7 @@ $  Delta_x = 1/"rms" (Delta_hat(x) - hat(x) dot.op c), quad c = 1/d sum_j Delta_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 小结
+== *小结*
 
 ```
                     Softmax                      RMSNorm
