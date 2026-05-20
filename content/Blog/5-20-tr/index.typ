@@ -465,7 +465,7 @@ h         → 用于计算 W_down 的梯度
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 笔者的话
+== *笔者的话*
 
 #quote[
   FFN 的反向传播之所以相对简单，是因为 token 之间完全独立——每个 token 的误差老老实实地沿着自己的路往回走，不会跑到别人的地盘上去。
@@ -485,7 +485,7 @@ P · V：  每个 token 的输出是所有 token 的 Value 的加权和
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 参考资料
+== *参考资料*
 
 - Laurent Bou´,_Deep learning for pedestrians: backpropagation in Transformers_
 - Stanford lecture,_cs336(2025-2026)_

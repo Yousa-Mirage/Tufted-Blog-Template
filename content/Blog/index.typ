@@ -48,8 +48,8 @@
 // ==================== 数学与算法 ====================
 == *数学与算法* <math>
 
-#tag(<transformer>, [***🤖 Transformer 系列***])
-#tag(<linear>, [***📐 线性代数***])
+#tag(<transformer>, [🤖 Transformer 系列])
+#tag(<linear>, [📐 线性代数])
 
 #series-block(title: "Transformer｜反向传播", accent: rgb("#6366f1"))[
   #tufted.blog-entry(
@@ -82,19 +82,25 @@
 // ==================== 实践与工具 ====================
 == *实践与工具* <practice>
 
-#tag-placeholder[***🔧 工具分享（即将更新）***]
-#tag-placeholder[***🚀 项目实践（即将更新）***]
-#tag-placeholder[***💡 实践看法（即将更新）***]
+#tag-placeholder[🔧 工具分享（即将更新）]
+#tag-placeholder[🚀 项目实践（即将更新）]
 
-#series-block(title: "实践与工具", accent: rgb("#f59e0b"))[
-  #text(fill: luma(160), style: "italic")[暂无文章，敬请期待。]
-]
+#tag(<realtry>, [💡 实践看法])
+
+#series-block(title: "实践看法", accent: rgb("#f59e0b"))[
+  #tufted.blog-entry(
+    date: datetime(year: 2026, month: 5, day: 20),
+    path: "5-20-skill",
+    title: "Skill｜基于上海交大最新 PaSaMaster构建优化文献检索 Skill 的设计",
+  )
+] <realtry>
+
 
 // ==================== 杂谈 ====================
 == *杂谈* <chat>
 
-#tag(<movie>, [***🎬 影评***])
-#tag-placeholder[***🌐 文化评论（即将更新）***]
+#tag(<movie>, [🎬 影评])
+#tag-placeholder[🌐 文化评论（即将更新）]
 
 #series-block(title: "影评", accent: rgb("#ec4899"))[
   #tufted.blog-entry(
@@ -107,8 +113,8 @@
 // ==================== 绘画记录 ====================
 == *绘画记录* <draw>
 
-#tag-placeholder[***✏️ 速写（即将更新）***]
-#tag-placeholder[***🎨 色彩研究（即将更新）***]
+#tag-placeholder[✏️ 速写（即将更新）]
+#tag-placeholder[🎨 色彩研究（即将更新）]
 
 #series-block(title: "绘画", accent: rgb("#10b981"))[
   #text(fill: luma(160), style: "italic")[暂无文章，敬请期待。]
@@ -117,7 +123,7 @@
 // ==================== 个人记录 ====================
 == *个人记录* <life>
 
-#tag(<langauge>, [***🗣️ 语言学习***])
+#tag(<langauge>, [🗣️ 语言学习])
 
 #series-block(title: "语言学习", accent: rgb("#f97316"))[
   #tufted.blog-entry(
