@@ -427,32 +427,26 @@ Run one additional round only when reflection shows missing terminology, repeate
     align: (left, left, left, left),
     table.header(
       [*基线*],
-      [*来源*],
       [*定位*],
       [*主要差别*],
     ),
     [`research-lit`],
-    [本地 baseline；ARIS 风格公开版本见 `wanshuiyin/Auto-claude-code-research-in-sleep`],
     [多源广搜],
     [recall 强，但 checklist 和集合重排弱],
 
     [`aris-research-lit`],
-    [ARIS / Auto-Research-In-Sleep 相关 research-lit skill],
     [source routing + discovery],
     [发现能力强，但容易混入背景或近邻文献],
 
     [`aperivue-search-lit`],
-    [`Aperivue/medsci-skills`],
     [医学文献检索与验证],
     [生医任务很强，但跨社会科学和复杂双目标任务弱一些],
 
     [`k-dense-literature-review`],
-    [`K-Dense-AI/scientific-agent-skills`],
     [系统综述型 workflow],
     [覆盖全面，但 top-k 约束优化不如 checklist controller],
 
     [`davila7-literature-review`],
-    [`davila7/claude-code-templates`],
     [通用 literature review workflow],
     [适合主题整理，但硬约束敏感度弱],
   )
