@@ -33,7 +33,7 @@
 ]
 
 
-= 博客 / Blog
+= *Blog*
 
 #quote[
   If you enjoy my blog, feel free to bookmark the site:
@@ -44,10 +44,10 @@
 ]
 
 // ==================== 数学与算法 ====================
-== 数学与算法 <math>
+== *数学与算法* <math>
 
-#tag(<transformer>, [🤖 Transformer 系列])
-#tag(<linear>, [📐 线性代数])
+#tag(<transformer>, [***🤖 Transformer 系列***])
+#tag(<linear>, [***📐 线性代数***])
 
 #series-block(title: "Transformer｜反向传播", accent: rgb("#6366f1"))[
   #tufted.blog-entry(
