@@ -35,7 +35,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== \*\*交大原始论文 PaSaMaster
+== *交大原始论文 PaSaMaster*
 
 === *论文试图解决什么问题*
 
@@ -128,7 +128,7 @@ PaSaMaster-Bench 是论文提出的多学科 benchmark。论文称其包含 244 
 === *Skill 的目录结构*
 
 #quote[
-  \*\*当前 skill 遵循“中心节点 + 条件 reference + 可执行脚本”的结构：
+  *当前 skill 遵循“中心节点 + 条件 reference + 可执行脚本”的结构：*
 ]
 
 ```text
@@ -244,7 +244,7 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== \*\*各个组件分别负责什么
+=== *各个组件分别负责什么*
 
 `SKILL.md` 是控制面，定义何时使用、如何分解意图、如何构造 checklist、如何检索候选、如何验证、如何评分、如何输出结果。
 
@@ -262,10 +262,10 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== \*\*设计初衷
+=== *设计初衷*
 
 #quote[
-  \*\*这个 skill 的设计初衷不是追求“所有文献都搜全”，而是解决复杂任务中最常见、也最影响体验的问题：用户真正想要的是一组能支撑研究决策的论文，而不是一堆看起来相关的 citation。
+  *这个 skill 的设计初衷不是追求“所有文献都搜全”，而是解决复杂任务中最常见、也最影响体验的问题：用户真正想要的是一组能支撑研究决策的论文，而不是一堆看起来相关的 citation。*
 ]
 
 所以它优先优化的是：
@@ -282,9 +282,9 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 == *简单评估流程与结果*
 
-=== \*\*评估流程
+=== *评估流程*
 
-\*\*\*我们的评估不是黑盒线上系统对测，而是简单、可复核的 controlled benchmark。基本流程如下：
+*我们的评估不是黑盒线上系统对测，而是简单、可复核的 controlled benchmark。基本流程如下：*
 
 + 对每个用户任务建立共享候选论文池。
 + 为每个任务建立统一 checklist，区分 `critical`、`important` 和 `nice_to_have`。
@@ -323,7 +323,7 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== \*\*两个跨域泛化任务
+=== *两个跨域泛化任务*
 
 #quote[
   第二轮泛化任务包括：
@@ -345,7 +345,7 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== \*\*四个多学科泛化任务
+=== *四个多学科泛化任务*
 
 第三轮任务进一步扩展到：
 #tufted.margin-note[（笔者在这里动用了自己的人脉获得了一些小的文献课题内容～😊）]
@@ -370,7 +370,7 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== \*\*综合评估结论
+=== *综合评估结论*
 
 综合四轮评估，`iterative-research-lit` 在我们选择的主评估任务中均达到 rank 1 或并列 rank 1。更准确地说：
 
@@ -381,12 +381,12 @@ Run one additional round only when reflection shows missing terminology, repeate
 #tufted.margin-note[*重要补充‼️*：同时，由笔者本人以及相关课题的朋友进行了人工检查，发现主观效果也是该skills召回的文献效果最好]
 
 #quote[
-  \*\*\*这说明该 skill 的优势并不是某一次任务偶然命中，而是来自稳定的流程设计。它最擅长的不是简单召回，而是复杂约束下的候选过滤、验证、解释和最终阅读清单结构控制。
+  *这说明该 skill 的优势并不是某一次任务偶然命中，而是来自稳定的流程设计。它最擅长的不是简单召回，而是复杂约束下的候选过滤、验证、解释和最终阅读清单结构控制。*
 ]
 
 #line(length: 100%, stroke: 0.6pt)
 
-== \*\*基线来源与比较
+== *基线来源与比较*
 
 本次比较使用了同一类 `SKILL.md` 或 skill-like literature workflow 作为基线，避免把不同产品和不同检索栈直接混进同一 leaderboard。
 
@@ -403,9 +403,9 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 #line(length: 100%, stroke: 0.6pt)
 
-== \*\*Skill 与 Agent 的关系
+== *Skill 与 Agent 的关系*
 
-\*\*这个案例能说明 skill 和 agent 的一个重要区别。
+*这个案例能说明 skill 和 agent 的一个重要区别。*
 
 Agent 更像运行时的执行主体，负责调用工具、搜索、读文件、写报告、进行多步推理。Skill 则更像一段可加载的行为规范，它不替代 agent，而是改变 agent 在某类任务中的默认策略。对于文献检索这种任务，agent 本身通常已经会搜索、总结和列引用；skill 的价值在于让 agent 以更稳定的方式做这些事。
 
@@ -422,9 +422,9 @@ Agent 更像运行时的执行主体，负责调用工具、搜索、读文件�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== \*\*适用任务与边界
+== *适用任务与边界*
 
-\*\*这个 skill 最适合以下任务：
+*这个 skill 最适合以下任务：*
 
 - 用户给出多个硬约束，例如主题、方法、时间、期刊、文章类型、应用场景。
 - 用户明确排除某类方法或文献，例如不要 semantic-only，不要综述，不要治疗论文。
@@ -434,7 +434,7 @@ Agent 更像运行时的执行主体，负责调用工具、搜索、读文件�
 
 #line(length: 100%, stroke: 0.6pt)
 
-\*\*它不适合以下任务：
+*它不适合以下任务：*
 
 - 只找某篇已知论文。
 - 只要 3-5 篇最新论文，且不需要解释。
@@ -444,7 +444,7 @@ Agent 更像运行时的执行主体，负责调用工具、搜索、读文件�
 
 #line(length: 100%, stroke: 0.6pt)
 
-\*\*它的主要风险也很清楚：
+*它的主要风险也很清楚：*
 
 - checklist 设计质量决定上限。
 - Web 检索场景无法真正保证 PaSaMaster 式零幻觉，只能做存在性验证和不确定性标注。
@@ -453,7 +453,7 @@ Agent 更像运行时的执行主体，负责调用工具、搜索、读文件�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== \*\*小结
+== *小结*
 
 PaSaMaster 的价值在于提出了一个更接近真实科研检索需求的方向：复杂意图不是关键词，文献推荐不能靠生成，检索应该能从证据中修正自己。但这篇论文也有明显问题，包括对内部语料和系统工程的依赖、benchmark 对自身范式的偏好、真实 Web 搜索适配不足，以及开源完整性不足。
 
@@ -463,16 +463,16 @@ PaSaMaster 的价值在于提出了一个更接近真实科研检索需求的方
 
 #line(length: 100%, stroke: 0.6pt)
 
-== \*\*参考资料
+== *参考资料*
 
-=== \*\*原始论文
+=== *原始论文*
 
 - Yuwen Du, Tian Jin, Jing Kang, Xianghe Pang, Jingyi Chai, Tingjia Miao, Fenyi Liu, WenHao Wang, Sikai Yao, Yuzhi Zhang, Siheng Chen. `Towards Self-Evolving Agentic Literature Retrieval`. arXiv:2605.14306, submitted 2026-05-14. #link("https://arxiv.org/abs/2605.14306")[https://arxiv.org/abs/2605.14306]
 - PaSaMaster GitHub repository: `sjtu-sai-agents/PaSaMaster`. #link("https://github.com/sjtu-sai-agents/PaSaMaster")[https://github.com/sjtu-sai-agents/PaSaMaster]
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== \*\*Skill相关
+=== *Skill相关*
 
 - Skills说明编写参考标准：\[#link("https://research.perplexity.ai/articles/designing-refining-and-maintaining-agent-skills-at-perplexity][https://research.perplexity.ai/articles/designing-refining-and-maintaining-agent-skills-at-perplexity")[https://research.perplexity.ai/articles/designing-refining-and-maintaining-agent-skills-at-perplexity\]\[https://research.perplexity.ai/articles/designing-refining-and-maintaining-agent-skills-at-perplexity]\]
 - ARIS / Auto-Research-In-Sleep: `wanshuiyin/Auto-claude-code-research-in-sleep`. #link("https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep")[https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep]
