@@ -10,7 +10,7 @@
   radius: 12pt,
   fill: rgb("#dbeafe"),
   stroke: 1pt + rgb("#3b82f6"),
-)[#text(size: 0.85em, fill: rgb("#1d4ed8"), weight: "bold")[#body]]]
+)[#text(size: 1.1em, fill: rgb("#1d4ed8"), weight: "bold", style: "italic")[#body]]]
 
 // ── 占位标签（灰色）──
 #let tag-placeholder(body) = block(
@@ -18,7 +18,8 @@
   radius: 12pt,
   fill: luma(235),
   stroke: 1pt + luma(190),
-)[#text(size: 0.85em, fill: luma(140), weight: "bold")[#body]]
+)[#text(size: 1.1em, fill: luma(140), weight: "bold", style: "italic")[#body]]
+
 
 // ── 系列卡片，支持自定义左边框颜色 ──
 #let series-block(title: "", accent: rgb("#3b82f6"), body) = block(
@@ -31,6 +32,7 @@
   #text(size: 0.9em, weight: "bold", fill: accent)[📂 #title]
   #body
 ]
+
 
 
 = *Blog*
@@ -113,7 +115,7 @@
 ]
 
 // ==================== 个人记录 ====================
-== 个人记录 <life>
+== *个人记录* <life>
 
 #tag(<langauge>, [***🗣️ 语言学习***])
 
