@@ -4,6 +4,7 @@
   description: "数学算法、个人评论、绘画方法心得与日记。",
 )
 
+// 可点击跳转标签（有对应 label）
 #let tag(target, body) = {
   link(target)[
     #box(
@@ -17,6 +18,19 @@
   ]
 }
 
+// 不可点击的占位标签（暂无内容时使用）
+#let tag-placeholder(body) = {
+  box(
+    stroke: 0.8pt + luma(200),
+    fill: luma(245),
+    inset: (x: 10pt, y: 5pt),
+    radius: 12pt,
+  )[
+    #text(size: 0.85em, fill: luma(160), weight: "bold")[#body]
+  ]
+}
+
+// 系列卡片
 #let series-block(title: "", body) = block(
   width: 100%,
   inset: 12pt,
@@ -25,7 +39,6 @@
   stroke: 0.5pt + luma(210),
 )[
   #text(size: 0.85em, weight: "bold", fill: luma(80))[📂 #title]
-  #v(6pt)
   #body
 ]
 
@@ -43,12 +56,8 @@
 == 数学与算法 <math>
 
 #tag(<transformer>, [Transformer 系列])
-#h(6pt)
 #tag(<linear>, [线性代数])
-#h(6pt)
-#tag(<optimize>, [优化算法])
-
-#v(12pt)
+#tag-placeholder[优化算法（即将更新）]
 
 #series-block(title: "Transformer｜反向传播")[
   #tufted.blog-entry(
@@ -68,8 +77,6 @@
   )
 ] <transformer>
 
-#v(8pt)
-
 #series-block(title: "线性代数")[
   #tufted.blog-entry(
     date: datetime(year: 2026, month: 5, day: 13),
@@ -81,38 +88,19 @@
 // ==================== 实践与工具 ====================
 == 实践与工具 <practice>
 
-#tag(<tools>, [工具分享])
-#h(6pt)
-#tag(<project>, [项目实践])
-#h(6pt)
-#tag(<opinion>, [实践看法])
+#tag-placeholder[工具分享（即将更新）]
+#tag-placeholder[项目实践（即将更新）]
+#tag-placeholder[实践看法（即将更新）]
 
-#v(12pt)
-
-#series-block(title: "工具分享")[
+#series-block(title: "实践与工具")[
   #text(fill: luma(150), style: "italic")[暂无文章，敬请期待。]
-] <tools>
-
-#v(8pt)
-
-#series-block(title: "项目实践")[
-  #text(fill: luma(150), style: "italic")[暂无文章，敬请期待。]
-] <project>
-
-#v(8pt)
-
-#series-block(title: "实践看法")[
-  #text(fill: luma(150), style: "italic")[暂无文章，敬请期待。]
-] <opinion>
+]
 
 // ==================== 杂谈 ====================
 == 杂谈 <chat>
 
 #tag(<movie>, [影评])
-#h(6pt)
-#tag(<culture>, [文化评论])
-
-#v(12pt)
+#tag-placeholder[文化评论（即将更新）]
 
 #series-block(title: "影评")[
   #tufted.blog-entry(
@@ -125,24 +113,18 @@
 // ==================== 绘画记录 ====================
 == 绘画记录 <draw>
 
-#tag(<sketch>, [速写])
-#h(6pt)
-#tag(<color>, [色彩研究])
-
-#v(12pt)
+#tag-placeholder[速写（即将更新）]
+#tag-placeholder[色彩研究（即将更新）]
 
 #series-block(title: "绘画")[
   #text(fill: luma(150), style: "italic")[暂无文章，敬请期待。]
-] <sketch>
+]
 
 // ==================== 个人记录 ====================
 == 个人记录 <life>
 
-#tag(<language>, [语言学习])
-#h(6pt)
+#tag-placeholder[语言学习（即将更新）]
 #tag(<diary>, [日记])
-
-#v(12pt)
 
 #series-block(title: "日记")[
   #tufted.blog-entry(
