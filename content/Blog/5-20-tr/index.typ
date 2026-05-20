@@ -471,7 +471,7 @@ h         → 用于计算 W_down 的梯度
   FFN 的反向传播之所以相对简单，是因为 token 之间完全独立——每个 token 的误差老老实实地沿着自己的路往回走，不会跑到别人的地盘上去。
 ]
 
-\*\*但 Self-Attention 就不一样了。在 Attention 里，有两个地方会让 token 之间产生交互：
+*但 Self-Attention 就不一样了*。在 Attention 里，有两个地方会让 token 之间产生交互：
 
 ```
 Q · K^T：每个 token 的 Query 和所有 token 的 Key 做点积
