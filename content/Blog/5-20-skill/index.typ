@@ -334,10 +334,13 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 总榜如下：
 
-#let scroll-table(body) = html.elem(
-  "div",
-  attrs: (style: "overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch;"),
-)[#body]
+#let scroll-table(content) = context {
+  if sys.inputs.at("target", default: "") == "html" {
+    html.elem("div", attrs: (style: "overflow-x: auto; width: 100%;"))[#content]
+  } else {
+    content
+  }
+}
 
 #scroll-table[
   #table(
@@ -540,6 +543,3 @@ PaSaMaster 的价值在于提出了一个更接近真实科研检索需求的方
 - Davila7 Claude Code Templates: `davila7/claude-code-templates`. #link("https://github.com/davila7/claude-code-templates")[https://github.com/davila7/claude-code-templates]
 
 #line(length: 100%, stroke: 0.6pt)
-
-
-
