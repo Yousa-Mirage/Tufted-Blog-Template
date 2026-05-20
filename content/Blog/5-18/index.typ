@@ -19,7 +19,7 @@
 )[#body]
 
 
-= Transformer｜反向传播 (Backpropagation)（1）：误差和梯度在Linear层的基础推导
+= *Transformer｜反向传播 (Backpropagation)（1）：误差和梯度在Linear层的基础推导*
 
 #tufted.margin-note[
   *阅读前提*：本文假设你对 Transformer 的基本架构有一定了解，虽然是基础内容，但最好具有一点点线性代数、微积分基础理解起来会比较容易。如果你还不熟悉，笔者建议先了解一下Transformer 的前向传播流程再回来。本篇文章会非常详细地拆解反向传播的流程(主要基于个人的理解来表述)，祝食用愉快～😊

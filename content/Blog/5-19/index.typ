@@ -12,7 +12,7 @@
 
 
 
-= Transformer｜反向传播 (Backpropagation)（2）：两个特殊模块：Softmax 与 RMSNorm
+= *Transformer｜反向传播 (Backpropagation)（2）：两个特殊模块：Softmax 与 RMSNorm*
 
 #tufted.margin-note[
   *阅读提醒*：上一篇我们推导了线性层的两个核心公式。但 Transformer 里不全是线性层——还有 Softmax 和 RMSNorm 这两个"非线性"模块。作为数据归一化的“主力”它们的共同特点是：*几乎没有可学习参数*（在经典Transformer中RMSNorm 有一个 γ，但主体运算没有权重矩阵），但是这两个模块都涉及到了对误差计算的耦合，学习了这一块对耦合的处理之后，再进入对Attention模块的耦合处理就会显得比较亲切了，祝食用愉快～😌
