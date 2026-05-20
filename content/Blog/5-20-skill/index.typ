@@ -334,13 +334,10 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 总榜如下：
 
-#let scroll-table(content) = context {
-  if sys.inputs.at("target", default: "") == "html" {
-    html.elem("div", attrs: (style: "overflow-x: auto; width: 100%;"))[#content]
-  } else {
-    content
-  }
-}
+#let scroll-table(body) = html.elem(
+  "div",
+  attrs: (style: "overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch;"),
+)[#body]
 
 #scroll-table[
   #table(
