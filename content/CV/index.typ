@@ -16,6 +16,12 @@ Always exploring, learning, and sharing.
 
 == Profile
 
+#tufted.margin-note[
+  #image("imgs/l.jpg", width: 50%)
+]
+
+#tufted.margin-note[***致新生活（Lappland)***]
+
 I am building my knowledge around bioinformatics and large model learning. This site is where I organize study notes, mathematical and algorithmic ideas, personal reflections, drawing-method notes, and diary-style records.
 
 == Education
