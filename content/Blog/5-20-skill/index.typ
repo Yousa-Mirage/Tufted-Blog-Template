@@ -417,47 +417,6 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *基线来源与比较*
-
-本次比较使用了同一类 `SKILL.md` 或 skill-like literature workflow 作为基线，避免把不同产品和不同检索栈直接混进同一 leaderboard。
-
-#scroll-table[
-  #table(
-    columns: (1fr, 1fr, 1fr, 1fr),
-    align: (left, left, left, left),
-    table.header(
-      [*基线*],
-      [*定位*],
-      [*主要差别*],
-    ),
-    [`research-lit`],
-    [多源广搜],
-    [recall 强，但 checklist 和集合重排弱],
-
-    [`aris-research-lit`],
-    [source routing + discovery],
-    [发现能力强，但容易混入背景或近邻文献],
-
-    [`aperivue-search-lit`],
-    [医学文献检索与验证],
-    [生医任务很强，但跨社会科学和复杂双目标任务弱一些],
-
-    [`k-dense-literature-review`],
-    [系统综述型 workflow],
-    [覆盖全面，但 top-k 约束优化不如 checklist controller],
-
-    [`davila7-literature-review`],
-    [通用 literature review workflow],
-    [适合主题整理，但硬约束敏感度弱],
-  )
-]
-
-#quote[
-  这些 baseline 各自有合理应用场景。`research-lit` 和 `aris-research-lit` 更像广搜与发现工具；`k-dense` 和 `davila7` 更接近系统综述模板；`aperivue` 是医学文献验证强项；而 `iterative-research-lit` 更像复杂意图下的约束保持器和结果集排序器。
-]
-
-#line(length: 100%, stroke: 0.6pt)
-
 == *Skill 与 Agent 的关系*
 
 *这个案例能说明 skill 和 agent 的一个重要区别。*
