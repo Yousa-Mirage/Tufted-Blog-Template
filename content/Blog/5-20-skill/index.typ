@@ -535,10 +535,14 @@ PaSaMaster 的价值在于提出了一个更接近真实科研检索需求的方
 
 === *Skill相关*
 
-- Skills说明编写参考标准：\[#link("https://research.perplexity.ai/articles/designing-refining-and-maintaining-agent-skills-at-perplexity][https://research.perplexity.ai/articles/designing-refining-and-maintaining-agent-skills-at-perplexity")[https://research.perplexity.ai/articles/designing-refining-and-maintaining-agent-skills-at-perplexity\]\[https://research.perplexity.ai/articles/designing-refining-and-maintaining-agent-skills-at-perplexity]\]
+- Skills说明编写参考标准：. #link("https://research.perplexity.ai/articles/designing-refining-and-maintaining-agent-skills-at-perplexity")[https://research.perplexity.ai/articles/designing-refining-and-maintaining-agent-skills-at-perplexity]
+
 - ARIS / Auto-Research-In-Sleep: `wanshuiyin/Auto-claude-code-research-in-sleep`. #link("https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep")[https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep]
 - Aperivue MedSci Skills: `Aperivue/medsci-skills`. #link("https://github.com/Aperivue/medsci-skills")[https://github.com/Aperivue/medsci-skills]
 - K-Dense Scientific Agent Skills: `K-Dense-AI/scientific-agent-skills`. #link("https://github.com/K-Dense-AI/scientific-agent-skills")[https://github.com/K-Dense-AI/scientific-agent-skills]
 - Davila7 Claude Code Templates: `davila7/claude-code-templates`. #link("https://github.com/davila7/claude-code-templates")[https://github.com/davila7/claude-code-templates]
 
 #line(length: 100%, stroke: 0.6pt)
+
+
+
