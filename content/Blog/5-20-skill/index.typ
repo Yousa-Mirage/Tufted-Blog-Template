@@ -334,12 +334,31 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 总榜如下：
 
-#table(
-  columns: (1fr, 1fr, 1fr),
-  align: (left, right, right),
-  table.header([*Skill*], [*MeanVerifiedPrecision\@10*], [*MeanWeightedChecklistScore\@10*]),
-  [`iterative-research-lit`], [0.75], [87.18], [`k-dense-literature-review`], [0.70], [84.86], [`davila7-literature-review`], [0.65], [82.72], [`aperivue-search-lit`], [0.55], [80.44], [`aris-research-lit`], [0.55], [80.44], [`research-lit`], [0.55], [78.67]
-)
+#let scroll-table(content) = context {
+  if sys.inputs.at("target", default: "") == "html" {
+    html.elem("div", attrs: (style: "overflow-x: auto; width: 100%;"))[#content]
+  } else {
+    content
+  }
+}
+
+#scroll-table[
+  #table(
+    columns: (1fr, 1fr, 1fr),
+    align: (left, right, right),
+    table.header(
+      [*Skill*],
+      [*MeanVerifiedPrecision\@10*],
+      [*MeanWeightedChecklistScore\@10*],
+    ),
+    [`iterative-research-lit`], [0.75], [87.18],
+    [`k-dense-literature-review`], [0.70], [84.86],
+    [`davila7-literature-review`], [0.65], [82.72],
+    [`aperivue-search-lit`], [0.55], [80.44],
+    [`aris-research-lit`], [0.55], [80.44],
+    [`research-lit`], [0.55], [78.67],
+  )
+]
 
 这轮说明它不是只靠 phenotype addon 取胜。在 KG 和 neuro-inspired memory 任务中，主要发挥作用的是通用主干：复杂意图拆解、checklist ranking 和 set-level output control。
 
@@ -359,14 +378,26 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 总榜如下：
 
-#table(
-  columns: (1fr, 1fr, 1fr, 1fr),
-  align: (left, right, right, right),
-  table.header([*Skill*], [*MeanVerifiedPrecision\@10*], [*MeanWeightedChecklistScore\@10*], [*MinWeightedChecklistScore\@10*]),
-  [`iterative-research-lit`], [0.95], [85.72], [84.73], [`k-dense-literature-review`], [0.93], [85.00], [83.64], [`aperivue-search-lit`], [0.93], [84.45], [82.55], [`davila7-literature-review`], [0.88], [83.05], [81.82], [`aris-research-lit`], [0.80], [81.36], [77.90], [`research-lit`], [0.80], [80.36], [76.99]
-)
+#scroll-table[
+  #table(
+    columns: (1fr, 1fr, 1fr, 1fr),
+    align: (left, right, right, right),
+    table.header(
+      [*Skill*],
+      [*MeanVerifiedPrecision\@10*],
+      [*MeanWeightedChecklistScore\@10*],
+      [*MinWeightedChecklistScore\@10*],
+    ),
+    [`iterative-research-lit`], [0.95], [85.72], [84.73],
+    [`k-dense-literature-review`], [0.93], [85.00], [83.64],
+    [`aperivue-search-lit`], [0.93], [84.45], [82.55],
+    [`davila7-literature-review`], [0.88], [83.05], [81.82],
+    [`aris-research-lit`], [0.80], [81.36], [77.90],
+    [`research-lit`], [0.80], [80.36], [76.99],
+  )
+]
 
-这轮最有价值的是第四个任务。它把“智能小店建设”和“Z 世代谷子消费认同维度”混在一起，要求 skill 同时覆盖智能零售、社群认同、自我认同和情感价值。`iterative-research-lit` 在这一题上明显领先，说明它的集合级平衡能力比单纯广搜更强。
+这轮最有价值的是第四个任务。它把"智能小店建设"和"Z 世代谷子消费认同维度"混在一起，要求 skill 同时覆盖智能零售、社群认同、自我认同和情感价值。`iterative-research-lit` 在这一题上明显领先，说明它的集合级平衡能力比单纯广搜更强。
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -390,12 +421,42 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 本次比较使用了同一类 `SKILL.md` 或 skill-like literature workflow 作为基线，避免把不同产品和不同检索栈直接混进同一 leaderboard。
 
-#table(
-  columns: (1fr, 1fr, 1fr, 1fr),
-  align: (left, left, left, left),
-  table.header([*基线*], [*来源*], [*定位*], [*主要差别*]),
-  [`research-lit`], [本地 baseline；ARIS 风格公开版本见 `wanshuiyin/Auto-claude-code-research-in-sleep`], [多源广搜], [recall 强，但 checklist 和集合重排弱], [`aris-research-lit`], [ARIS / Auto-Research-In-Sleep 相关 research-lit skill], [source routing + discovery], [发现能力强，但容易混入背景或近邻文献], [`aperivue-search-lit`], [`Aperivue/medsci-skills`], [医学文献检索与验证], [生医任务很强，但跨社会科学和复杂双目标任务弱一些], [`k-dense-literature-review`], [`K-Dense-AI/scientific-agent-skills`], [系统综述型 workflow], [覆盖全面，但 top-k 约束优化不如 checklist controller], [`davila7-literature-review`], [`davila7/claude-code-templates`], [通用 literature review workflow], [适合主题整理，但硬约束敏感度弱]
-)
+#scroll-table[
+  #table(
+    columns: (1fr, 1fr, 1fr, 1fr),
+    align: (left, left, left, left),
+    table.header(
+      [*基线*],
+      [*来源*],
+      [*定位*],
+      [*主要差别*],
+    ),
+    [`research-lit`],
+    [本地 baseline；ARIS 风格公开版本见 `wanshuiyin/Auto-claude-code-research-in-sleep`],
+    [多源广搜],
+    [recall 强，但 checklist 和集合重排弱],
+
+    [`aris-research-lit`],
+    [ARIS / Auto-Research-In-Sleep 相关 research-lit skill],
+    [source routing + discovery],
+    [发现能力强，但容易混入背景或近邻文献],
+
+    [`aperivue-search-lit`],
+    [`Aperivue/medsci-skills`],
+    [医学文献检索与验证],
+    [生医任务很强，但跨社会科学和复杂双目标任务弱一些],
+
+    [`k-dense-literature-review`],
+    [`K-Dense-AI/scientific-agent-skills`],
+    [系统综述型 workflow],
+    [覆盖全面，但 top-k 约束优化不如 checklist controller],
+
+    [`davila7-literature-review`],
+    [`davila7/claude-code-templates`],
+    [通用 literature review workflow],
+    [适合主题整理，但硬约束敏感度弱],
+  )
+]
 
 #quote[
   这些 baseline 各自有合理应用场景。`research-lit` 和 `aris-research-lit` 更像广搜与发现工具；`k-dense` 和 `davila7` 更接近系统综述模板；`aperivue` 是医学文献验证强项；而 `iterative-research-lit` 更像复杂意图下的约束保持器和结果集排序器。
