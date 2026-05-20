@@ -20,7 +20,7 @@ Always exploring, learning, and sharing.
   #image("imgs/l.jpg", width: 50%)
 ]
 
-#tufted.margin-note[***致新生活（Lappland)***]
+#tufted.margin-note[***To New Life（Lappland)***]
 
 I am building my knowledge around bioinformatics and large model learning. This site is where I organize study notes, mathematical and algorithmic ideas, personal reflections, drawing-method notes, and diary-style records.
 
