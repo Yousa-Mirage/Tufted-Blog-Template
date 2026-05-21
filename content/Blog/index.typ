@@ -51,31 +51,36 @@
 #tag(<transformer>, [🤖 Transformer 系列])
 #tag(<linear>, [📐 线性代数])
 
-#series-block(title: "Transformer｜反向传播", accent: rgb("#6366f1"))[
+#series-block(title: "Transformer", accent: rgb("#6366f1"))[
+   #tufted.blog-entry(
+    date: datetime(year: 2026, month: 5, day: 21),
+    path: "5-21-tr",
+    title: "Transformer｜反向传播 (Backpropagation)（4）：Self-Attention联合推导与整体总结",
+  ) 
+  
   #tufted.blog-entry(
     date: datetime(year: 2026, month: 5, day: 20),
     path: "5-20-tr",
-    title: "（3）以SwiGLU为例的前馈网络层推导",
+    title: "Transformer｜反向传播 (Backpropagation)（3）以SwiGLU为例的前馈网络层推导",
   )
   #tufted.blog-entry(
     date: datetime(year: 2026, month: 5, day: 19),
     path: "5-19",
-    title: "（2）两个特殊模块：Softmax 与 RMSNorm",
+    title: "Transformer｜反向传播 (Backpropagation)（2）两个特殊模块：Softmax 与 RMSNorm",
   )
   #tufted.blog-entry(
     date: datetime(year: 2026, month: 5, day: 18),
     path: "5-18",
-    title: "（1）误差和梯度在 Linear 层的基础推导",
+    title: "Transformer｜反向传播 (Backpropagation)（1）误差和梯度在 Linear 层的基础推导",
   )
 ] <transformer>
-
 
 
 #series-block(title: "线性代数", accent: rgb("#0ea5e9"))[
   #tufted.blog-entry(
     date: datetime(year: 2026, month: 5, day: 13),
     path: "2026-05-13-strassen-matrix-blocking/",
-    title: "矩阵分块优化与 Strassen 算法",
+    title: "线性代数｜矩阵分块优化与 Strassen 算法",
   )
 ] <linear>
 
