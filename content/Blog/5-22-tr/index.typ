@@ -235,13 +235,13 @@ dot.op
 
 $ Delta_(x_"in")
 
-underbrace(Delta_(x_"out"), "残差直路")
+underbrace(Delta_(x_"out"), "Drict path")
 +
 underbrace(
 Delta_(x_"out")
 dot.op
 (partial f)/(partial x_"in")
-, "经过子模块的路") $
+, "Subpath") $
 
 #line(length: 100%, stroke: 0.6pt)
 
