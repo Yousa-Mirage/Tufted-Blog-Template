@@ -137,7 +137,7 @@ x_out
 
 #line(length: 100%, stroke: 0.6pt)
 
-== Pre-Norm（GPT-2 开始，现在主流）
+=== *Pre-Norm（GPT-2 开始，现在主流）*
 
 归一化放在残差相加 *之前*（子模块之前）：
 
