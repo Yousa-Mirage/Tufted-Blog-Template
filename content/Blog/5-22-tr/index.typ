@@ -563,7 +563,7 @@ Block 输出：x_out
 
 $ Delta_(x_"in")
 
-sum "所有路径的梯度" $
+sum "all path grad" $
 
 其中：
 
