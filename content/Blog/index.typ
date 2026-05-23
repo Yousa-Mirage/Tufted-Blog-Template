@@ -135,6 +135,8 @@
 == *个人记录* <life>
 
 #tag(<langauge>, [🗣️ 语言学习])
+#tag(<diary>, [📝 日常记录])
+
 
 #series-block(title: "语言学习", accent: rgb("#f97316"))[
   #tufted.blog-entry(
@@ -143,3 +145,13 @@
     title: "“想让生活更有动力？你的选择是学习新的语言吗？🐶”",
   )
 ] <langauge>
+
+
+#series-block(title: "日常记录", accent: rgb("#f97316"))[
+  #tufted.blog-entry(
+    date: datetime(year: 2026, month: 5, day: 23),
+    path: "5-23-fp",
+    title: "日常记录｜飞盘初体验🥏",
+  )
+] <diary>
+
