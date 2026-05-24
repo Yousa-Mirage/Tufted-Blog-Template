@@ -6,6 +6,9 @@
 
 开发中的更新内容将在此记录。
 
+- 功能：在文章第一个一级标题下方显示作者、日期和可选的额外信息（[#35](https://github.com/Yousa-Mirage/Tufted-Blog-Template/pull/35), [@tortrixx](https://github.com/tortrixx)）
+
+
 ## v1.1.0
 
 - 功能：引入了基于 [actions-template-sync](https://github.com/marketplace/actions/actions-template-sync) 的自动更新工作流（[#28](https://github.com/Yousa-Mirage/Tufted-Blog-Template/pull/28), [@HerveyB3B4](https://github.com/HerveyB3B4)）

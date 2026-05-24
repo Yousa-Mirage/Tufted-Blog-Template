@@ -4,6 +4,8 @@
 
 ## Develop
 
+- feat: show author, date, and optional extra information below the first level-one heading of articles ([#35](https://github.com/Yousa-Mirage/Tufted-Blog-Template/pull/35), [@tortrixx](https://github.com/tortrixx))
+
 ## v1.1.0
 
 Development updates will be recorded here.
