@@ -488,7 +488,7 @@ SiLU（而非 ReLU）：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结：$sqrt(d_k)$ 到底是什么？*
+== *小结*
 
 #quote[
   朋友，现在我们可以给出一个比较完整的回答了。
