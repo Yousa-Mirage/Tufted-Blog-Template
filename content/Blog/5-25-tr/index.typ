@@ -19,7 +19,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *导言：一定是 $sqrt(d_k)$ 吗？*
+== *导言*
 
 #quote[
   先把问题摊开放在桌上。Attention 的缩放步骤是：
@@ -168,7 +168,7 @@ $ W_(i j) ~ N(0, 2/(n_"in")) $
 #figure(caption: "初始化方法汇总")[
   #image("imgs/2.png", width: 40%)
 ]
-== *回到 $sqrt(d_k)$：点积的方差分析*
+== *回到点积的方差分析*
 
 #quote[
   *现在我们用同样的方差分析方法，来看看 Attention 的打分 $S = Q dot.op K^T$ 会发生什么。*
