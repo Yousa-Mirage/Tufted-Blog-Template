@@ -53,7 +53,7 @@
 
 #series-block(title: "Transformer", accent: rgb("#6366f1"))[
    #tufted.blog-entry(
-    date: datetime(year: 2026, month: 5, day: 22),
+    date: datetime(year: 2026, month: 5, day: 25),
     path: "5-25-tr",
     title: "Transformer｜反向传播 (Backpropagation)（6）：缩放因子与初始化哲学",
   ) 
