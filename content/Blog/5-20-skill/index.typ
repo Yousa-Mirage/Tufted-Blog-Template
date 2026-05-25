@@ -258,7 +258,7 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 `evaluation_protocol.md` 定义评估方法。它要求固定搜索日期，记录 query、checklist、query families、候选数量、验证状态和最终 checkpoint scores，并把失败按 query type 分析。
 
-`phenotype_alignment_patterns.md` 是一个领域 addon。它服务于 HPO-MPO、mouse-human phenotype transfer、Monarch、uPheno 等 phenotype ontology alignment 任务，但它不是主流程的一部分。这也是当前 skill 的真实状态：核心是通用的复杂文献检索主干，附带一个 phenotype 领域扩展。
+`phenotype_alignment_patterns.md` 是一个领域 addon。它服务于专门的任务，但它不是主流程的一部分。这也是当前 skill 的真实状态：核心是通用的复杂文献检索主干，附带一个 phenotype 领域扩展。
 
 #line(length: 100%, stroke: 0.6pt)
 
