@@ -521,3 +521,6 @@ $sqrt(d_k)$ 是一个*基于初始化假设推导出的、在量级上正确的�
 #line(length: 100%, stroke: 0.6pt)
 
 == *参考资料*
+
+- Laurent Bou´,_Deep learning for pedestrians: backpropagation in Transformers_
+- Stanford lecture,_cs336(2025-2026)_
