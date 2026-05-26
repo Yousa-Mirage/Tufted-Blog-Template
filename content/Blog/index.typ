@@ -148,6 +148,11 @@
     path: "5-19-jp",
     title: "“想让生活更有动力？你的选择是学习新的语言吗？🐶”",
   )
+  #tufted.blog-entry(
+    date: datetime(year: 2026, month: 5, day: 19),
+    path: "5-25",
+    title: "“一周后的收获🎉”",
+  )  
 ] <langauge>
 
 
