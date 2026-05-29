@@ -27,13 +27,12 @@
   近年来，精准医学的数据源正在从传统的电子病历（EHR）向 Deep Phenotyping（深度表型分析）演进。这个变化背后的核心矛盾很明确：传统的 EHR 数据虽然包含了诊断记录，但往往碎片化且缺乏早期的风险信号；而深度表型数据（如生物标志物、基因组、长期生活方式记录）虽然信息丰富，但其高维、异构且缺乏自然顺序的特点，使得传统的机器学习方法难以有效建模。
 ]
 
-#quote[
-  *深度表型分析（Deep Phenotyping）* 是通过整合多维数据对个体进行全面表征，包括：
+解释一下：*深度表型分析（Deep Phenotyping）* 是通过整合多维数据对个体进行全面表征，包括：
 - 生物标志物（血液指标、代谢物等）
 - 生活方式（运动、睡眠、吸烟等）
 - 饮食习惯（酒类、蔬果摄入等）
 - 环境暴露
-- 教育水平]
+- 教育水平
 
 #figure(caption: "去年的nature论文")[
   #image("imgs/1.png", width: 40%)
@@ -72,8 +71,8 @@ ukbFound 的核心挑战在于如何将高度非结构化的医疗数据（如�
 原始数据分为三类：
 
 #table(
-  columns: (1fr, 1fr, 1fr, 1fr, 1fr),
-  align: (left, left, left, left, left),
+  columns: (1fr, 1fr, 1fr, 1fr),
+  align: (left, left, left, left),
   table.header([*类型*], [*含义*], [*Trait Token 数*], [*Value Token 数*]),
   [*CT* (Continuous Traits)], [连续变量], [1,324], [5,296 (1,324 × 4)], [*MCT* (Multi-Choice Traits)], [单选分类变量], [859], [30,337], [*MST* (Multi-Select Traits)], [多选分类变量], [598], [8,652]
 )
