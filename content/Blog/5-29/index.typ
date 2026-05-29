@@ -60,7 +60,7 @@ ukbFound 的核心挑战在于如何将高度非结构化的医疗数据（如�
 === *第一部分：层次化 Tokenization*
 
 
-#tufted.margin-note[*原文*:
+#quote[*原文*:
   *Hierarchical tokenization strategy.* The heterogeneous data types underwent standardization through a dual-vocabulary tokenization framework comprising trait and value vocabularies. For continuous traits, numerical values were discretized into quartile categories (Q1, Q2, Q3, Q4) using an equal-frequency binning strategy, which aims to ensure exhaustive coverage of value tokens, to reduce the impact of extreme values, and to improve interpretability. For categorical traits, we distinguished between multi-choice traits and multi-select traits. Multi-choice traits were transformed into trait tokens with choices directly mapped as value tokens (e.g., 'male' and 'female'). For multi-select traits, each choice was converted into a binary single-select trait using 'yes' or 'no' tokens. Missing values were replaced with a dedicated "pad" token to maintain sequence integrity.*Vocabulary generation.* For trait vocab, let CT, MCT and MST denote the sets of continuous traits, multi-choice traits and multi-select traits, respectively. For value vocab, let QV, CV and SV denote the sets of quartile values, choice values for multi-choice traits and select values for multi-select traits. To generate all possible trait-value combinations, we employed a cartesian product-based approach to systematically map three trait sets (CT, MCT and MST) to their corresponding value sets (QV, CV, and SV). The union of the corresponding Cartesian products constitutes all tokens vocabulary V. V = CT × QV ∪ MCT × CV ∪ MST × SV(公式1)
 ]
 
@@ -155,18 +155,7 @@ Value 词表 = |QV| + |CV| + |SV|
 
 === *第二部分：位置无关嵌入（Position-Free Input Embedding）*
 
-
-#line(length: 100%, stroke: 0.6pt)
-
-==== *Step 1: 什么是"位置无关"？*
-
-在传统 Transformer（如 BERT、GPT）中，输入序列是：
-
-```
-输入 = Token_Embedding + Position_Embedding + Segment_Embedding
-```
-
-*Position Embedding* 告诉模型"这个词在序列的第几个位置"，因为语言中顺序决定语义。#tufted.margin-note[*原文*：
+#quote[*原文*：
   *Position-free input embedding module.* In the ukbFound framework, each trait is considered the smallest unit of information. We assign each trait t\_j a unique integer identifier id(t\_j). These ordered identifiers form the sequence of input tokens and offers great flexibility to input tokens' order. The input trait tokens of each individual l are hence represented by an order vector,
   
   *x\_t^(l) = \[id(t\_1^(l)), id(t\_2^(l)), ..., id(t\_M^(l))\]* (公式2)
@@ -193,6 +182,18 @@ Value 词表 = |QV| + |CV| + |SV|
   
   *h^(l) = emb(CT\_QV^(l)) + emb(MCT\_CV^(l)) + emb(MST\_SV^(l))* (公式6)
 ]
+
+#line(length: 100%, stroke: 0.6pt)
+
+==== *Step 1: 什么是"位置无关"？*
+
+在传统 Transformer（如 BERT、GPT）中，输入序列是：
+
+```
+输入 = Token_Embedding + Position_Embedding + Segment_Embedding
+```
+
+*Position Embedding* 告诉模型"这个词在序列的第几个位置"，因为语言中顺序决定语义。
 
 但在 ukbFound 中：
 
@@ -265,7 +266,7 @@ h^(l) = [所有连续特征嵌入] + [所有单选特征嵌入] + [所有多选�
 
 === *第三部分：Transformer 编码器（Self-Attention 过程）*
 
-#tufted.margin-note[*原文*：
+#quote[*原文*：
   *Trait–value fusion and token-type distinction.* Trait and value tokens are embedded by two separate lookup tables (embₜ for traits and embᵥ for values). For each observed item, the final token representation is the element-wise sum of its trait embedding and the corresponding value embedding. This preserves token-type information while yielding a single contextual vector per item for the transformer encoder.
   
   *ukbFound transformer.* We employ a self-attention transformer architecture to encode the comprehensive input embedding h^(l) (D = 256) (equation 6). The encoder comprises eight stacked transformer blocks, each with eight self-attention heads, 256-dimensional token/trait embeddings, and a 1,024-dimensional feed-forward network with Gaussian error linear unit (GELU) activation and a dropout rate of 0.15. Layer normalization is applied before each attention and feed-forward sublayer. A special CLS token is prepended to each sequence, and its final-layer embedding h\_CLS^(l) is used as the aggregate individual representation. The total parameter count is approximately 25.3 million.
@@ -378,9 +379,7 @@ Self-Attention 让模型学会：
 
 === *第四部分：预训练 — Masked Language Modeling*
 
-==== *原文*
-
-#tufted.margin-note[*原文*：
+#quote[*原文*：
   *ukbFound pretraining.* The ukbFound model is configured with a maximum sequence length M = 3000, a masking ratio of 15%, a batch size of 100, a dropout rate of 0.15, and a learning rate of 0.0001. A masked language modeling (MLM) objective was applied using cross-entropy loss in training with 50 epochs.
   
   The cross-entropy loss between the predicted probability distribution over the vocab and the true (masked) token for MLM is:
