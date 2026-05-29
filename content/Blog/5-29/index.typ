@@ -156,7 +156,17 @@ Value 词表 = |QV| + |CV| + |SV|
 === *第二部分：位置无关嵌入（Position-Free Input Embedding）*
 
 
-#tufted.margin-note[*原文*：
+#line(length: 100%, stroke: 0.6pt)
+
+==== *Step 1: 什么是"位置无关"？*
+
+在传统 Transformer（如 BERT、GPT）中，输入序列是：
+
+```
+输入 = Token_Embedding + Position_Embedding + Segment_Embedding
+```
+
+*Position Embedding* 告诉模型"这个词在序列的第几个位置"，因为语言中顺序决定语义。#tufted.margin-note[*原文*：
   *Position-free input embedding module.* In the ukbFound framework, each trait is considered the smallest unit of information. We assign each trait t\_j a unique integer identifier id(t\_j). These ordered identifiers form the sequence of input tokens and offers great flexibility to input tokens' order. The input trait tokens of each individual l are hence represented by an order vector,
   
   *x\_t^(l) = \[id(t\_1^(l)), id(t\_2^(l)), ..., id(t\_M^(l))\]* (公式2)
@@ -183,18 +193,6 @@ Value 词表 = |QV| + |CV| + |SV|
   
   *h^(l) = emb(CT\_QV^(l)) + emb(MCT\_CV^(l)) + emb(MST\_SV^(l))* (公式6)
 ]
-
-#line(length: 100%, stroke: 0.6pt)
-
-==== *Step 1: 什么是"位置无关"？*
-
-在传统 Transformer（如 BERT、GPT）中，输入序列是：
-
-```
-输入 = Token_Embedding + Position_Embedding + Segment_Embedding
-```
-
-*Position Embedding* 告诉模型"这个词在序列的第几个位置"，因为语言中顺序决定语义。
 
 但在 ukbFound 中：
 
@@ -605,19 +603,16 @@ def random_mask_value(values, mask_ratio=0.15, ...):
 - *问题*：疾病索引范围 `1302-2353` 硬编码在掩码函数中。
 - *风险*：如果更换数据集（如从 UKB 换成中国队列），疾病 ID 范围完全不同，代码将*静默失效*或错误掩码。
 - *笔者建议*：将疾病 ID 范围提取为配置文件（Config）或函数参数。
+
   ```Python
   
-  ```
-
-= 比如说这样
-
-````
+#比如说这样
 def random_mask_value(..., force_mask_ranges=None):
     if force_mask_ranges:
         for start, end in force_mask_ranges:
             row[(start <= row) & (row <= end)] = mask_value
 ```
-````
+
 
 #line(length: 100%, stroke: 0.6pt)
 
