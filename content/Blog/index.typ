@@ -103,6 +103,12 @@
 #tag(<realtry>, [💡 实践看法])
 
 #series-block(title: "实践看法", accent: rgb("#f59e0b"))[
+
+    #tufted.blog-entry(
+    date: datetime(year: 2026, month: 5, day: 29),
+    path: "5-29",
+    title: "Pre-Train Framework｜深度表型数据适配的 Transformer 基础模型 ukbFound 架构与源码解析",
+  )
   #tufted.blog-entry(
     date: datetime(year: 2026, month: 5, day: 20),
     path: "5-20-skill",
@@ -115,7 +121,7 @@
 == *杂谈* <chat>
 
 #tag(<movie>, [🎬 影评])
-#tag-placeholder[🌐 文化评论（即将更新）]
+#tag-placeholder[🌐 泛文化评论（即将更新）]
 
 #series-block(title: "影评", accent: rgb("#ec4899"))[
   #tufted.blog-entry(
@@ -128,10 +134,10 @@
 // ==================== 绘画记录 ====================
 == *绘画记录* <draw>
 
-#tag-placeholder[✏️ 速写（即将更新）]
-#tag-placeholder[🎨 色彩研究（即将更新）]
+#tag-placeholder[✏️ 绘画分享（即将更新）]
+#tag-placeholder[🎨 板绘研究（即将更新）]
 
-#series-block(title: "绘画", accent: rgb("#10b981"))[
+#series-block(title: "绘画分享", accent: rgb("#10b981"))[
   #text(fill: luma(160), style: "italic")[暂无文章，敬请期待。]
 ]
 
