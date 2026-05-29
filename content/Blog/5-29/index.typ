@@ -451,12 +451,7 @@ Self-Attention 让模型学会：
   预训练得到的 Embedding 仅仅是"半成品"，真正的价值体现在三大下游任务中,这里展示一下大概情况：
 ]
 
-#table(
-  columns: (1fr, 1fr, 1fr, 1fr, 1fr),
-  align: (left, left, left, left, left),
-  table.header([*任务类型*], [*输入数据*], [*数据形式*], [*核心算法*], [*验证指标*]),
-  [*1. 疾病分层*\<br\>(Stratification)], [特定疾病队列\<br\>(如 COPD 患者)], [*`<CLS>` 向量*\<br\>(1D, 256 dim)], [KNN 图 +\<br\>Leiden 聚类], [*生存分析*\<br\>(Kaplan-Meier 曲线差异显著)], [*2. 疾病网络*\<br\>(Multimorbidity)], [445 种疾病\<br\>的所有患者数据], [*疾病平均向量*\<br\>(Mean Embedding)], [*余弦相似度*\<br\>(Cosine Similarity)], [*文献重叠率*\<br\>(52% 与遗传学一致)\<br\>+ 发现新型关联], [*3. 疾病预测*\<br\>(Prediction)], [仅 465 个\<br\>生活方式/饮食特征], [*全序列 Embedding 矩阵*\<br\>(2D, Seq\_Len × 256)], [*TextCNN 分类器*\<br\>(2/3/4-gram 卷积)], [*AUC (0.82)*\<br\>8年前瞻性 OR=17.5], [_*注意：以下是详细展开，对生物下游问题解决设计思路有兴趣地可以仔细看看，只对架构细节感兴趣的可以跳到后面对于实现的源码块的分析*_]
-)
+_*注意：以下是详细展开，对生物下游问题解决设计思路有兴趣地可以仔细看看，只对架构细节感兴趣的可以跳到后面对于实现的源码块的分析*_
 
 #line(length: 100%, stroke: 0.6pt)
 
