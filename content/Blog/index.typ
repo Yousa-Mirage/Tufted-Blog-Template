@@ -48,8 +48,8 @@
 // ==================== 数学与算法 ====================
 == *数学与算法* <math>
 
-#tag(<transformer1>, [🤖 Transformer 反向传播 (Backpropagation)系列])
 #tag(<transformer2>, [🤖 Transformer架构演进系列])
+#tag(<transformer1>, [🤖 Transformer 反向传播 (Backpropagation)系列])
 #tag(<linear>, [📐 线性代数])
 
 
@@ -134,7 +134,9 @@ _*⚠️⚠️⚠️注意：在往下的内容是作者的私人记录，没有
 == *杂谈* <chat>
 
 #tag(<movie>, [🎬 影评])
-#tag-placeholder[🌐 泛文化评论（即将更新）]
+#tag(<wide>,[🌐 泛文化杂谈])
+
+
 
 #series-block(title: "影评", accent: rgb("#ec4899"))[
   #tufted.blog-entry(
@@ -144,6 +146,13 @@ _*⚠️⚠️⚠️注意：在往下的内容是作者的私人记录，没有
   )
 ] <movie>
 
+#series-block(title: "泛文化杂谈", accent: rgb("#ec4899"))[
+  #tufted.blog-entry(
+    date: datetime(year: 2026, month: 6, day: 1),
+    path: "6-1",
+    title: "泛文化杂谈｜关于yuri漫画的个人茶话会💦",
+  )
+] <wide>
 // ==================== 绘画记录 ====================
 == *绘画记录* <draw>
 
