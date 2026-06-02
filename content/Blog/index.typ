@@ -48,10 +48,20 @@
 // ==================== 数学与算法 ====================
 == *数学与算法* <math>
 
-#tag(<transformer>, [🤖 Transformer 系列])
+#tag(<transformer1>, [🤖 Transformer 反向传播 (Backpropagation)系列])
+#tag(<transformer2>, [🤖 Transformer架构演进系列])
 #tag(<linear>, [📐 线性代数])
 
-#series-block(title: "Transformer", accent: rgb("#6366f1"))[
+
+#series-block(title: "Transformer架构演进", accent: rgb("#0ea5e9"))[
+  #tufted.blog-entry(
+    date: datetime(year: 2026, month: 6, day: 2),
+    path: "6-2",
+    title: "Transformer｜架构演进（0）：从Transformer架构到现代大模型导览",
+  )
+]<transformer2>
+
+#series-block(title: "Transformer反向传播 (Backpropagation)", accent: rgb("#6366f1"))[
    #tufted.blog-entry(
     date: datetime(year: 2026, month: 5, day: 25),
     path: "5-25-tr",
@@ -83,7 +93,7 @@
     path: "5-18",
     title: "Transformer｜反向传播 (Backpropagation)（1）：误差和梯度在 Linear 层的基础推导",
   )
-] <transformer>
+] <transformer1>
 
 
 #series-block(title: "线性代数", accent: rgb("#0ea5e9"))[
