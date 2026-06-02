@@ -10,17 +10,15 @@
   lang: "zh",
 )
 // 定义
-#let htags(..tags) = {
-  for tag in tags.pos() {
-    box(
-      inset: (x: 8pt, y: 4pt),
-      radius: 20pt,
-      fill: rgb("#f0f6ff"),
-      stroke: 0.8pt + rgb("#3b82f6"),
-    )[#text(size: 0.8em, weight: "bold", style: "italic", fill: rgb("#1d4ed8"))[#tag]]
-    h(6pt)
-  }
-}
+#let htag(body) = box(
+  inset: (x: 8pt, y: 4pt),
+  radius: 20pt,
+  fill: rgb("#f0f6ff"),
+  stroke: 0.8pt + rgb("#3b82f6"),
+)[#text(size: 0.8em, weight: "bold", style: "italic", fill: rgb("#1d4ed8"))[#("#" + body)]]
+
+// 多个标签并排，用 .map + .join 而不是 for 循环
+#let htags(..tags) = tags.pos().map(htag).join(h(6pt))
 
 = *Transformer｜架构演进（0）：从Transformer架构到现代大模型导览*
 
