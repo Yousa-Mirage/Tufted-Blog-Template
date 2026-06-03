@@ -107,10 +107,22 @@
 // ==================== 实践与工具 ====================
 == *实践与工具* <practice>
 
-#tag-placeholder[🔧 工具分享（即将更新）]
-#tag-placeholder[🚀 项目实践（即将更新）]
+#tag(<tries>,[🚀 项目实践])
 
 #tag(<realtry>, [💡 实践看法])
+
+#tag-placeholder[🔧 工具分享（即将更新）]
+
+#series-block(title: "项目实践", accent: rgb("#f59e0b"))[
+
+  #tufted.blog-entry(
+    date: datetime(year: 2026, month: 6, day: 3),
+    path: "6-3",
+    title: "cs336（2025）｜assignment 1：Transformer架构的测试实验",
+  )
+] <tries>
+
+
 
 #series-block(title: "实践看法", accent: rgb("#f59e0b"))[
 
