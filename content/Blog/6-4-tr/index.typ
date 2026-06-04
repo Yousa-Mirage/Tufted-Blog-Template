@@ -807,35 +807,24 @@ Ali 等人在 2024 年的 *Tokenizer Choice For LLM Training: Negligible or Cruc
 == *参考文献与延伸阅读*
 
 + Sennrich, Rico, Barry Haddow, and Alexandra Birch. 2016. *Neural Machine Translation of Rare Words with Subword Units.*\
-BPE 引入神经机器翻译，用 subword 处理 rare words 和 open vocabulary。\
-#link("https://www.semanticscholar.org/paper/Neural-Machine-Translation-of-Rare-Words-with-Units-Sennrich-Haddow/1518039b5001f1836565215eb047526b3ac7f462")[1]
+BPE 引入神经机器翻译，用 subword 处理 rare words 和 open vocabulary。#link("https://www.semanticscholar.org/paper/Neural-Machine-Translation-of-Rare-Words-with-Units-Sennrich-Haddow/1518039b5001f1836565215eb047526b3ac7f462")[1]
 + Wu, Yonghui et al. 2016. *Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation.*\
-GNMT 使用 wordpieces 处理 rare words。\
-#link("https://arxiv.org/abs/1609.08144")[1]
+GNMT 使用 wordpieces 处理 rare words。#link("https://arxiv.org/abs/1609.08144")[1]
 + Kudo, Taku. 2018. *Subword Regularization: Improving Neural Network Translation Models with Multiple Subword Candidates.*\
-提出 subword regularization 和 Unigram LM segmentation。\
-#link("https://aclanthology.org/P18-1007/")[2]
+提出 subword regularization 和 Unigram LM segmentation。#link("https://aclanthology.org/P18-1007/")[2]
 + Kudo, Taku, and John Richardson. 2018. *SentencePiece: A Simple and Language Independent Subword Tokenizer and Detokenizer.*\
-提出 language-independent tokenizer，可以直接从 raw text 训练。\
-#link("https://aclanthology.org/D18-2012/")[2]
+提出 language-independent tokenizer，可以直接从 raw text 训练。#link("https://aclanthology.org/D18-2012/")[2]
 + Radford, Alec et al. 2019. *Language Models are Unsupervised Multitask Learners.*\
-GPT-2 使用 byte-level BPE，词表大小 50,257。\
-#link("https://huggingface.co/openai-community/gpt2")[1]
+GPT-2 使用 byte-level BPE，词表大小 50,257。#link("https://huggingface.co/openai-community/gpt2")[1]
 + Meta AI. 2024. *Introducing Meta Llama 3.*\
-LLaMA 3 使用 128K vocabulary tokenizer，并提升 token efficiency。\
-#link("https://ai.meta.com/blog/meta-llama-3/")[4]
+LLaMA 3 使用 128K vocabulary tokenizer，并提升 token efficiency。#link("https://ai.meta.com/blog/meta-llama-3/")[4]
 + Qwen Team. 2024. *Qwen2 Technical Report.*\
-Qwen2 使用 byte-level BPE，词表约 151K。\
-#link("https://arxiv.org/html/2407.10671v4")[1]
+Qwen2 使用 byte-level BPE，词表约 151K。\#link("https://arxiv.org/html/2407.10671v4")[1]
 + Google. 2025. *Gemma 3 Technical Report.*\
-Gemma 3 使用 Gemini 2.0 的 SentencePiece tokenizer，词表约 262K，更强调非英语语言平衡。\
-#link("https://arxiv.org/html/2503.19786v1")[4]
+Gemma 3 使用 Gemini 2.0 的 SentencePiece tokenizer，词表约 262K，更强调非英语语言平衡。#link("https://arxiv.org/html/2503.19786v1")[4]
 + Ali, Mehdi et al. 2024. *Tokenizer Choice For LLM Training: Negligible or Crucial?*\
-系统研究 tokenizer choice 对 LLM 下游性能、训练成本和推理成本的影响。\
-#link("https://arxiv.org/abs/2310.08754")[3]
+系统研究 tokenizer choice 对 LLM 下游性能、训练成本和推理成本的影响。#link("https://arxiv.org/abs/2310.08754")[3]
 + Tao, Chaofan et al. 2024. *Scaling Laws with Vocabulary: Larger Models Deserve Larger Vocabularies.*\
-将 vocabulary size 纳入 scaling law，提出更大模型需要更大词表。\
-#link("https://neurips.cc/virtual/2024/poster/93395")[1]
+将 vocabulary size 纳入 scaling law，提出更大模型需要更大词表。#link("https://neurips.cc/virtual/2024/poster/93395")[1]
 + Pagnoni, Artidoro et al. 2024. *Byte Latent Transformer: Patches Scale Better Than Tokens.*\
-探索 byte-level dynamic patching 和 tokenizer-free 方向。\
-#link("https://arxiv.org/html/2412.09871v1")[1]
+探索 byte-level dynamic patching 和 tokenizer-free 方向。#link("https://arxiv.org/html/2412.09871v1")[1]
