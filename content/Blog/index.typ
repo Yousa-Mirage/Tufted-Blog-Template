@@ -165,6 +165,13 @@ _*⚠️⚠️⚠️注意：在往下的内容是作者的私人记录，没有
 ] <movie>
 
 #series-block(title: "泛文化杂谈", accent: rgb("#ec4899"))[
+
+
+   #tufted.blog-entry(
+    date: datetime(year: 2026, month: 6, day: 4),
+    path: "6-4-yu",
+    title: "泛文化杂谈｜一个暴论——暗色元素和百合作品于文艺性上“两面共生”",
+  ) 
   #tufted.blog-entry(
     date: datetime(year: 2026, month: 6, day: 1),
     path: "6-1",
