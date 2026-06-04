@@ -54,6 +54,12 @@
 
 
 #series-block(title: "Transformer架构演进", accent: rgb("#0ea5e9"))[
+
+#tufted.blog-entry(
+    date: datetime(year: 2026, month: 6, day: 4),
+    path: "6-4-tr",
+    title: "Transformer｜架构演进（1）：Vocab 系统（1）——Tokenizer 与 Vocabulary Size",
+  )
   #tufted.blog-entry(
     date: datetime(year: 2026, month: 6, day: 2),
     path: "6-2",
