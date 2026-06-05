@@ -467,16 +467,18 @@ Unigram LM 会给每个 subword 一个概率，并认为一句话的概率由它
 
 训练时，它会估计哪些 subword 更常被用于解释语料，哪些 subword 很少起作用。那些对整体语料 likelihood 贡献较小的 token，就会被逐步删除。
 
-- 所以 Unigram LM 的流程大致是：
+#tufted.margin-note[所以 Unigram LM 的流程大致是：
   + 先生成一个较大的候选 subword 词表；
   + 估计每个 subword 的概率；
   + 计算每个 subword 对语料建模的重要性；
   + 删除贡献较小的 subword；
-  + 重复这个过程，直到词表大小满足要求。
+  + 重复这个过程，直到词表大小满足要求。]
 
-#tufted.margin-note[*补充：Unigram LM 完整流程*]
+==== *补充：Unigram LM 完整流程(选择性阅读)*
 
-#tufted.margin-note[*第一步*：初始化词表：把语料中所有可能的字符和字符组合都列出来，得到一个很大的候选词表 $V$，并给每个 subword 赋一个初始概率 $P(v)$。]
+#tufted.margin-note[在此感谢提出疑问的读者，帮助我完善了blog内容]
+
+*第一步*：初始化词表：把语料中所有可能的字符和字符组合都列出来，得到一个很大的候选词表 $V$，并给每个 subword 赋一个初始概率 $P(v)$。
 
 #tufted.margin-note[*第二步*：用 EM 学概率：我们希望模型对语料的解释能力越强越好，也就是最大化语料的 log likelihood：
 
@@ -485,7 +487,7 @@ L = sum_(x in "Sentence") log P(x)
 $
 ]
 
-#tufted.margin-note[一个句子可以有很多种切法。每种切法 $z$ 的概率是其中所有 subword 概率的乘积：
+一个句子可以有很多种切法。每种切法 $z$ 的概率是其中所有 subword 概率的乘积：
 
 $
 P(z) = product_(v in z) P(v)
@@ -497,17 +499,17 @@ $
 P(x) = sum_z P(z)
 $
 
-切法是一个隐变量，我们不知道一个句子"正确"的切法是什么。所以对所有可能的切法求和，把隐变量边缘化掉。Unigram LM 假设每个 subword 是独立生成的，所以一种切法的概率就是各 subword 概率的乘积。这也是模型名字"Unigram"的由来。]
+#tufted.margin-note[切法是一个隐变量，我们不知道一个句子"正确"的切法是什么。所以对所有可能的切法求和，把隐变量边缘化掉。Unigram LM 假设每个 subword 是独立生成的，所以一种切法的概率就是各 subword 概率的乘积。这也是模型名字"Unigram"的由来。]
 
 #tufted.margin-note[*解释：* 要估计 $P(v)$，我们需要知道每个 subword 被用了多少次；但被用了多少次取决于怎么切词，怎么切词又取决于 $P(v)$。这是一个相互依赖的问题，所以用 EM 来迭代求解。]
 
-#tufted.margin-note[E-step：算期望计数：固定当前的 $P(v)$，对每个句子，按每种切法的概率占比作为权重，计算每个 subword 的期望出现次数：
+E-step：算期望计数：固定当前的 $P(v)$，对每个句子，按每种切法的概率占比作为权重，计算每个 subword 的期望出现次数：
 
 $
 E[v] = sum_x sum_z P(z) / P(x) dot "count"(v, z)
 $
 
-直观来说：概率高的切法权重大，$v$ 在这些切法里出现得越多，期望计数就越高。]
+直观来说：概率高的切法权重大，$v$ 在这些切法里出现得越多，期望计数就越高。
 
 #tufted.margin-note[M-step：更新概率，用期望计数归一化：
 
@@ -517,7 +519,7 @@ $
 
 E-step 和 M-step 交替进行，直到概率收敛。]
 
-#tufted.margin-note[*第三步*：计算每个 subword 的重要性：EM 收敛后，我们得到了每个 subword 的 $P(v)$ 和 $E[v]$。直觉是：删掉某个 subword 后，语料的 log likelihood 掉得越少，说明它越不重要。]
+*第三步*：计算每个 subword 的重要性：EM 收敛后，我们得到了每个 subword 的 $P(v)$ 和 $E[v]$。直觉是：删掉某个 subword 后，语料的 log likelihood 掉得越少，说明它越不重要。
 
 #tufted.margin-note[EM 收敛后，对每个句子，概率最高的那种切法会占主导：
 
@@ -553,20 +555,20 @@ $
 
 两者相乘，就是 $v$ 对整个语料 likelihood 的总贡献。]
 
-#tufted.margin-note[*第四步*：删除不重要的 subword
+*第四步*：删除不重要的 subword
 
 按重要性从小到大排序，删掉贡献最低的一批（比如 20%）。
 
 有两个约束：
 
 1. 单个字符不能删，保证任何词都能被切出来
-2. 每次删一批而不是一个，因为删掉一批后其他 subword 的概率会变，需要重新跑 EM]
+2. 每次删一批而不是一个，因为删掉一批后其他 subword 的概率会变，需要重新跑 EM
 
-#tufted.margin-note[*第五步*：重复，直到词表够小。]
+*第五步*：重复，直到词表够小。
 
 
 
-它和 BPE 最大的不同是：BPE 通常会给一个文本确定性切分，而 Unigram LM 天然允许多种切分。
+回到讨论，它和 BPE 最大的不同是：BPE 通常会给一个文本确定性切分，而 Unigram LM 天然允许多种切分。
 
 这一点非常重要，因为它带来了 subword regularization。
 
