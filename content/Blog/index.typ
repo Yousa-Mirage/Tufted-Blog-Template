@@ -50,10 +50,17 @@
 
 #tag(<transformer2>, [🤖 Transformer架构演进系列])
 #tag(<transformer1>, [🤖 Transformer 反向传播 (Backpropagation)系列])
-#tag(<linear>, [📐 线性代数])
+#tag(<linear>, [📐 数学推导])
 
 
 #series-block(title: "Transformer架构演进", accent: rgb("#0ea5e9"))[
+
+
+ #tufted.blog-entry(
+    date: datetime(year: 2026, month: 6, day: 7),
+    path: "6-7",
+    title: "Transformer｜架构演进（2）：Vocab 系统（二）——Embedding、LM Head 与 Tied Embedding",
+  ) 
 
 #tufted.blog-entry(
     date: datetime(year: 2026, month: 6, day: 4),
@@ -102,7 +109,7 @@
 ] <transformer1>
 
 
-#series-block(title: "线性代数", accent: rgb("#0ea5e9"))[
+#series-block(title: "数学推导", accent: rgb("#0ea5e9"))[
   #tufted.blog-entry(
     date: datetime(year: 2026, month: 5, day: 13),
     path: "2026-05-13-strassen-matrix-blocking/",
