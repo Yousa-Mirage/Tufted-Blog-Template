@@ -291,54 +291,184 @@ tied embedding还有一个更深的表示假设：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Tied Embedding 的训练*
+== *Tied Embedding训练*
 
-为了理解 tied embedding 为什么有用，可以看一下训练时的梯度信号。
+在 tied embedding 中，模型只有一套矩阵：
 
-在普通语言模型中，每个 token 有两个角色。
+$ E in RR^(V times d) $
 
-第一，它可能出现在输入上下文里。
+它在 forward 中被用两次。
 
-比如：
+第一次，作为 input embedding：
+
+$ x_t = E_(w_t) $
+
+第二次，作为 output LM Head：
+
+$ z_(t, j) = h_t^top E_j $
+
+所以，训练时并不是“先优化 input embedding，再优化 LM Head”，也不是“先优化 LM Head，再优化 input embedding”。
+
+更准确地说：
+
+#quote[
+  同一个参数矩阵 $E$ 会从输入路径和输出路径同时收到梯度，两部分梯度相加后，由 optimizer 统一更新。
+]
+
+可以写成：
+
+$ (partial L)/(partial E)
+=
+((partial L)/(partial E))_"input"
++
+((partial L)/(partial E))_"output" $
+
+这就是 tied embedding 训练的关键。
+
+#line(length: 100%, stroke: 0.6pt)
+
+=== *Output Path*
+
+对于某个位置 $t$，模型输出：
+
+$ z_(t, j) = h_t^top E_j $
+
+softmax 后得到概率：
+
+$ p_(t, j) $
+
+真实目标 token 是 $y_t$。
+
+cross entropy loss 对 logit 的梯度是：
+
+$ (partial L_t)/(partial z_(t, j))
+=
+p_(t, j) - upright(bold(1)) [j = y_t] $
+
+因为：
+
+$ z_(t, j) = h_t^top E_j $
+
+所以 output path 对 $E_j$ 的梯度是：
+
+$ ((partial L_t)/(partial E_j))_"output"
+=
+(p_(t, j) - upright(bold(1)) [j = y_t]) h_t $
+
+这说明：
+
+- 如果 $j$ 是正确 token，$E_j$ 会被拉向当前 hidden state；
+- 如果 $j$ 是错误 token，$E_j$ 会被推离当前 hidden state。
+
+例如：
+
+```text
+法国 的 首都 是 → 巴黎
+```
+
+如果模型应该生成“巴黎”，那么 output path 会让：
+
+$ E_"巴黎" $
+
+更靠近当前上下文 hidden state：
+
+$ h_"法国 的 首都 是" $
+
+所以 output path 的作用是：
+
+#quote[
+  让 token vector 学会作为输出分类原型，被正确的 hidden state 选中。
+]
+
+#line(length: 100%, stroke: 0.6pt)
+
+=== *Input Path*
+
+输入 token 通过 embedding table 变成向量：
+
+$ x_t = E_(w_t) $
+
+这些向量进入 Transformer，影响后续 hidden states 和最终 loss。
+
+反向传播时，loss 会经过 Transformer 传回输入 embedding。
+
+如果 token $j$ 出现在输入位置中，那么：
+
+$ ((partial L)/(partial E_j))_"input"
+=
+sum_(t : w_t = j)
+(partial L)/(partial x_t) $
+
+这部分梯度的含义是：
+
+#quote[
+  token 作为输入时，它的向量应该如何调整，才能帮助模型更好地理解上下文、预测后续 token。
+]
+
+例如：
 
 ```text
 巴黎 是 法国 的 首都
 ```
 
-这里 “巴黎” 作为输入 token 出现，它的 input embedding 会参与后续 Transformer 计算，并通过反向传播更新。
+当“巴黎”作为输入出现时，input path 会让 $E_"巴黎"$ 学会携带对后续预测有用的信息，例如地点、城市、法国相关实体等。
 
-第二，它也可能作为预测目标出现。
+#line(length: 100%, stroke: 0.6pt)
 
-比如上下文是：
+=== *两种信号合并*
 
-```text
-法国 的 首都 是
-```
+对于任意 token $j$，tied embedding 的梯度可以理解为：
 
-目标 token 是：
+$ (partial L)/(partial E_j)
+=
+sum_t (p_(t, j) - upright(bold(1)) [j = y_t]) h_t
++
+sum_(t : w_t = j)
+(partial L)/(partial x_t) $
 
-```text
-巴黎
-```
+第一项来自 output path。
 
-此时 “巴黎” 对应的 output vector 会通过 softmax loss 被更新。
+它让 $E_j$ 学会作为输出 token，被正确 hidden state 选中。
 
-如果 embedding 不共享，那么：
+第二项来自 input path。
 
-- input embedding 只在 token 作为输入时被更新；
-- output embedding 只在 token 作为预测目标时被更新。
+它让 $E_j$ 学会作为输入 token，帮助模型构造上下文表示。
 
-而 tied embedding 把这两种信号合并到了同一个向量上。
-
-同一个 token vector 既会因为“如何理解这个 token”而更新，也会因为“如何生成这个 token”而更新。
-
-这会带来一种正则化效果。
-
-模型不能让输入空间和输出空间各学各的，而是必须找到一个共享的词表表示，使得它既适合作为输入，也适合作为输出分类原型。
+因此，tied embedding 的训练本质是：
 
 #quote[
-  1.Press & Wolf 在 2017 年的 *Using the Output Embedding to Improve Language Models* 中系统研究了这个问题。他们指出，语言模型最上层的 output embedding 本身也是一种有效的 word embedding，并建议 tying input embedding and output embedding。实验显示，这不仅减少参数，还能降低 perplexity。
-  2.Inan、Khosravi 和 Socher 同年也从 loss framework 的角度分析了 tying word vectors and word classifiers 的合理性。
+  同一个 token vector 同时接受“如何被生成”的监督和“如何被理解”的监督。
+]
+
+#line(length: 100%, stroke: 0.6pt)
+
+=== *训练时先后顺序*
+
+从计算图实现上看，反向传播会从 loss 开始，先经过输出层，再经过 Transformer，最后到输入 embedding。
+
+但从优化意义上讲，并不存在“先优化输出，再优化输入”的阶段划分。
+
+一次训练 step 的过程是：
+
++ forward 时，$E$ 作为 input embedding 被查表使用；
++ Transformer 计算 hidden states；
++ $E$ 再作为 LM Head 计算 logits；
++ loss 反向传播；
++ output path 给 $E$ 一部分梯度；
++ input path 也给 $E$ 一部分梯度；
++ 两部分梯度相加；
++ optimizer 对 $E$ 做一次统一更新。
+
+如果用 Adam，可以理解为：
+
+$ g_E = g_"output" + g_"input" $
+
+然后 Adam 用总梯度 $g_E$ 更新 $E$。
+
+所以 tied embedding 的关键不是训练顺序，而是：
+
+#quote[
+  参数共享导致梯度合流。
 ]
 
 #line(length: 100%, stroke: 0.6pt)

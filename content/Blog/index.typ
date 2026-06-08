@@ -110,6 +110,12 @@
 
 
 #series-block(title: "数学推导", accent: rgb("#0ea5e9"))[
+
+    #tufted.blog-entry(
+    date: datetime(year: 2026, month: 6, day: 8),
+    path: "6-8",
+    title: "Transformer算法｜架构演进（拓展）：Vocab 系统——Unigram LM的subword概率收敛证明",
+  )
   #tufted.blog-entry(
     date: datetime(year: 2026, month: 5, day: 13),
     path: "2026-05-13-strassen-matrix-blocking/",

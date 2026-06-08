@@ -519,6 +519,8 @@ $
 
 E-step 和 M-step 交替进行，直到概率收敛。]
 
+#tufted.margin-note[对这里为什么收敛有兴趣的可以看数学算法的一篇blog，6-8号的Transformer算法｜架构演进（拓展）：Vocab 系统——Unigram LM的subword概率收敛证明]
+
 *第三步*：计算每个 subword 的重要性：EM 收敛后，我们得到了每个 subword 的 $P(v)$ 和 $E[v]$。直觉是：删掉某个 subword 后，语料的 log likelihood 掉得越少，说明它越不重要。
 
 #tufted.margin-note[EM 收敛后，对每个句子，概率最高的那种切法会占主导：
