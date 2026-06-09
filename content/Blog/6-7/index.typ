@@ -11,7 +11,7 @@
 )
 
 
-= *Transformer｜架构演进（2）：Vocab 系统（二）——Embedding、LM Head 与 Tied Embedding*
+= *Transformer｜架构演进（2）：Vocab 系统（2）——Embedding、LM Head 与 Tied Embedding*
 
 \#2026-6-7 \#tranformer \#vocab
 
