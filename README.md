@@ -193,7 +193,9 @@ uv run build.py preview -p 12345
 
 ## 🔒 私密文章加密
 
-项目已支持在构建后使用 `staticrypt` 自动加密指定文章。私密文章列表保存在 [private-posts.txt](private-posts.txt) 中，密码通过环境变量 `BLOG_PRIVATE_PASSWORD` 传入，不建议直接写死在脚本里。
+项目已支持在构建后使用 `staticrypt` 自动加密指定文章。当前配置采用“个人文件夹”模式：公开 Blog 页只保留一个私密入口，输入一次密码后会进入私密页；同一浏览器中的其他私密文章也会自动解锁一段时间。
+
+私密文章列表保存在 [private-posts.txt](private-posts.txt) 中，密码通过环境变量 `BLOG_PRIVATE_PASSWORD` 传入，不建议直接写死在脚本里。
 
 本地使用：
 
@@ -204,6 +206,14 @@ npm install -g staticrypt
 export BLOG_PRIVATE_PASSWORD="你的密码"
 uv run build.py build -f
 ```
+
+当前默认的私密入口是：
+
+```text
+/Blog/private/
+```
+
+这个页面本身也在 `private-posts.txt` 里，因此访问时会先出现密码框；解锁后即可看到“杂谈 / 绘画记录 / 个人记录”这些私密板块。
 
 快捷管理私密文章：
 

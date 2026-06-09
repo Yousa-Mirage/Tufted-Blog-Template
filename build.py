@@ -62,6 +62,12 @@ BUILD_STATE_DIR = Path(".build-state")  # 本地构建状态目录
 PRIVATE_POST_PASSWORD_ENV = "BLOG_PRIVATE_PASSWORD"  # 私密文章密码环境变量
 PRIVATE_POSTS_CONFIG_FILE = Path("private-posts.txt")  # 私密文章列表
 PRIVATE_POSTS_STATE_FILE = BUILD_STATE_DIR / "private-posts.json"
+PRIVATE_POST_SHARED_SALT = "86c2a948d5deacaf4d2df169802f2812"  # 私密页面共用 salt
+PRIVATE_POST_REMEMBER_DAYS = 30  # 自动记住密码的天数
+PRIVATE_POST_TEMPLATE_FILE = Path("staticrypt-private-template.html")  # 私密页模板
+PRIVATE_POST_TEMPLATE_INSTRUCTIONS = (
+    "输入密码进入个人文件夹。解锁后，当前浏览器中的其他私密页面会自动打开。"
+)
 
 
 @dataclass
@@ -594,6 +600,10 @@ def encrypt_private_posts(
         print("   或在项目目录执行：npm install --save-dev staticrypt")
         return False
 
+    if not PRIVATE_POST_TEMPLATE_FILE.exists():
+        print(f"❌ 未找到私密页模板: {PRIVATE_POST_TEMPLATE_FILE}")
+        return False
+
     BUILD_STATE_DIR.mkdir(parents=True, exist_ok=True)
 
     success_count = 0
@@ -619,9 +629,21 @@ def encrypt_private_posts(
                 "false",
                 "-p",
                 password,
+                "-s",
+                PRIVATE_POST_SHARED_SALT,
                 "-d",
                 temp_dir,
+                "--remember",
+                str(PRIVATE_POST_REMEMBER_DAYS),
                 "--short",
+                "--template",
+                str(PRIVATE_POST_TEMPLATE_FILE),
+                "--template-button",
+                "进入",
+                "--template-placeholder",
+                "请输入密码",
+                "--template-instructions",
+                PRIVATE_POST_TEMPLATE_INSTRUCTIONS,
             ]
             if page_title:
                 command.extend(["--template-title", page_title])

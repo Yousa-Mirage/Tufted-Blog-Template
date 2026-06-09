@@ -4,3 +4,4 @@ Blog/5-23-fp
 Blog/5-26
 Blog/6-1
 Blog/6-4-yu
+Blog/private
