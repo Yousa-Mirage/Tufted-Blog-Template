@@ -55,6 +55,12 @@
 
 #series-block(title: "Transformer架构演进", accent: rgb("#0ea5e9"))[
 
+   #tufted.blog-entry(
+    date: datetime(year: 2026, month: 6, day: 9),
+    path: "6-9",
+    title: "Transformer｜架构演进（3）：Vocab 系统（3）——高效词表、词表适配与 Tokenizer-free",
+  ) 
+
 
  #tufted.blog-entry(
     date: datetime(year: 2026, month: 6, day: 7),
