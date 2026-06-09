@@ -34,11 +34,14 @@ Tufted Blog Template 构建脚本
 """
 
 import argparse
+import hashlib
+import json
 import os
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from dataclasses import dataclass
@@ -55,6 +58,10 @@ CONTENT_DIR = Path("content")  # 源文件目录
 SITE_DIR = Path("_site")  # 输出目录
 ASSETS_DIR = Path("assets")  # 静态资源目录
 CONFIG_FILE = Path("config.typ")  # 全局配置文件
+BUILD_STATE_DIR = Path(".build-state")  # 本地构建状态目录
+PRIVATE_POST_PASSWORD_ENV = "BLOG_PRIVATE_PASSWORD"  # 私密文章密码环境变量
+PRIVATE_POSTS_CONFIG_FILE = Path("private-posts.txt")  # 私密文章列表
+PRIVATE_POSTS_STATE_FILE = BUILD_STATE_DIR / "private-posts.json"
 
 
 @dataclass
@@ -337,6 +344,10 @@ def find_common_dependencies() -> list[Path]:
     if CONFIG_FILE.exists():
         common_deps.append(CONFIG_FILE)
 
+    # 私密文章列表会影响页面是否需要加密，也会影响 sitemap / RSS / robots
+    if PRIVATE_POSTS_CONFIG_FILE.exists():
+        common_deps.append(PRIVATE_POSTS_CONFIG_FILE)
+
     # 可以在这里添加其他公共依赖
     # 例如：查找 content/_* 目录下的模板文件
     if CONTENT_DIR.exists():
@@ -346,6 +357,305 @@ def find_common_dependencies() -> list[Path]:
                     common_deps.append(typ_file)
 
     return common_deps
+
+
+def load_local_env() -> None:
+    """
+    从本地环境文件加载变量。
+
+    仅在环境变量尚未设置时补充加载，避免覆盖 CI 或 shell 中显式传入的值。
+    """
+    for env_file in (Path(".env.private"), Path(".env")):
+        if not env_file.exists():
+            continue
+
+        try:
+            for raw_line in env_file.read_text(encoding="utf-8").splitlines():
+                line = raw_line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+
+                key, value = line.split("=", 1)
+                key = key.strip()
+                if key.startswith("export "):
+                    key = key.removeprefix("export ").strip()
+                value = value.strip().strip('"').strip("'")
+                if key and key not in os.environ:
+                    os.environ[key] = value
+        except Exception as e:
+            print(f"⚠️ 读取环境文件 {env_file} 失败: {e}")
+
+
+def normalize_site_route(route: str) -> str:
+    """
+    规范化站点路由，去除首尾斜杠。
+    """
+    return route.strip().strip("/")
+
+
+def get_private_post_routes() -> tuple[str, ...]:
+    """
+    从配置文件读取规范化后的私密文章路由列表。
+    """
+    if not PRIVATE_POSTS_CONFIG_FILE.exists():
+        return ()
+
+    routes: list[str] = []
+    seen: set[str] = set()
+
+    try:
+        for raw_line in PRIVATE_POSTS_CONFIG_FILE.read_text(encoding="utf-8").splitlines():
+            line = raw_line.split("#", 1)[0].strip()
+            if not line:
+                continue
+
+            route = normalize_site_route(line)
+            if route and route not in seen:
+                seen.add(route)
+                routes.append(route)
+    except Exception as e:
+        print(f"⚠️ 读取私密文章列表失败: {e}")
+        return ()
+
+    return tuple(routes)
+
+
+def get_private_post_routes_set() -> set[str]:
+    """
+    获取私密文章路由集合，便于快速查询。
+    """
+    return set(get_private_post_routes())
+
+
+def get_private_post_source_path(route: str) -> Path:
+    """
+    根据站点路由推导对应的 Typst 源文件路径。
+    """
+    return CONTENT_DIR / normalize_site_route(route) / "index.typ"
+
+
+def get_private_post_output_path(route: str) -> Path:
+    """
+    根据站点路由推导对应的 HTML 输出文件路径。
+    """
+    return SITE_DIR / normalize_site_route(route) / "index.html"
+
+
+def iter_build_inputs(source: Path, extra_deps: list[Path] | None = None) -> list[Path]:
+    """
+    收集会影响页面构建结果的输入文件。
+    """
+    candidates: list[Path] = [source]
+
+    if extra_deps:
+        candidates.extend(extra_deps)
+
+    candidates.extend(get_all_dependencies(source))
+
+    for item in source.parent.iterdir():
+        if item.is_file() and item.suffix != ".typ":
+            candidates.append(item)
+
+    unique: dict[str, Path] = {}
+    for path in candidates:
+        if path.exists():
+            unique[str(path.resolve())] = path
+
+    return [unique[key] for key in sorted(unique)]
+
+
+def build_input_signature(source: Path, extra_deps: list[Path] | None = None) -> str:
+    """
+    为页面的构建输入生成签名，用于判断私密页面是否需要重新加密。
+    """
+    digest = hashlib.sha256()
+
+    for path in iter_build_inputs(source, extra_deps):
+        stat = path.stat()
+        digest.update(str(path.resolve()).encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(str(stat.st_mtime_ns).encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(str(stat.st_size).encode("utf-8"))
+        digest.update(b"\0")
+
+    return digest.hexdigest()
+
+
+def hash_secret(secret: str) -> str:
+    """
+    对密码生成稳定哈希，仅用于本地构建状态比对。
+    """
+    return hashlib.sha256(secret.encode("utf-8")).hexdigest()
+
+
+def load_private_posts_state() -> dict[str, dict[str, str]]:
+    """
+    读取私密文章加密状态。
+    """
+    if not PRIVATE_POSTS_STATE_FILE.exists():
+        return {}
+
+    try:
+        data = json.loads(PRIVATE_POSTS_STATE_FILE.read_text(encoding="utf-8"))
+        if isinstance(data, dict):
+            return {
+                normalize_site_route(route): value
+                for route, value in data.items()
+                if isinstance(route, str) and isinstance(value, dict)
+            }
+    except Exception as e:
+        print(f"⚠️ 读取私密文章状态失败，将重新加密: {e}")
+
+    return {}
+
+
+def save_private_posts_state(state: dict[str, dict[str, str]]) -> None:
+    """
+    保存私密文章加密状态到本地目录，不进入部署产物。
+    """
+    BUILD_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    PRIVATE_POSTS_STATE_FILE.write_text(
+        json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+
+
+def find_staticrypt_command() -> list[str] | None:
+    """
+    查找 staticrypt 命令，优先使用项目本地依赖。
+    """
+    local_candidates = (
+        Path("node_modules/.bin/staticrypt"),
+        Path("node_modules/.bin/staticrypt.cmd"),
+    )
+
+    for candidate in local_candidates:
+        if candidate.exists():
+            return [str(candidate)]
+
+    if global_cmd := shutil.which("staticrypt"):
+        return [global_cmd]
+
+    return None
+
+
+def encrypt_private_posts(
+    built_html_files: set[Path],
+    common_deps: list[Path],
+    build_html_args_func,
+) -> bool:
+    """
+    对配置的私密文章执行 Staticrypt 加密。
+    """
+    private_routes = get_private_post_routes()
+    if not private_routes:
+        return True
+
+    state = load_private_posts_state()
+    password = os.getenv(PRIVATE_POST_PASSWORD_ENV)
+    password_hash = hash_secret(password) if password else None
+
+    tasks: list[tuple[str, Path, Path, str]] = []
+
+    for route in private_routes:
+        source_path = get_private_post_source_path(route)
+        output_path = get_private_post_output_path(route)
+
+        if not source_path.exists():
+            print(f"⚠️ 私密文章源文件不存在，已跳过: {source_path}")
+            continue
+
+        source_signature = build_input_signature(source_path, common_deps)
+        route_state = state.get(route, {})
+        needs_encrypt = not output_path.exists()
+        needs_encrypt = needs_encrypt or output_path in built_html_files
+        needs_encrypt = needs_encrypt or route_state.get("source_signature") != source_signature
+
+        if password_hash and route_state.get("password_hash") != password_hash:
+            needs_encrypt = True
+
+        if needs_encrypt:
+            tasks.append((route, source_path, output_path, source_signature))
+
+    if not tasks:
+        print("🔒 私密文章无变更，跳过加密。")
+        return True
+
+    if not password:
+        print(f"❌ 私密文章需要重新加密，但未设置环境变量 {PRIVATE_POST_PASSWORD_ENV}")
+        print("   本地可在 .env.private 中设置，或先执行：")
+        print(f"   export {PRIVATE_POST_PASSWORD_ENV}='你的密码'")
+        return False
+
+    if not (staticrypt_cmd := find_staticrypt_command()):
+        print("❌ 未找到 staticrypt，无法加密私密文章。")
+        print("   请先安装：npm install -g staticrypt")
+        print("   或在项目目录执行：npm install --save-dev staticrypt")
+        return False
+
+    BUILD_STATE_DIR.mkdir(parents=True, exist_ok=True)
+
+    success_count = 0
+
+    for route, source_path, output_path, source_signature in tasks:
+        # 如果页面不是在本轮 HTML 构建中重新生成的，先重新编译成明文 HTML，
+        # 避免对已经加密的旧页面进行二次加密。
+        if output_path not in built_html_files:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            if not run_typst_command(build_html_args_func(source_path, output_path)):
+                print(f"❌ 私密文章重新编译失败，无法加密: {route}")
+                return False
+
+        page_title = ""
+        if output_path.exists():
+            page_title = parse_html_metadata(output_path).get("title", "").strip()
+
+        with tempfile.TemporaryDirectory(prefix="staticrypt-", dir=BUILD_STATE_DIR) as temp_dir:
+            command = [
+                *staticrypt_cmd,
+                str(output_path),
+                "-c",
+                "false",
+                "-p",
+                password,
+                "-d",
+                temp_dir,
+                "--short",
+            ]
+            if page_title:
+                command.extend(["--template-title", page_title])
+
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+            )
+
+            encrypted_output = Path(temp_dir) / output_path.name
+            if result.returncode == 0 and encrypted_output.exists():
+                shutil.move(str(encrypted_output), str(output_path))
+            else:
+                print(f"❌ 私密文章加密失败: {route}")
+                if result.stderr.strip():
+                    print(f"   {result.stderr.strip()}")
+                elif result.stdout.strip():
+                    print(f"   {result.stdout.strip()}")
+                else:
+                    print(f"   未找到加密输出文件: {encrypted_output}")
+                return False
+
+        state[route] = {
+            "source_signature": source_signature,
+            "password_hash": password_hash,
+        }
+        success_count += 1
+        print(f"🔒 已加密: {route}")
+
+    save_private_posts_state(state)
+    print(f"✅ 私密文章加密完成，共 {success_count} 篇。")
+    return True
 
 
 # ============================================================================
@@ -419,7 +729,7 @@ def _compile_files(
     common_deps: list[Path],
     get_output_path_func,
     build_args_func,
-) -> BuildStats:
+) -> tuple[BuildStats, set[Path]]:
     """
     通用文件编译函数，减少重复代码。
 
@@ -434,6 +744,7 @@ def _compile_files(
         BuildStats: 构建统计信息
     """
     stats = BuildStats()
+    built_outputs: set[Path] = set()
 
     for typ_file in files:
         output_path = get_output_path_func(typ_file)
@@ -450,11 +761,12 @@ def _compile_files(
 
         if run_typst_command(args):
             stats.success += 1
+            built_outputs.add(output_path)
         else:
             print(f"  ❌ {typ_file} 编译失败")
             stats.failed += 1
 
-    return stats
+    return stats, built_outputs
 
 
 def build_html(force: bool = False) -> bool:
@@ -515,7 +827,7 @@ def build_html(force: bool = False) -> bool:
             str(output_path),
         ]
 
-    stats = _compile_files(
+    stats, built_html_files = _compile_files(
         html_files,
         force,
         common_deps,
@@ -524,7 +836,8 @@ def build_html(force: bool = False) -> bool:
     )
 
     print(f"✅ HTML 构建完成。{stats.format_summary()}")
-    return not stats.has_failures
+    encryption_ok = encrypt_private_posts(built_html_files, common_deps, build_html_args)
+    return not stats.has_failures and encryption_ok
 
 
 def build_pdf(force: bool = False) -> bool:
@@ -559,7 +872,7 @@ def build_pdf(force: bool = False) -> bool:
             str(output_path),
         ]
 
-    stats = _compile_files(
+    stats, _built_pdf_files = _compile_files(
         pdf_files,
         force,
         common_deps,
@@ -874,6 +1187,10 @@ def collect_posts(dirs: set[str], site_url: str) -> list[dict]:
             if not item.is_dir():
                 continue
 
+            route = normalize_site_route(f"{d}/{item.name}")
+            if route in get_private_post_routes_set():
+                continue
+
             index_html = item / "index.html"
             if not index_html.exists():
                 continue
@@ -1073,6 +1390,10 @@ def generate_sitemap(site_url: str) -> bool:
         else:
             url_path = rel_path
 
+        normalized_route = normalize_site_route(url_path)
+        if normalized_route in get_private_post_routes_set():
+            continue
+
         full_url = f"{site_url}/{url_path}"
 
         # 获取最后修改时间
@@ -1102,11 +1423,16 @@ def generate_robots_txt(site_url: str) -> bool:
     """
     Generate robots.txt pointing to the sitemap.
     """
-    robots_content = f"""User-agent: *
-Allow: /
+    private_disallow_lines = "\n".join(
+        f"Disallow: /{route}/" for route in get_private_post_routes()
+    )
 
-Sitemap: {site_url}/sitemap.xml
-"""
+    robots_lines = ["User-agent: *", "Allow: /"]
+    if private_disallow_lines:
+        robots_lines.append(private_disallow_lines)
+    robots_lines.append("")
+    robots_lines.append(f"Sitemap: {site_url}/sitemap.xml")
+    robots_content = "\n".join(robots_lines) + "\n"
 
     try:
         (SITE_DIR / "robots.txt").write_text(robots_content, encoding="utf-8")
@@ -1223,6 +1549,7 @@ if __name__ == "__main__":
     # 确保在项目根目录运行
     script_dir = Path(__file__).parent.absolute()
     os.chdir(script_dir)
+    load_local_env()
 
     # 获取 force 参数
     force = getattr(args, "force", False)

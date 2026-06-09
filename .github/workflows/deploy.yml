@@ -18,7 +18,13 @@ jobs:
       - uses: actions/checkout@v6
       - uses: typst-community/setup-typst@v4
       - uses: astral-sh/setup-uv@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install -g staticrypt
       - run: uv run build.py build -f
+        env:
+          BLOG_PRIVATE_PASSWORD: ${{ secrets.BLOG_PRIVATE_PASSWORD }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

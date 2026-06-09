@@ -11,6 +11,7 @@ build/
 # uv
 .venv/
 uv.lock
+.build-state/
 
 # IDE
 .vscode/
@@ -19,6 +20,11 @@ uv.lock
 
 # local tooling
 biome.json
+node_modules/
+.staticrypt.json
+.env
+.env.*
+!.env.example
 
 # build outputs
 _site/

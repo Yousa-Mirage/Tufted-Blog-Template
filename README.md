@@ -191,6 +191,48 @@ uv run build.py preview -p 12345
 
 本模板提供一个 `Update` GitHub Actions 工作流，用于从上游模板仓库（也就是本仓库）导入功能更新，具体内容请参考 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/更新项目)。
 
+## 🔒 私密文章加密
+
+项目已支持在构建后使用 `staticrypt` 自动加密指定文章。私密文章列表保存在 [private-posts.txt](private-posts.txt) 中，密码通过环境变量 `BLOG_PRIVATE_PASSWORD` 传入，不建议直接写死在脚本里。
+
+本地使用：
+
+```bash
+npm install -g staticrypt
+
+# 也可以复制 .env.example 为 .env.private 后填写密码
+export BLOG_PRIVATE_PASSWORD="你的密码"
+uv run build.py build -f
+```
+
+快捷管理私密文章：
+
+```bash
+# 查看当前私密文章
+python3 scripts/private_posts.py list
+
+# 把 Blog/6-10 这篇加入私密列表
+python3 scripts/private_posts.py add 6-10
+
+# 或者传完整路径
+python3 scripts/private_posts.py add content/Blog/6-10/index.typ
+
+# 取消私密
+python3 scripts/private_posts.py remove 6-10
+```
+
+执行 `add` 或 `remove` 之后，再运行一次构建：
+
+```bash
+uv run build.py build
+```
+
+如果你使用 GitHub Pages 自动部署，还需要在仓库 `Settings -> Secrets and variables -> Actions` 中新增一个仓库 Secret：
+
+- `BLOG_PRIVATE_PASSWORD`：你的私密文章访问密码
+
+首次启用私密文章，或修改了密码后，建议执行一次 `uv run build.py build -f`，确保所有私密页面重新加密。
+
 ## 📂 项目结构
 
 ```plaintext
