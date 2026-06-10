@@ -751,6 +751,8 @@ _"A special CLS token is prepended to each sequence, and its final-layer embeddi
   + *深层网络*：经过 8 层这样的操作，CLS 向量就变成了一个*高度浓缩的特征向量*。
   + *结果*：这个向量代表了“这个人整体的健康状况”。下游任务（如预测死亡率）不需要看具体的血压是多少，只需要看这个 CLS 向量就够了。
 
+
+
 #line(length: 100%, stroke: 0.6pt)
 
 == *架构设计：对 Transformer 的特定问题改造*

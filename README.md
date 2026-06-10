@@ -207,13 +207,7 @@ export BLOG_PRIVATE_PASSWORD="你的密码"
 uv run build.py build -f
 ```
 
-当前默认的私密入口是：
-
-```text
-/Blog/private/
-```
-
-这个页面本身也在 `private-posts.txt` 里，因此访问时会先出现密码框；解锁后即可看到“杂谈 / 绘画记录 / 个人记录”这些私密板块。
+私密入口本身也在 `private-posts.txt` 里，因此访问时会先出现密码框；解锁后即可看到“杂谈 / 绘画记录 / 个人记录”这些私密板块。为了避免在文档里再次公开入口路径，这里不写死具体 URL；如需修改入口地址，直接更新 [content/Blog/index.typ](content/Blog/index.typ) 里的链接和 `private-posts.txt` 中对应那一行即可。
 
 快捷管理私密文章：
 

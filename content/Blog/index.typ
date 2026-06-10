@@ -55,6 +55,13 @@
 
 #series-block(title: "Transformer架构演进", accent: rgb("#0ea5e9"))[
 
+
+     #tufted.blog-entry(
+    date: datetime(year: 2026, month: 6, day: 10),
+    path: "6-10",
+    title: "Transformer｜架构演进（4）：Position Encoding 系统（1）——理解绝对位置编码",
+  ) 
+
    #tufted.blog-entry(
     date: datetime(year: 2026, month: 6, day: 9),
     path: "6-9",
@@ -182,7 +189,7 @@ _*⚠️⚠️⚠️注意：下面原本的私人记录内容已移入个人文
     如果你需要进入这部分内容，请打开下方入口并输入密码。
   ]
 
-  #link("private/")[
+  #link("journal-gate-n4k7m2/")[
     #block(
       inset: (x: 14pt, y: 10pt),
       radius: 10pt,
