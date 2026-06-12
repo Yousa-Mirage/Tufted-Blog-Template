@@ -55,6 +55,12 @@
 
 #series-block(title: "Transformer架构演进", accent: rgb("#0ea5e9"))[
 
+       #tufted.blog-entry(
+    date: datetime(year: 2026, month: 6, day: 12),
+    path: "6-12",
+    title: "Transformer｜架构演进（5）：Position Encoding 系统（2）——相对位置编码",
+  ) 
+
 
      #tufted.blog-entry(
     date: datetime(year: 2026, month: 6, day: 10),
