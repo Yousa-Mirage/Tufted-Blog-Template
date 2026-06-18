@@ -447,6 +447,59 @@ def get_private_post_output_path(route: str) -> Path:
     return SITE_DIR / normalize_site_route(route) / "index.html"
 
 
+def has_private_post_password() -> bool:
+    """
+    当前构建环境是否提供了私密文章密码。
+    """
+    password = os.getenv(PRIVATE_POST_PASSWORD_ENV)
+    return bool(password and password.strip())
+
+
+def is_path_in_private_route(path: Path) -> bool:
+    """
+    判断 content/ 下的文件是否位于某个私密文章路由内。
+    """
+    try:
+        relative_path = path.relative_to(CONTENT_DIR).as_posix().strip("/")
+    except ValueError:
+        return False
+
+    for route in get_private_post_routes():
+        normalized_route = normalize_site_route(route)
+        if relative_path == normalized_route or relative_path.startswith(normalized_route + "/"):
+            return True
+
+    return False
+
+
+def write_private_route_stub(route: str) -> None:
+    """
+    当缺少密码时，为私密页面写入一个不泄漏内容的占位页。
+    """
+    route_dir = SITE_DIR / normalize_site_route(route)
+    if route_dir.exists():
+        shutil.rmtree(route_dir)
+    route_dir.mkdir(parents=True, exist_ok=True)
+
+    stub_html = """<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Private Page Unavailable</title>
+  </head>
+  <body>
+    <main>
+      <h1>Private Page Unavailable</h1>
+      <p>This private page is unavailable for the current build.</p>
+    </main>
+  </body>
+</html>
+"""
+    (route_dir / "index.html").write_text(stub_html, encoding="utf-8")
+
+
 def iter_build_inputs(source: Path, extra_deps: list[Path] | None = None) -> list[Path]:
     """
     收集会影响页面构建结果的输入文件。
@@ -550,12 +603,21 @@ def encrypt_private_posts(
     built_html_files: set[Path],
     common_deps: list[Path],
     build_html_args_func,
+    password_available: bool = True,
 ) -> bool:
     """
     对配置的私密文章执行 Staticrypt 加密。
     """
     private_routes = get_private_post_routes()
     if not private_routes:
+        return True
+
+    if not password_available:
+        for route in private_routes:
+            write_private_route_stub(route)
+        print(
+            f"⚠️ 未设置环境变量 {PRIVATE_POST_PASSWORD_ENV}，已跳过私密文章加密并写入占位页。"
+        )
         return True
 
     state = load_private_posts_state()
@@ -805,6 +867,10 @@ def build_html(force: bool = False) -> bool:
     # 排除标记为 PDF 的文件
     html_files = [f for f in typ_files if "pdf" not in f.stem.lower()]
 
+    private_password_available = has_private_post_password()
+    if not private_password_available:
+        html_files = [f for f in html_files if not is_path_in_private_route(f)]
+
     if not html_files:
         print("  ⚠️ 未找到任何 HTML 文件。")
         return True
@@ -858,7 +924,12 @@ def build_html(force: bool = False) -> bool:
     )
 
     print(f"✅ HTML 构建完成。{stats.format_summary()}")
-    encryption_ok = encrypt_private_posts(built_html_files, common_deps, build_html_args)
+    encryption_ok = encrypt_private_posts(
+        built_html_files,
+        common_deps,
+        build_html_args,
+        password_available=private_password_available,
+    )
     return not stats.has_failures and encryption_ok
 
 
@@ -944,6 +1015,7 @@ def copy_content_assets(force: bool = False) -> bool:
     try:
         copy_count = 0
         skip_count = 0
+        private_password_available = has_private_post_password()
 
         for item in CONTENT_DIR.rglob("*"):
             # 跳过目录和 .typ 文件
@@ -953,6 +1025,9 @@ def copy_content_assets(force: bool = False) -> bool:
             # 跳过以下划线开头的路径
             relative_path = item.relative_to(CONTENT_DIR)
             if any(part.startswith("_") for part in relative_path.parts):
+                continue
+
+            if not private_password_available and is_path_in_private_route(item):
                 continue
 
             # 计算目标路径
