@@ -171,6 +171,12 @@
 
 #series-block(title: "实践看法", accent: rgb("#f59e0b"))[
 
+        #tufted.blog-entry(
+    date: datetime(year: 2026, month: 6, day: 18),
+    path: "6-18",
+    title: "模型杂谈｜关于Diffusion Model",
+  )
+
 
       #tufted.blog-entry(
     date: datetime(year: 2026, month: 6, day: 13),
