@@ -2,7 +2,7 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "杂谈整理｜深度学习发展路径的MindMapg",
+  title: "杂谈整理｜深度学习发展路径的MindMap",
   description: "杂谈整理｜深度学习发展路径的MindMap",
   date: datetime(year: 2026, month: 6, day: 18),
   category: "数学与算法",
