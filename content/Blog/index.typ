@@ -174,7 +174,7 @@
         #tufted.blog-entry(
     date: datetime(year: 2026, month: 6, day: 18),
     path: "6-18",
-    title: "模型杂谈｜关于Diffusion Model",
+    title: "杂谈整理｜深度学习发展路径的MindMap",
   )
 
 
