@@ -16,13 +16,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: typst-community/setup-typst@v4
-      - uses: actions/setup-python@v5
+      - uses: typst-community/setup-typst@v5
+        with:
+          typst-version: "0.14.2"
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
       - run: npm install -g staticrypt
       - run: python build.py build -f
         env:
