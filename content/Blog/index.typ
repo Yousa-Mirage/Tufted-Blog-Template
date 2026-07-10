@@ -171,6 +171,12 @@
 
 #series-block(title: "实践看法", accent: rgb("#f59e0b"))[
 
+      #tufted.blog-entry(
+    date: datetime(year: 2026, month: 7, day: 10),
+    path: "7-10",
+    title: "图像处理｜从卷积与 UNet的学习",
+  )
+
     #tufted.blog-entry(
     date: datetime(year: 2026, month: 6, day: 18),
     path: "6-18",
