@@ -116,6 +116,10 @@ $ n_"out" = floor((n + 2 p - k)/s) + 1 $
 
 #line(length: 100%, stroke: 0.6pt)
 
+
+#figure(caption: "概念")[
+  #image("imgs/3.png", width: 40%)
+]
 #table(
   columns: (1fr, 1fr),
   align: (left, left),
@@ -372,9 +376,7 @@ mat(delim: "[", x_0; x_1; x_2; x_3) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-#figure(caption: "概念")[
-  #image("imgs/3.png", width: 40%)
-]
+
 #table(
   columns: (1fr, 1fr, 1fr),
   align: (left, left, left),
