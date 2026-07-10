@@ -372,6 +372,9 @@ mat(delim: "[", x_0; x_1; x_2; x_3) $
 
 #line(length: 100%, stroke: 0.6pt)
 
+#figure(caption: "概念")[
+  #image("imgs/3.png", width: 40%)
+]
 #table(
   columns: (1fr, 1fr, 1fr),
   align: (left, left, left),
@@ -474,9 +477,7 @@ $ 1/4 times 2 times 2 = 1 $
 可以设计成通道不翻倍；只是经典架构爱这么配。
 
 === 四概念对照表
-#figure(caption: "概念")[
-  #image("imgs/3.png", width: 40%)
-]
+
 #table(
   columns: (1fr, 1fr),
   align: (left, left),
@@ -484,7 +485,7 @@ $ 1/4 times 2 times 2 = 1 $
   [*层数*], [混合了多少次；感受野慢涨的主力之一], [*分辨率*], [格子多粗；由下/上采样决定], [*感受野*], [输出一点看见多大原图], [*通道*], [每个格子上特征向量多宽], [*$1 times 1$*], [只改通道，不改空间感受野]
 )
 
-=== 一个数字故事（教学用小 UNet 尺度）
+=== 小 UNet 尺度
 
 输入 $32 times 32$，通道按 $64 -> 128 -> 256$ 走两级下采样：
 
@@ -614,7 +615,7 @@ C_U = C_D + C_E $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== \*\*一个 Stage \*\*
+=== *一个 Stage*
 
 教学简化版：
 
