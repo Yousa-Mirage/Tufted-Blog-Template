@@ -137,6 +137,12 @@
 
 #series-block(title: "数学推导", accent: rgb("#0ea5e9"))[
 
+      #tufted.blog-entry(
+    date: datetime(year: 2026, month: 7, day: 12),
+    path: "7-12-1",
+    title: "Diffusion｜DDPM & DDIM 从加噪到采样的完整推导",
+  )
+
     #tufted.blog-entry(
     date: datetime(year: 2026, month: 6, day: 8),
     path: "6-8",
