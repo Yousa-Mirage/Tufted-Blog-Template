@@ -171,6 +171,13 @@
 
 #series-block(title: "实践看法", accent: rgb("#f59e0b"))[
 
+
+        #tufted.blog-entry(
+    date: datetime(year: 2026, month: 7, day: 12),
+    path: "7-12",
+    title: "MRGen （ICCV 2025 交大）  ｜精析基于Diffsion和UNet的医学图像分割跨模态的图像生成架构",
+  )
+
       #tufted.blog-entry(
     date: datetime(year: 2026, month: 7, day: 10),
     path: "7-10",
