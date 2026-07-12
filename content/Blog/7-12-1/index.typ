@@ -560,28 +560,6 @@ $ x_(t - 1) = sqrt(macron(alpha)_(t - 1))\, hat(x)_0 + sqrt(1 - macron(alpha)_(t
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Typst 公式写法对照（为何 big 渲不出来）*
-
-Typst *不是* LaTeX。LaTeX 的 `\big(...)\` / `\bigl` *在 Typst 里不存在*。
-
-| 你原来写的（无效） | 应改成（Typst） |
-|---|---|
-| `cal(N) big(x ; mu, sigma big)` | `cal(N)(x\; mu,\, sigma)` |
-| `Big [...]` / `big bar.v.double` | `norm(...)` 或 `\|\|...\|\|` |
-| `sigma_upright(p o s t)` | `sigma_"post"` |
-| `upright(c o n s t)` | `"const"` |
-| `-&gt;` / `&lt;` | `->` / `<` |
-| `frac(a, b)`（可保留） | 或 `(a)/(b)`、`display(a/b)` |
-| `dot.op` | `dot` 或直接空格 `\,` |
-| `med` / `thin`（可保留） | 也可用 `\,` / `quad` |
-
-若需要*自动变大的括号*，用 `lr`：
-
-$ cal(N) lr( (x_t\; sqrt(alpha_t) x_(t-1), beta_t I) ) $
-
-一般正态分布写法直接用普通圆括号即可，最稳：
-
-$ cal(N)(mu, sigma^2) $
 
 == *笔者的话*
 
