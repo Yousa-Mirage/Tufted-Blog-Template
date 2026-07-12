@@ -305,7 +305,7 @@ SAM2 对每个器官输出：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 4. 实验结果\*\*
+== *4. 实验结果*
 
 
 #figure(caption: "生成质量结果对比")[
