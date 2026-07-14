@@ -3,8 +3,8 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "图像处理｜从卷积与 UNet的学习",
-  description: "图像处理｜从卷积与 UNet的学习",
+  title: "Diffusion｜DDPM & DDIM 从加噪到采样的完整推导",
+  description: "Diffusion｜DDPM & DDIM 从加噪到采样的完整推导",
   date: datetime(year: 2026, month: 7, day: 10),
   category: "数学与算法",
   lang: "zh",
