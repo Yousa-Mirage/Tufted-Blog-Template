@@ -177,6 +177,12 @@
 
 #series-block(title: "实践看法", accent: rgb("#f59e0b"))[
 
+          #tufted.blog-entry(
+    date: datetime(year: 2026, month: 7, day: 20),
+    path: "7-20",
+    title: "Idea杂谈｜“How to read a paper？",
+  )
+
 
         #tufted.blog-entry(
     date: datetime(year: 2026, month: 7, day: 12),
