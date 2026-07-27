@@ -48,9 +48,23 @@
 // ==================== 数学与算法 ====================
 == *数学与算法* <math>
 
+#tag(<ml>, [⚙️ 机器学习])
 #tag(<transformer2>, [🤖 Transformer架构演进系列])
 #tag(<transformer1>, [🤖 Transformer 反向传播 (Backpropagation)系列])
 #tag(<linear>, [📐 数学推导])
+
+
+
+#series-block(title: "机器学习", accent: rgb("#0ea5e9"))[
+
+      #tufted.blog-entry(
+    date: datetime(year: 2026, month: 7, day: 27),
+    path: "7-27",
+    title: "机器学习｜个人基础收获整理",
+  )
+] <mlr>
+
+
 
 
 #series-block(title: "Transformer架构演进", accent: rgb("#0ea5e9"))[
