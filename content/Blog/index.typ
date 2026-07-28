@@ -179,6 +179,13 @@
 #tag-placeholder[🔧 工具分享（即将更新）]
 
 #series-block(title: "项目实践", accent: rgb("#f59e0b"))[
+  #tufted.blog-entry(
+    date: datetime(year: 2026, month: 7, day: 28),
+    path: "7-28",
+    title: "检索工程实践｜大规模特定中医文献筛选及检索库搭建总结",
+  )
+
+
 
   #tufted.blog-entry(
     date: datetime(year: 2026, month: 6, day: 3),
