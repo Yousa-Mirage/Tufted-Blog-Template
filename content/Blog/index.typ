@@ -198,6 +198,14 @@
 
 #series-block(title: "实践看法", accent: rgb("#f59e0b"))[
 
+
+            #tufted.blog-entry(
+    date: datetime(year: 2026, month: 7, day: 29),
+    path: "7-29",
+    title: "流匹配｜个人理解记录",
+  )
+
+
           #tufted.blog-entry(
     date: datetime(year: 2026, month: 7, day: 20),
     path: "7-20",
