@@ -56,6 +56,11 @@
 
 
 #series-block(title: "机器学习", accent: rgb("#0ea5e9"))[
+        #tufted.blog-entry(
+    date: datetime(year: 2026, month: 8, day: 5),
+    path: "8-5",
+    title: "机器学习｜系统工程与实践",
+  )
 
 
       #tufted.blog-entry(
