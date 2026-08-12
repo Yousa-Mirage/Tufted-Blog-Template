@@ -214,7 +214,11 @@
 
 
 #series-block(title: "实践看法", accent: rgb("#f59e0b"))[
-
+            #tufted.blog-entry(
+    date: datetime(year: 2026, month: 8, day: 12),
+    path: "8-12",
+    title: "Agentic AI｜个人完整框架解读",
+  )
 
             #tufted.blog-entry(
     date: datetime(year: 2026, month: 7, day: 29),
