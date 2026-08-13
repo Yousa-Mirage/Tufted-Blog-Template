@@ -1,13 +1,15 @@
 #import "../index.typ": template, tufted
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
-#show: template.with(
+
+\\\#show: template.with(
   title: "检索工程实践｜大规模特定中医文献筛选及检索库搭建总结",
   description: "检索工程实践｜大规模特定中医文献筛选及检索库搭建总结",
   date: datetime(year: 2026, month: 7, day: 20),
   category: "数学与算法",
   lang: "zh",
 )
+\\\
 
 
 
