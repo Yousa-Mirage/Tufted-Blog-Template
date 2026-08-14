@@ -10,7 +10,7 @@
 )
 
 
-= Agentic AI｜个人完整框架解读
+= Agentic AI（1）｜个人完整框架解读
 
 #line(length: 100%, stroke: 0.6pt)
 \#2026-8-12 \#Agent

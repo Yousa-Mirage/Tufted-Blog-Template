@@ -191,9 +191,13 @@
 
 #tag(<tries>,[🚀 项目实践])
 
+#tag(<Agent>,[🤖 Agentic AI])
+
 #tag(<realtry>, [💡 实践看法])
 
 #tag-placeholder[🔧 工具分享（即将更新）]
+
+
 
 #series-block(title: "项目实践", accent: rgb("#f59e0b"))[
 
@@ -205,14 +209,25 @@
   )
 ] <tries>
 
+#series-block(title: "Agentic AI", accent: rgb("#f59e0b"))[
 
 
-#series-block(title: "实践看法", accent: rgb("#f59e0b"))[
-            #tufted.blog-entry(
+  #tufted.blog-entry(
+    date: datetime(year: 2026, month: 8, day: 14),
+    path: "8-14",
+    title: "Agentic AI（2）｜阿里云智能体安全报告解读",)
+
+
+  #tufted.blog-entry(
     date: datetime(year: 2026, month: 8, day: 12),
     path: "8-12",
-    title: "Agentic AI｜个人完整框架解读",
+    title: "Agentic AI（1）｜个人完整框架解读",
   )
+  )
+] <Agent>
+
+#series-block(title: "实践看法", accent: rgb("#f59e0b"))[
+
 
             #tufted.blog-entry(
     date: datetime(year: 2026, month: 7, day: 29),
