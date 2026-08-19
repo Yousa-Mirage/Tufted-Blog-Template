@@ -181,13 +181,22 @@
 == 论文、工程与工具 <practice>
 
 #html.div(class: "blog-tags", [
-  #tag(<projects>, [🚀 工程与工具])
+  #tag(<tools>, [🧰 工具分享])
+  #tag(<projects>, [🚀 工程实践])
   #tag(<papers>, [📚 论文与模型解析])
   #tag(<agentic-ai>, [🤖 Agentic AI])
   #tag(<methods>, [💡 学习方法])
 ])
 
-#series-block(title: "工程与工具", tone: "amber")[
+#series-block(title: "工具分享", tone: "amber")[
+  #tufted.blog-entry(
+    date: datetime(year: 2026, month: 8, day: 19),
+    path: "8-19-marp",
+    title: "工具分享｜Marp 基础使用指南（1）：平台安装与基础语法",
+  )
+] <tools>
+
+#series-block(title: "工程实践", tone: "amber")[
   #tufted.blog-entry(
     date: datetime(year: 2026, month: 6, day: 3),
     path: "6-3",
