@@ -2,15 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Skill｜基于上海交大最新 PaSaMaster构建优化文献检索 Skill 的设计",
-  description: "Skill｜基于上海交大最新 PaSaMaster构建优化文献检索 Skill 的设计",
+  title: "Skill｜基于 PaSaMaster 的文献检索 Skill 设计与优化",
+  description: "参考 PaSaMaster，设计带意图拆解、检查清单、证据验证与迭代检索的文献检索 Skill。",
   date: datetime(year: 2026, month: 5, day: 20),
   category: "实践与工具",
   lang: "zh",
 )
 
 
-= *Skill｜基于上海交大最新 PaSaMaster构建优化文献检索 Skill 的设计*
+= Skill｜基于 PaSaMaster 的文献检索 Skill 设计与优化
+
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 20),
+  tags: ("Skill", "文献检索"),
+)
 
 #tufted.margin-note[
   *阅读提醒*：本篇基于个人理解以及想法来展开，原始制作的skill不会公开，如有兴趣，请邮箱📮联系笔者，欢迎任何建议。祝食用愉快～😳
@@ -107,7 +112,7 @@ PaSaMaster-Bench 是论文提出的多学科 benchmark。论文称其包含 244 
 
 == *`iterative-research-lit` Skill*
 
-=== *skill原则*
+=== *Skill 原则*
 
 按照 skills的的原则，skill 不是普通文档，也不是把一堆命令写给模型看。skill 的价值在于：当模型在某类任务中会反复出错，且这种错误可以通过稳定的行为约束改善时，把这种行为约束封装成可按需加载的上下文。
 
@@ -306,7 +311,7 @@ Run one additional round only when reflection shows missing terminology, repeate
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 术语对齐任务
+=== *术语对齐任务*
 
 第一个核心任务来自用户真实需求：用 gene-grounded 的方式做术语对齐，补充单本体中细粒度过粗的缺失信息（由于涉及课题信息，不予公开，只限模糊表述），优先高水平、新近或权威文献，不走传统纯语义匹配路线。
 
@@ -486,7 +491,7 @@ PaSaMaster 的价值在于提出了一个更接近真实科研检索需求的方
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Skill相关*
+=== *Skill 相关*
 
 - Skills说明编写参考标准：. #link("https://research.perplexity.ai/articles/designing-refining-and-maintaining-agent-skills-at-perplexity")[https://research.perplexity.ai/articles/designing-refining-and-maintaining-agent-skills-at-perplexity]
 

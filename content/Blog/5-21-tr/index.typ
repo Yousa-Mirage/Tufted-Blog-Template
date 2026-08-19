@@ -2,17 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜反向传播 (Backpropagation)（4）：Self-Attention联合推导与整体总结",
-  description: "Transformer｜反向传播 (Backpropagation)（4）：Self-Attention联合推导与整体总结",
+  title: "Transformer｜反向传播（Backpropagation）（4）：Self-Attention 联合推导与整体总结",
+  description: "从矩阵计算路径出发，联合推导 Self-Attention 的反向传播与 token 间梯度耦合。",
   date: datetime(year: 2026, month: 5, day: 21),
   category: "数学与算法",
   lang: "zh",
 )
 
 
+= Transformer｜反向传播（Backpropagation）（4）：Self-Attention 联合推导与整体总结
 
-
-= *Transformer｜反向传播 (Backpropagation)（4）：Self-Attention联合推导与整体总结*
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 21),
+  tags: ("Transformer", "反向传播"),
+)
 
 #tufted.margin-note[
   *阅读提醒*：这是整个系列最重要的一篇。前面我们推导了线性层的两个核心公式，看到了 FFN 里 token 独立传播的干净结构。现在这些工具都要用上——但 Attention 会把它们推到一个新的复杂度：token 之间的耦合。就是我们在Softmax和RMSNorm中初步见过的情况，相信仔细理解完这篇之后能让你对Transformer的架构有一个更深刻的了解。现在，*Attention is all you need！* 祝食用愉快～ 😈

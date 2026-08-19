@@ -4,16 +4,20 @@
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
   title: "Transformer｜架构演进（4）：Position Encoding 系统（1）——理解绝对位置编码",
-  description: "Transformer｜架构演进（4）：Position Encoding 系统（1）——理解绝对位置编码",
+  description: "从序列顺序问题出发，理解绝对位置编码的必要性、实现与局限。",
   date: datetime(year: 2026, month: 6, day: 10),
   category: "数学与算法",
   lang: "zh",
 )
 
 
-= *Transformer｜架构演进（4）：Position Encoding 系统（1）——理解绝对位置编码*
+= Transformer｜架构演进（4）：Position Encoding 系统（1）——理解绝对位置编码
 
-\#2026-6-10 \#transformer \#PositionEmbedding
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 10),
+  tags: ("Transformer", "位置编码"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -134,7 +138,7 @@ ALiBi在 attention score 里加一个和距离成比例的线性惩罚。距离�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Position Encoding的必要性*
+== *Position Encoding 的必要性*
 
 要理解位置编码，先要理解一个事实：
 
@@ -212,7 +216,7 @@ $ x_"巴黎 at pos 10" = e_"巴黎" + p_10 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *相加or拼接？*
+=== *相加 or 拼接？*
 
 #quote[
   一个自然问题是：为什么位置向量要和 token embedding 相加，而不是拼接？

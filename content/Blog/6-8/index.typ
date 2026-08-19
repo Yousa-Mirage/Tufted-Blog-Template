@@ -2,17 +2,21 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer算法｜架构演进（拓展）：Vocab 系统——Unigram LM的subword概率收敛证明",
-  description: "Transformer算法｜架构演进（拓展）：Vocab 系统——Unigram LM的subword概率收敛证明",
+  title: "Transformer｜架构演进（扩展）：Unigram LM 的 Subword 概率收敛证明",
+  description: "围绕 Unigram LM，推导 Subword 概率更新与收敛过程，并联系 Tokenization 实践。",
   date: datetime(year: 2026, month: 6, day: 8),
-  category: "数学算法",
+  category: "数学与算法",
   lang: "zh",
 )
 
 
-= *Transformer算法｜架构演进（拓展）：Vocab 系统——Unigram LM的subword概率收敛证明*
+= Transformer｜架构演进（扩展）：Unigram LM 的 Subword 概率收敛证明
 
-\#2026-6-5 \#拓展 \#数学证明 \#Vocab \#Tokenization
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 8),
+  tags: ("Transformer", "数学推导"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 #tufted.margin-note[
@@ -501,7 +505,7 @@ $ L(theta^(n e w)) >= L(theta^(o l d)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *subword收敛*
+== *subword 收敛*
 
 #quote[
   既然每一轮都不下降，那它会不会一直涨到无穷大？subword收敛又是在这个基础上怎么看的?
@@ -562,7 +566,7 @@ EM 还有一个很重要的限制：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *与tokenizer*
+== *与 tokenizer*
 
 #quote[
   这部分数学推导看起来有点抽象，但它其实解释了 Unigram LM tokenizer 的核心机制。

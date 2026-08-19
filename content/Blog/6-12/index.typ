@@ -3,17 +3,21 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜架构演进（5）：Position Encoding 系统（二）——相对位置编码",
-  description: "Transformer｜架构演进（5）：Position Encoding 系统（二）——相对位置编码",
+  title: "Transformer｜架构演进（5）：Position Encoding 系统（2）——相对位置编码",
+  description: "梳理相对位置编码的核心思想、常见形式及其相对绝对位置编码的优势。",
   date: datetime(year: 2026, month: 6, day: 12),
   category: "数学与算法",
   lang: "zh",
 )
 
 
-= *Transformer｜架构演进（5）：Position Encoding 系统（2）——相对位置编码*
+= Transformer｜架构演进（5）：Position Encoding 系统（2）——相对位置编码
 
-\#2026-6-12 \#transformer \#PositionEmbedding
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 12),
+  tags: ("Transformer", "位置编码"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 

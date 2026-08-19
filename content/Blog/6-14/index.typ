@@ -4,17 +4,20 @@
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
   title: "Transformer｜架构演进（6）：Position Encoding 系统（3）——从 RoPE 到长上下文 Scaling",
-  description: "Transformer｜架构演进（6）：Position Encoding 系统（3）——从 RoPE 到长上下文 Scaling",
+  description: "从 RoPE 出发，梳理旋转位置编码与长上下文扩展方法的原理和取舍。",
   date: datetime(year: 2026, month: 6, day: 14),
   category: "数学与算法",
   lang: "zh",
 )
 
 
+= Transformer｜架构演进（6）：Position Encoding 系统（3）——从 RoPE 到长上下文 Scaling
 
-= *Transformer｜架构演进（6）：Position Encoding 系统（3）——从 RoPE 到长上下文 Scaling*
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 14),
+  tags: ("Transformer", "位置编码"),
+)
 
-\#2026-6-14 \#transformer \#PositionEmbedding
 
 #line(length: 100%, stroke: 0.6pt)
 

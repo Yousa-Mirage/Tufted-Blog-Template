@@ -2,17 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜反向传播 (Backpropagation)（6）：缩放因子 $sqrt(d_k)$ 与初始化哲学",
-  description: "Transformer｜反向传播 (Backpropagation)（6）：缩放因子 $sqrt(d_k)$ 与初始化哲学",
+  title: "Transformer｜反向传播（Backpropagation）（6）：缩放因子 √dₖ 与初始化哲学",
+  description: "解释 Attention 中 √dₖ 缩放因子的来源，以及它与方差控制和参数初始化的关系。",
   date: datetime(year: 2026, month: 5, day: 25),
   category: "数学与算法",
   lang: "zh",
 )
 
 
+= Transformer｜反向传播（Backpropagation）（6）：缩放因子 √dₖ 与初始化哲学
 
-= *Transformer｜反向传播 (Backpropagation)（6）：缩放因子 $sqrt(d_k)$ 与初始化哲学*
-\#26-5-25\#反向传播\#tranformer\#初始化\#缩放因子
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 25),
+  tags: ("Transformer", "反向传播"),
+)
 #tufted.margin-note[
   *阅读提示*：前面我们推导 Attention 反向传播时，有一步被轻描淡写地带过了：除以 $sqrt(d_k)$。你可能当时就接受了"防止 Softmax 饱和"这个解释。但如果你仔细想一想——为什么偏偏是 $sqrt(d_k)$？不是 $d_k$？不是 $log(d_k)$？不是一个可学习的参数？这个看似简单的选择背后，其实藏着一整套关于初始化和训练稳定性的思考方式。这也许可以给你带来一些思考。祝食用愉快～😫
 ]
@@ -222,7 +225,7 @@ S 的标准差 ≈ 8 时（数值范围大概 [-20, 20]）：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 除以 $sqrt(d_k)$ 的效果
+=== *除以 $sqrt(d_k)$ 的效果*
 
 $ S_"scaled" = S/sqrt(d_k) $
 
@@ -424,7 +427,7 @@ $ (partial L)/(partial alpha) = sum_(s, t) Delta_(S \_ "scaled") [s] [t] dot.op 
   $sqrt(d_k)$ 缩放只是 Transformer 中众多"稳定训练"设计的一个缩影。让我们把所有类似的设计列出来，看看它们的共同模式：
 ]
 
-=== *1.前向传播中的数值稳定手段*
+=== *1. 前向传播中的数值稳定手段*
 
 ```
 RMSNorm / LayerNorm：
@@ -450,7 +453,7 @@ RMSNorm / LayerNorm：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *2.反向传播中的梯度稳定手段*
+=== *2. 反向传播中的梯度稳定手段*
 
 ```
 Pre-Norm（而非 Post-Norm）：

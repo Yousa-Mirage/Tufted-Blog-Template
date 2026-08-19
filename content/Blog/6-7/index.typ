@@ -3,17 +3,21 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜架构演进（2）：Vocab 系统（二）——Embedding、LM Head 与 Tied Embedding",
-  description: "Transformer｜架构演进（2）：Vocab 系统（二）——Embedding、LM Head 与 Tied Embedding",
+  title: "Transformer｜架构演进（2）：Vocab 系统（2）——Embedding、LM Head 与 Tied Embedding",
+  description: "梳理 Input Embedding、LM Head 与 Tied Embedding 的结构、训练方式和约束。",
   date: datetime(year: 2026, month: 6, day: 7),
   category: "数学与算法",
   lang: "zh",
 )
 
 
-= *Transformer｜架构演进（2）：Vocab 系统（2）——Embedding、LM Head 与 Tied Embedding*
+= Transformer｜架构演进（2）：Vocab 系统（2）——Embedding、LM Head 与 Tied Embedding
 
-\#2026-6-7 \#tranformer \#vocab
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 7),
+  tags: ("Transformer", "架构演进"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -191,7 +195,7 @@ $ p_i = (exp(z_i))/(sum_j exp(z_j)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Input Embedding与LM Head*
+== *Input Embedding 与 LM Head*
 
 现在我们有两个矩阵。
 
@@ -291,7 +295,7 @@ tied embedding还有一个更深的表示假设：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Tied Embedding训练*
+== *Tied Embedding 训练*
 
 在 tied embedding 中，模型只有一套矩阵：
 
@@ -473,7 +477,7 @@ $ g_E = g_"output" + g_"input" $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Tied Embedding的有效性*
+== *Tied Embedding 的有效性*
 
 Tied embedding 的有效性主要来自三个方面。
 
@@ -513,7 +517,7 @@ Tied embedding 强制输入空间和输出空间使用同一套 token vectors，
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Tied Embedding和约束*
+== *Tied Embedding 和约束*
 
 虽然 tied embedding 很优雅，但它不是所有模型都必须使用的标准答案。
 

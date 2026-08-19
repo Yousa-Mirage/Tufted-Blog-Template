@@ -3,17 +3,21 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "模型杂谈｜关于Diffusion Model",
-  description: "模型杂谈｜关于Diffusion Model",
+  title: "扩散模型｜基本原理与发展脉络",
+  description: "从加噪与去噪出发，梳理 DDPM、DDIM、Latent Diffusion、DiT 与扩散语言模型的发展。",
   date: datetime(year: 2026, month: 6, day: 13),
   category: "数学与算法",
   lang: "zh",
 )
 
 
-= *模型杂谈｜关于Diffusion Model*
+= 扩散模型｜基本原理与发展脉络
 
-\#2026-6-13 \#模型 \#Diffision
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 13),
+  tags: ("扩散模型", "生成模型"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 #tufted.margin-note[
@@ -596,7 +600,7 @@ Masked diffusion 是一种解决方案，但还需要处理长度、mask 策略�
 == *笔者的话*
 
 #quote[
-  AR和Diffision各有千秋，就像一个人的不同的功能组件，同时互相辅助吸取改进经验，往更加广大的模型范式前进。
+  AR和Diffusion各有千秋，就像一个人的不同的功能组件，同时互相辅助吸取改进经验，往更加广大的模型范式前进。
 ]
 
 #line(length: 100%, stroke: 0.6pt)

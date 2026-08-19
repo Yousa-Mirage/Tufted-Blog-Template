@@ -5,17 +5,20 @@
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
   title: "Transformer｜架构演进（1）：Vocab 系统（1）——Tokenizer 与 Vocabulary Size",
-  description: "Transformer｜架构演进（1）：Vocab 系统（1）——Tokenizer 与 Vocabulary Size",
+  description: "介绍 Tokenizer、Vocabulary Size 及词表设计对模型训练和推理的影响。",
   date: datetime(year: 2026, month: 6, day: 4),
   category: "数学与算法",
   lang: "zh",
 )
 
 
+= Transformer｜架构演进（1）：Vocab 系统（1）——Tokenizer 与 Vocabulary Size
 
-= *Transformer｜架构演进（1）：Vocab 系统（1）——Tokenizer 与 Vocabulary Size*
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 4),
+  tags: ("Transformer", "架构演进"),
+)
 
-\#2026-6-4 \#transformer \#vocab
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -165,7 +168,7 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Tokenizer不是简单预处理*
+== *Tokenizer 不是简单预处理*
 
 #quote[
   很多人第一次接触 tokenizer 时，会把它理解成一个普通预处理步骤。好像只要把文本切成 token，再映射成 id，就完成了,对吧？💨
@@ -201,7 +204,7 @@ Next Token
   理解现代 tokenizer，最好从最朴素的方法开始。
 ]
 
-=== *1.Word-level tokenizer*
+=== *1. Word-level tokenizer*
 
 最自然的想法是按词切分。
 
@@ -225,7 +228,7 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *2.Character-level tokenizer*
+=== *2. Character-level tokenizer*
 
 另一个极端是按字符切分。
 
@@ -247,7 +250,7 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *3.Subword tokenizer*
+=== *3. Subword tokenizer*
 
 于是，一个自然的折中方案出现了：subword tokenization。
 
@@ -567,7 +570,6 @@ $
 2. 每次删一批而不是一个，因为删掉一批后其他 subword 的概率会变，需要重新跑 EM
 
 *第五步*：重复，直到词表够小。
-
 
 
 回到讨论，它和 BPE 最大的不同是：BPE 通常会给一个文本确定性切分，而 Unigram LM 天然允许多种切分。

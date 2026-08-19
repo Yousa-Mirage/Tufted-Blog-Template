@@ -2,16 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "“一周后的收获🎉”",
-  description: "“一周后的收获🎉”",
+  title: "语言学习｜一周后的收获🎉",
+  description: "记录日语学习第一周的进度、感受与阶段收获。",
   date: datetime(year: 2026, month: 5, day: 26),
-  category: "日常记录",
+  category: "个人记录",
   lang: "zh",
 )
 
 
+= 语言学习｜一周后的收获🎉
 
-= *“一周后的收获🎉”*
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 26),
+  tags: ("语言学习", "日语"),
+)
 
 #quote[
   明天物理考试，同时笔者正在免疫学课的早八上昏昏欲睡，今天是个坏天气，梅雨季节实在令人作呕。至少笔者还是起床了，在复习之前，简单总结一下日语学习的第一周

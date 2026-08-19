@@ -3,18 +3,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "图像处理｜从卷积与 UNet的学习",
-  description: "图像处理｜从卷积与 UNet的学习",
-  date: datetime(year: 2026, month: 7, day: 10),
-  category: "数学与算法",
+  title: "论文解读｜MRGen：基于扩散模型与 U-Net 的跨模态医学图像生成",
+  description: "解读 MRGen 的数据设计、扩散生成架构、Mask 控制器、实验结果与跨模态医学图像生成思路。",
+  date: datetime(year: 2026, month: 7, day: 12),
+  category: "实践与工具",
   lang: "zh",
 )
 
 
+= 论文解读｜MRGen：基于扩散模型与 U-Net 的跨模态医学图像生成
 
-
-
-= *MRGen （ICCV 2025 交大）  ｜精析基于Diffsion和UNet的医学图像分割跨模态的图像生成架构*
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 7, day: 12),
+  tags: ("论文解读", "医学图像"),
+)
 
 #quote[
   *MRGen: Diffusion-based Controllable Data Engine for MRI Segmentation towards Unannotated Modalities*（ICCV 2025 交大）
@@ -31,7 +33,7 @@
 ]
 == *1. 导言*
 
-=== 1.1 MRI 分割的困难
+=== *1.1 MRI 分割的困难*
 
 MRI 的像素强度不像自然图像那样具有稳定含义。T1、T2、T2-SPIR、ADC 等序列之间，同一组织可能呈现完全不同的信号；同一序列还会受扫描仪厂商、场强、线圈、TR/TE、抑脂方式、重建协议和患者运动影响。
 
@@ -630,8 +632,8 @@ $ h^(' ' ') = h^(' ') + g_m thin upright(D e f o r m C r o s s A t t n)_(m a s k
 
 == *回顾*
 
-- 对于这里的mask训练，为什么需要采样下采样进入阶段三的微调呢？结合UNet的原理来试着解释一下？
-- 为什么解耦了阶段二和阶段三，不一起训练text和mask呢？考量主要在哪？
+- 对于这里的 mask 训练，为什么需要下采样后进入阶段三的微调？请结合 U-Net 的原理试着解释。
+- 为什么阶段二和阶段三需要解耦，而不是一起训练 text 和 mask？主要考量是什么？
 
 #line(length: 100%, stroke: 0.6pt)
 

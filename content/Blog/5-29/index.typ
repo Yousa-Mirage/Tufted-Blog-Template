@@ -2,17 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Pre-Train Framework｜深度表型数据适配的 Transformer 基础模型 _ukbFound_ 架构与源码解析",
-  description: "Pre-Train Framework｜深度表型数据适配的 Transformer 基础模型 _ukbFound_ 架构与源码解析",
+  title: "预训练框架｜适配深度表型数据的 Transformer 基础模型 ukbFound：架构与源码解析",
+  description: "结合论文与源码，解析 ukbFound 的深度表型建模、掩码策略、训练流程与下游任务。",
   date: datetime(year: 2026, month: 5, day: 29),
-  category: "实践看法",
+  category: "实践与工具",
   lang: "zh",
 )
 
 
+= 预训练框架｜适配深度表型数据的 Transformer 基础模型 ukbFound：架构与源码解析
 
-
-= *Pre-Train Framework｜深度表型数据适配的 Transformer 基础模型 _ukbFound_ 架构与源码解析*
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 29),
+  tags: ("论文解读", "预训练框架"),
+)
 
 #tufted.margin-note[
   *阅读提醒*：好久不见👋，最近作者太忙了没怎么更新，现在来更新了🎉。本篇基于北京协和医学院的论文 _A foundational model encodes deep phenotyping data and enables diverse downstream applications_ 以及其*核心源码实现*进行拆解。不同于常见的论文复述，本文试图回答：这篇论文的创新架构在代码层面是如何落地的？原文献中提到的强制掩码（Forced Masking）和分层掩码（Stratified Masking）是如何具体执行的？对于模型的可解释性和下游任务的鲁棒性，代码给出了怎样的答案？以及关于这种新的范式的论文套路如何去做的。（需要你有一定的对语言模型的背景理解以及对Transformer模型架构的了解，还有python编码等等知识）
@@ -185,7 +188,7 @@ Value 词表 = |QV| + |CV| + |SV|
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== *Step 1: 什么是"位置无关"？*
+==== *Step 1: 什么是“位置无关”？*
 
 在传统 Transformer（如 BERT、GPT）中，输入序列是：
 
@@ -354,7 +357,7 @@ h^(l) = [所有连续特征嵌入] + [所有单选特征嵌入] + [所有多选�
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== *Step 4: Self-Attention 在这个任务中的"生物学含义"*
+==== *Step 4: Self-Attention 在这个任务中的“生物学含义”*
 
 在 ukbFound 中，Self-Attention 的核心作用是*捕获特征间的潜在关联*：
 
@@ -715,7 +718,7 @@ def random_mask_value(..., force_mask_ranges=None):
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *5.Masking 规则：是每个个体不一样吗？*
+=== *5. Masking 规则：是每个个体不一样吗？*
 
 *回答：每个个体（每一行）都不一样，且每次看到都不一样（动态随机）。*
 
@@ -750,7 +753,6 @@ _"A special CLS token is prepended to each sequence, and its final-layer embeddi
     - CLS 收集了所有 Token 的信息，更新了自己的向量。
   + *深层网络*：经过 8 层这样的操作，CLS 向量就变成了一个*高度浓缩的特征向量*。
   + *结果*：这个向量代表了“这个人整体的健康状况”。下游任务（如预测死亡率）不需要看具体的血压是多少，只需要看这个 CLS 向量就够了。
-
 
 
 #line(length: 100%, stroke: 0.6pt)

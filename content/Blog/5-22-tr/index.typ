@@ -2,18 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜反向传播 (Backpropagation)（5）：残差连接与归一化的选择",
-  description: "Transformer｜反向传播 (Backpropagation)（5）：残差连接与归一化的选择",
+  title: "Transformer｜反向传播（Backpropagation）（5）：残差连接与归一化的选择",
+  description: "从梯度传播角度比较残差连接、Pre-Norm 与 Post-Norm 的结构差异。",
   date: datetime(year: 2026, month: 5, day: 22),
   category: "数学与算法",
   lang: "zh",
 )
 
 
+= Transformer｜反向传播（Backpropagation）（5）：残差连接与归一化的选择
 
-
-
-= *Transformer｜反向传播 (Backpropagation)（5）：残差连接与归一化的选择*
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 22),
+  tags: ("Transformer", "反向传播"),
+)
 
 #tufted.margin-note[
   *阅读提醒*：前面我们推导了 Transformer 反向传播的完整主干。但有一个关键细节被一笔带过了——RMSNorm 到底放在哪里？这个看似微小的设计选择，直接影响了梯度能不能顺畅地流过几十层网络。这篇我们来彻底搞清楚。接下来我们要拿起放大镜来看细节了。祝食用愉快～🥱
@@ -166,7 +168,7 @@ x_out = x_in + x_sub ←─┘（残差相加，之后没有 Norm）
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *为什么选择Pre-Norm ？答案在反向传播里*
+=== *为什么选择 Pre-Norm？答案在反向传播里*
 
 #quote[
   *要理解这个问题，我们得先彻底搞清楚残差连接的反向传播。*
@@ -481,7 +483,7 @@ $ Delta_"直路" = 1.0 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *问题1：最终输出没有经过 Norm*
+=== *问题 1：最终输出没有经过 Norm*
 
 Pre-Norm 每层输出：
 
@@ -512,7 +514,7 @@ W_lm · x → logits
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *问题2：理论上 Post-Norm 表达能力可能更强*
+=== *问题 2：理论上 Post-Norm 表达能力可能更强*
 
 一些研究认为：
 

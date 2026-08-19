@@ -4,8 +4,8 @@
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
   title: "Diffusion｜DDPM & DDIM 从加噪到采样的完整推导",
-  description: "Diffusion｜DDPM & DDIM 从加噪到采样的完整推导",
-  date: datetime(year: 2026, month: 7, day: 10),
+  description: "完整推导 DDPM 的前向加噪、反向去噪与 DDIM 采样过程。",
+  date: datetime(year: 2026, month: 7, day: 12),
   category: "数学与算法",
   lang: "zh",
 )
@@ -15,9 +15,13 @@
 #let post = $"post"$
 #let const = $"const"$
 
-= *Diffusion｜DDPM & DDIM 从加噪到采样的完整推导*
+= Diffusion｜DDPM & DDIM 从加噪到采样的完整推导
 
-\#2026-7-12 \#DDPM \#DDIM \#Diffusion \#推导
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 7, day: 12),
+  tags: ("Diffusion", "数学推导"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 

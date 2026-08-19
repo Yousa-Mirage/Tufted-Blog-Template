@@ -1,5 +1,228 @@
 /*******************************************************************************
 CUSTOM STYLES
 
-Add your custom CSS styles here to override or extend the default styles.
+Site-specific styles for the blog index and article headings.
 *******************************************************************************/
+
+:root {
+	--blog-card-bg: rgba(255, 255, 255, 0.5);
+	--blog-card-border: #deded6;
+	--blog-tag-bg: #eef5ff;
+	--blog-tag-border: #8ab4f8;
+	--blog-tag-text: #245aa5;
+	--blog-muted-bg: #f1f1ed;
+	--blog-muted-border: #c9c9c2;
+	--blog-muted-text: #70706a;
+}
+
+html[data-theme="dark"],
+html:not([data-theme]) {
+	--blog-card-bg: rgba(255, 255, 255, 0.035);
+	--blog-card-border: #414141;
+	--blog-tag-bg: #1e324d;
+	--blog-tag-border: #496e9e;
+	--blog-tag-text: #b8d5ff;
+	--blog-muted-bg: #292929;
+	--blog-muted-border: #4a4a4a;
+	--blog-muted-text: #aaa;
+}
+
+@media (prefers-color-scheme: light) {
+	html:not([data-theme]) {
+		--blog-card-bg: rgba(255, 255, 255, 0.5);
+		--blog-card-border: #deded6;
+		--blog-tag-bg: #eef5ff;
+		--blog-tag-border: #8ab4f8;
+		--blog-tag-text: #245aa5;
+		--blog-muted-bg: #f1f1ed;
+		--blog-muted-border: #c9c9c2;
+		--blog-muted-text: #70706a;
+	}
+}
+
+/* Headings already carry their own visual weight; nested strong markup is not
+   needed and article titles should wrap cleanly on smaller screens. Typst's
+   HTML export starts document headings at h2. */
+article > section > h2:first-child {
+	line-height: 1.18;
+	text-wrap: balance;
+}
+
+h2,
+h3,
+h4 {
+	text-wrap: pretty;
+}
+
+/* Consistent article date and topic tags */
+.post-meta {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+	width: 55%;
+	margin: -0.35rem 0 1.25rem;
+	color: var(--theme-footer, #777);
+	font-size: 0.9rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.post-meta time {
+	margin-right: 0.2rem;
+}
+
+.post-meta-tag {
+	display: inline-flex;
+	padding: 0.16rem 0.48rem;
+	color: var(--blog-muted-text);
+	line-height: 1.3;
+	background: var(--blog-muted-bg);
+	border: 1px solid var(--blog-muted-border);
+	border-radius: 999px;
+}
+
+/* Blog topic navigation */
+.blog-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.55rem;
+	margin: 0.75rem 0 1.5rem;
+}
+
+.blog-tags a:any-link {
+	text-decoration: none;
+}
+
+.blog-tag {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.35rem 0.7rem;
+	color: var(--blog-tag-text);
+	font-size: 0.95rem;
+	font-weight: 600;
+	font-style: normal;
+	line-height: 1.35;
+	background: var(--blog-tag-bg);
+	border: 1px solid var(--blog-tag-border);
+	border-radius: 999px;
+	transition:
+		background-color 120ms ease,
+		transform 120ms ease;
+}
+
+.blog-tags a:hover .blog-tag,
+.blog-tags a:focus-visible .blog-tag {
+	transform: translateY(-1px);
+	filter: brightness(0.97);
+}
+
+.blog-tag-placeholder {
+	color: var(--blog-muted-text);
+	background: var(--blog-muted-bg);
+	border-color: var(--blog-muted-border);
+}
+
+/* Series cards */
+.series-card {
+	--series-accent: #0ea5e9;
+	box-sizing: border-box;
+	width: 100%;
+	margin: 1rem 0 1.75rem;
+	padding: 0.9rem 1rem 0.25rem;
+	background: var(--blog-card-bg);
+	border: 1px solid var(--blog-card-border);
+	border-left: 4px solid var(--series-accent);
+	border-radius: 0.45rem;
+}
+
+.series-card-indigo {
+	--series-accent: #6366f1;
+}
+
+.series-card-cyan {
+	--series-accent: #0891b2;
+}
+
+.series-card-amber {
+	--series-accent: #d48a08;
+}
+
+.series-card-rose {
+	--series-accent: #db4b82;
+}
+
+.series-card-title {
+	margin-bottom: 0.25rem;
+	color: var(--series-accent);
+	font-size: 1rem;
+	font-weight: 700;
+	letter-spacing: 0.01em;
+}
+
+.series-card p {
+	width: auto;
+}
+
+.series-card .blog-entry {
+	width: 100%;
+	padding: 0.72rem 0;
+	gap: 1rem;
+}
+
+.series-card .blog-entry-content a:any-link {
+	font-size: 1.15rem;
+	font-weight: 600;
+	line-height: 1.5;
+}
+
+.series-card .blog-entry-date {
+	font-size: 0.92rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.private-folder-link {
+	display: inline-flex;
+	margin: 0.75rem 0 0.5rem;
+	padding: 0.55rem 0.85rem;
+	color: #be185d;
+	font-weight: 700;
+	line-height: 1.3;
+	background: #fff1f2;
+	border: 1px solid #ec4899;
+	border-radius: 0.5rem;
+}
+
+html[data-theme="dark"] .private-folder-link,
+html:not([data-theme]) .private-folder-link {
+	color: #f6aac8;
+	background: #442032;
+	border-color: #a83f69;
+}
+
+@media (prefers-color-scheme: light) {
+	html:not([data-theme]) .private-folder-link {
+		color: #be185d;
+		background: #fff1f2;
+		border-color: #ec4899;
+	}
+}
+
+@media (max-width: 760px) {
+	.post-meta {
+		width: 100%;
+	}
+
+	.series-card {
+		padding-right: 0.8rem;
+		padding-left: 0.8rem;
+	}
+
+	.series-card .blog-entry {
+		align-items: flex-start;
+		gap: 0.4rem;
+	}
+
+	.series-card .blog-entry-date {
+		min-width: 6rem;
+	}
+}

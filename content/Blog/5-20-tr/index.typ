@@ -2,15 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜反向传播 (Backpropagation)（3）：以SwiGLU为例的前馈网络层推导",
-  description: "Transformer｜反向传播 (Backpropagation)（3）：以SwiGLU为例的前馈网络层推导",
+  title: "Transformer｜反向传播（Backpropagation）（3）：以 SwiGLU 为例的前馈网络层推导",
+  description: "以 SwiGLU 为例拆解 Transformer 前馈网络的结构与完整反向传播路径。",
   date: datetime(year: 2026, month: 5, day: 20),
-  category: "数学算法",
+  category: "数学与算法",
   lang: "zh",
 )
 
 
-= *Transformer｜反向传播 (Backpropagation)（3）：以SwiGLU为例的前馈网络层推导*
+= Transformer｜反向传播（Backpropagation）（3）：以 SwiGLU 为例的前馈网络层推导
+
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 20),
+  tags: ("Transformer", "反向传播"),
+)
 
 #tufted.margin-note[
   *阅读提醒*：我们推导了线性层的两个核心公式，以及 Softmax 和 RMSNorm 的反向传播。现在我们带着这些工具，正式进入 Transformer Block 的内部。于是我们来到了：*前馈网络（Feed-Forward Network，FFN）*。这里的计算比较稀松平常，所以就多嘴整理了一下FFN的发展流程，作为一些完整的补充，如果前2篇你很顺利地理解下来了，那么恭喜你，这一篇你可以以喝杯下午茶的心情来愉悦地看了。祝食用愉快～☕️
@@ -144,7 +149,7 @@ W_up 路线（内容路线）：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *为什么我们选择SwiGLU ？*
+=== *为什么我们选择 SwiGLU？*
 
 ```
 ReLU FFN：
@@ -373,7 +378,7 @@ $ Delta_(x, "via up") = Delta_(u p) dot.op W_(u p)^T $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 两路误差在 $x_"norm"$ 处汇合
+=== *两路误差在 $x_"norm"$ 处汇合*
 
 $x_"norm"$ 同时"兼职"了两个角色（门控和内容），两条路的误差都要算到它头上：
 
@@ -423,7 +428,7 @@ $ Delta_(x \_ n o r m) = Delta_(x, "via gate") + Delta_(x, "via up") $
 
 === *FFN 反向传播的关键特性*
 
-==== *1.Token 之间完全独立*
+==== *1. Token 之间完全独立*
 
 ```
 FFN 的前向传播：
@@ -449,7 +454,7 @@ $ (partial L)/(partial W_"gate") = x_"norm"^T dot.op Delta_"gate" = sum_t x_"nor
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *2.需要存档哪些数据*
+=== *2. 需要存档哪些数据*
 
 ```
 前向传播时需要存档（反向传播时会用到）：

@@ -2,19 +2,21 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Idea杂谈｜“How to read a paper？",
-  description: "Idea杂谈｜“How to read a paper？",
+  title: "学习方法｜如何阅读一篇论文？",
+  description: "从阅读目标、分层阅读、问题意识与 Idea 提炼等角度整理科研论文阅读方法。",
   date: datetime(year: 2026, month: 7, day: 20),
-  category: "数学与算法",
+  category: "实践与工具",
   lang: "zh",
 )
 
 
+= 学习方法｜如何阅读一篇论文？
 
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 7, day: 20),
+  tags: ("学习方法", "论文阅读"),
+)
 
-= *Idea杂谈｜“How to read a paper？”*
-
-\#2026-7-20 \#idea
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -144,7 +146,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *关于Idea*
+== *关于 Idea*
 
 #quote[
   有一篇是上海交大团队提出的 *PaSaMaster*（_Towards Self-Evolving Agentic Literature Retrieval_，arXiv:2605.14306），它试图把文献检索从一次性的 query-document matching，改造成一个根据检索证据不断修正意图、重新检索和排序的 agentic retrieval 系统。于是……

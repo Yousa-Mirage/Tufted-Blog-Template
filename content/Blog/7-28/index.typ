@@ -2,20 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 
-\\\#show: template.with(
-  title: "检索工程实践｜大规模特定中医文献筛选及检索库搭建总结",
-  description: "检索工程实践｜大规模特定中医文献筛选及检索库搭建总结",
-  date: datetime(year: 2026, month: 7, day: 20),
-  category: "数学与算法",
+#show: template.with(
+  title: "工程实践｜大规模中医文献筛选与检索库搭建",
+  description: "总结大规模中医文献的分层筛选、MinerU 解析、元数据构建、正文过滤与 SQLite 检索服务。",
+  date: datetime(year: 2026, month: 7, day: 28),
+  category: "实践与工具",
   lang: "zh",
 )
-\\\
+= 工程实践｜大规模中医文献筛选与检索库搭建
 
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 7, day: 28),
+  tags: ("工程实践", "文献检索"),
+)
 
-
-= *检索工程实践｜大规模特定中医文献筛选及检索库搭建总结*
-
-\#2026-07-28 \#项目实践 \#总结 \#文献筛查
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -122,7 +122,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *补充： Aho-Corasick（pyahocorasick）*
+=== *补充：Aho-Corasick（pyahocorasick）*
 
 #quote[
   Aho-Corasick（pyahocorasick）是一个“多关键词同时匹配”的快速字符串检索工具。它不是数据库，也不是语义模型，而是把大量关键词预先构造成自动机，然后对每篇文献只扫描一遍文本，就能同时找出所有命中的词。
@@ -159,7 +159,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *第二阶段：利用MinerU 转可追踪结构*
+== *第二阶段：利用 MinerU 转可追踪结构*
 
 === *只保留 Markdown 不够*
 

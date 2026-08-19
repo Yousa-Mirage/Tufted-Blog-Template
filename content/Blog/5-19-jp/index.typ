@@ -2,15 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "”想让生活更有动力？你的选择是学习新的语言吗？🐶“",
-  description: "”想让生活更有动力？你的选择是学习新的语言吗？🐶“",
+  title: "语言学习｜开始学习日语：让生活更有动力🐶",
+  description: "记录开始学习日语的原因、学习方式与接下来的计划。",
   date: datetime(year: 2026, month: 5, day: 19),
   category: "个人记录",
   lang: "zh",
 )
 
 
-= *“想让生活更有动力？你的选择是学习新的语言吗？🐶”*
+= 语言学习｜开始学习日语：让生活更有动力🐶
+
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 19),
+  tags: ("语言学习", "日语"),
+)
 
 #quote[
   我非常开心地私下宣布，将要开始学习一门新的语言了——日语！

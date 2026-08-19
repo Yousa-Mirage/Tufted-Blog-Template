@@ -2,24 +2,28 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "机器学习｜深度学习到监督学习",
-  description: "机器学习｜深度学习到监督学习",
-  date: datetime(year: 2026, month: 7, day: 20),
+  title: "机器学习｜神经网络、监督学习与树模型",
+  description: "整理神经网络前向传播、激活函数、优化方法、决策树与集成学习的基础概念。",
+  date: datetime(year: 2026, month: 8, day: 4),
   category: "数学与算法",
   lang: "zh",
 )
 
 
-= 机器学习｜深度学习到监督学习
+= 机器学习｜神经网络、监督学习与树模型
 
-\#2026-8-4 \#深度学习
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 8, day: 4),
+  tags: ("机器学习", "学习笔记"),
+)
+
 
 #tufted.margin-note[
 吴恩达讲解的后续一parts，都是比较基础的内容。祝食用愉快～😋
 ]
 #line(length: 100%, stroke: 0.6pt)
 
-=== 1. 神经网络与前向传播 (Neural Networks & Forward Propagation)
+== *1. 神经网络与前向传播 (Neural Networks & Forward Propagation)*
 
 - *神经元与大脑 (Neurons & Brain)：* 生物神经元通过树突接收信号，在细胞体处理，并通过轴突输出。人工神经网络（ANN）受此启发，利用数学单元（神经元）模拟该过程，以解决非线性复杂任务（如图像识别、需求预测等）。
 - *单层前向传播：*
@@ -34,7 +38,7 @@ $ arrow(z)^([l]) = W^([l] T) arrow(a)^([l - 1]) + arrow(b)^([l]) $
 $ arrow(a)^([l]) = g(arrow(z)^([l])) $
 在 TensorFlow 中，数据通常以张量（Tensors）形式流动
 
-=== 2. 激活函数的选择与多分类问题
+== *2. 激活函数的选择与多分类问题*
 
 - *为什么需要激活函数？*
 若不使用非线性激活函数，无论叠加多少层神经网络，其整体输出依然是输入的线性组合，无法拟合非线性边界。
@@ -51,14 +55,14 @@ $ a_i = P(y = i | arrow(x)) = (e^(z_i))/(sum_(j = 1)^C e^(z_j)) $
 - *多输出分类 (Multi-label Classification)：*
 区分于多分类（多选一），多输出分类旨在预测一个样本同时拥有的多个标签。例如：一张图像中是否同时包含【行人、车辆、交通灯】。其实现方式为在输出层设置多个 Sigmoid 神经元，分别对应各个标签的二分类。
 
-=== 3. 深度学习优化
+== *3. 深度学习优化*
 
 - *高级优化算法 (Adam Optimizer)：*
 相比于传统梯度下降（固定学习率 $alpha$），*Adam (Adaptive Moment Estimation)* 算法能够针对每个参数动态调整学习率。若某参数的梯度始终朝向同一方向，Adam 会加速其更新；若梯度频繁震荡，则会减小其步长，从而极大地加快了训练收敛速度。
 - *额外层类型（如卷积层 CNN）：*
 全连接层（Dense）参数量大，容易过拟合。在处理图像等空间相关数据时，引入*卷积层 (Convolutional Layer)*，通过局部感受野和权重共享，极大减少了参数量并保留了空间拓扑结构。
 
-=== 4. 树模型与集成学习 (Decision Trees & Ensemble Methods)
+== *4. 树模型与集成学习 (Decision Trees & Ensemble Methods)*
 
 除了神经网络，树模型是处理*表格数据 (Tabular Data)* 最强有力的工具。
 

@@ -4,16 +4,20 @@
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
   title: "Transformer｜架构演进（3）：Vocab 系统（3）——高效词表、词表适配与 Tokenizer-free",
-  description: "Transformer｜架构演进（3）：Vocab 系统（3）——高效词表、词表适配与 Tokenizer-free",
+  description: "讨论高效词表、跨语言词表适配与 Tokenizer-free 模型的设计取舍。",
   date: datetime(year: 2026, month: 6, day: 9),
   category: "数学与算法",
   lang: "zh",
 )
 
 
-= *Transformer｜架构演进（3）：Vocab 系统（3）——高效词表、词表适配与 Tokenizer-free*
+= Transformer｜架构演进（3）：Vocab 系统（3）——高效词表、词表适配与 Tokenizer-free
 
-\#2026-6-9 \#transformer \#vocab
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 9),
+  tags: ("Transformer", "架构演进"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 #tufted.margin-note[
@@ -474,7 +478,7 @@ T-FREE 和 BLT 不完全一样。BLT 更像是 byte-level dynamic patch architec
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Tokenizer-free还没有成为主流？*
+== *Tokenizer-free 还没有成为主流？*
 
 #quote[
   看起来 tokenizer-free 很有吸引力：没有 OOV，没有词表偏置，更适合多语言和噪声文本，也更适合未来多模态统一。但它还没有取代主流 fixed tokenizer，原因也很现实。

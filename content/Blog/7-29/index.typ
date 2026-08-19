@@ -2,19 +2,23 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "流匹配｜个人理解记录",
-  description: "流匹配｜个人理解记录",
-  date: datetime(year: 2026, month: 7, day: 20),
+  title: "流匹配｜原理与个人理解",
+  description: "整理 Flow Matching 的基本原理、训练目标及其与扩散模型的联系。",
+  date: datetime(year: 2026, month: 7, day: 29),
   category: "数学与算法",
   lang: "zh",
 )
 
-= *流匹配｜个人理解记录*
+= 流匹配｜原理与个人理解
 
-\#2026-7-29 \#流匹配 \#记录
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 7, day: 29),
+  tags: ("流匹配", "生成模型"),
+)
+
 
 #tufted.margin-note[
-  本篇基于ICML-2026的一些关于流匹配的分享slides做的，看下来大致理解了Fow Matching的一些原理，不过数学内容涉及的比较深，之后按需求去学习就好了，现在先有一个体系的认知就可以了。祝食用愉快～😋
+  本篇基于ICML-2026的一些关于流匹配的分享slides做的，看下来大致理解了Flow Matching的一些原理，不过数学内容涉及的比较深，之后按需求去学习就好了，现在先有一个体系的认知就可以了。祝食用愉快～😋
 ]
 
 #line(length: 100%, stroke: 0.6pt)
@@ -83,7 +87,7 @@ $ lambda_i (x, t) = op("softmax")_i (-(norm(t x^((i)) - x)^2)/(2(1 - t)^2)) . $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== Generation？
+== *Generation？*
 
 #quote[
   一篇论文的结果展示了当数据量大到一定程度之后就可以达到生成新图的能力了，这似乎与理论相悖，我们应该怎么看待这个conflict？

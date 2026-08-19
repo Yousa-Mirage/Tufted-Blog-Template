@@ -3,13 +3,18 @@
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
   title: "日常记录｜飞盘初体验🥏",
-  description: "日常记录｜飞盘初体验🥏",
+  description: "记录实验室课后团建与第一次体验飞盘的日常。",
   date: datetime(year: 2026, month: 5, day: 23),
-  category: "日常记录",
+  category: "个人记录",
   lang: "zh",
 )
 
-= *日常记录｜飞盘初体验🥏*
+= 日常记录｜飞盘初体验🥏
+
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 23),
+  tags: ("日常记录", "飞盘"),
+)
 
 #tufted.margin-note[
   笔者想记录实验室第一次课后团建，一起玩飞盘，希望从生活中找到更多乐趣📝

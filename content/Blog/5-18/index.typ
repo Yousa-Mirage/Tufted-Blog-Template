@@ -2,13 +2,12 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜反向传播 (Backpropagation)（1）：误差和梯度在Linear层的基础推导",
-  description: "Transformer｜反向传播 (Backpropagation)（1）：误差和梯度在Linear层的基础推导",
+  title: "Transformer｜反向传播（Backpropagation）（1）：误差和梯度在 Linear 层的基础推导",
+  description: "从交叉熵与输出层出发，推导 Linear 层的权重梯度和误差传播公式。",
   date: datetime(year: 2026, month: 5, day: 18),
-  category: "数学算法",
+  category: "数学与算法",
   lang: "zh",
 )
-
 
 
 #let boxeq(body) = rect(
@@ -19,7 +18,12 @@
 )[#body]
 
 
-= *Transformer｜反向传播 (Backpropagation)（1）：误差和梯度在Linear层的基础推导*
+= Transformer｜反向传播（Backpropagation）（1）：误差和梯度在 Linear 层的基础推导
+
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 18),
+  tags: ("Transformer", "反向传播"),
+)
 
 #tufted.margin-note[
   *阅读前提*：本文假设你对 Transformer 的基本架构有一定了解，虽然是基础内容，但最好具有一点点线性代数、微积分基础理解起来会比较容易。如果你还不熟悉，笔者建议先了解一下Transformer 的前向传播流程再回来。本篇文章会非常详细地拆解反向传播的流程(主要基于个人的理解来表述)，祝食用愉快～😊
@@ -27,7 +31,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 导言
+== *导言*
 
 #quote[
   在讲 Transformer 之前，我们先退回到一个简单的场景。一个最朴素的神经网络，做的事情就是：
@@ -88,13 +92,13 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 误差和梯度
+== *误差和梯度*
 
 #quote[
   在开始推导之前，先欢迎我们的两个主角登场👏
 ]
 
-=== 误差 $Delta$
+=== *误差 $Delta$*
 
 误差是一个在网络里*从后往前流动的信号*。
 
@@ -108,7 +112,7 @@ $ Delta_y = (partial L)/(partial y) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 梯度 $(partial L)/(partial W)$
+=== *梯度 $(partial L)/(partial W)$*
 
 梯度是损失 $L$ 对某个*可学习参数* $W$ 的导数。
 
@@ -126,9 +130,9 @@ _*我们推导的全部目的，就是计算每一个参数层的梯度。误差
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 从 Loss 出发
+== *从 Loss 出发*
 
-=== 交叉熵
+=== *交叉熵*
 
 我们的模型预测了：
 
@@ -150,7 +154,7 @@ $ L = - sum_j y_(g t, j) dot.op log(y_(p r e d, j)) = - log(0.20) approx 1.61 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 误差：Softmax + 交叉熵的联合梯度
+=== *误差：Softmax + 交叉熵的联合梯度*
 
 Softmax 和交叉熵损失联合求导，有一个非常优雅的结果：
 
@@ -172,7 +176,7 @@ _*这就是反向传播的起点。*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 核心推导：线性层的连接
+== *核心推导：线性层的连接*
 
 现在我们拿着 $Delta_"logits"$，来到了它的上一层——*输出投影层*（Language Model Head）。
 
@@ -190,7 +194,7 @@ $ [1 times 3] = [1 times 4] dot.op [4 times 3] $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 展开矩阵乘法，看清每一条线
+=== *展开矩阵乘法，看清每一条线*
 
 把 $"logits" = h dot.op W_(l m)$ 展开，每个 logit 的计算是：
 
@@ -218,7 +222,7 @@ _*那现在我们要问两个问题。*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 问题 A：$W_(l m)$ 的梯度是多少？
+=== *问题 A：$W_(l m)$ 的梯度是多少？*
 
 *以 $W_(1, "throne")$（连接 $h_1$ 和 $"logit"_"throne"$ 的权重）为例。*
 
@@ -269,7 +273,7 @@ h_k 越大：这个权重当时经手的输入信号越强，责任越大
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 问题 B：把误差继续往前传
+=== *问题 B：把误差继续往前传*
 
 $W_(l m)$ 的梯度已经有了，交给优化器。
 
@@ -330,7 +334,7 @@ W^T 是 W 的"原路返回"版本
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 两个公式，一个对称结构
+== *两个公式，一个对称结构*
 
 #quote[
   让我们看看我们得到了什么战利品：
@@ -360,7 +364,7 @@ $ Delta_h = Delta_"logits" dot.op W^T wide $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== Transformer 反向传播的连接层
+== *Transformer 反向传播的连接层*
 
 这不是只在输出层才用的特殊公式。Transformer 里几乎每一个有参数的地方，本质上都是一个线性层，都会用到这两个公式：
 
@@ -382,7 +386,7 @@ FFN 的每一层：
 
 #line(length: 100%, stroke: 0.6pt)
 
-= 小结
+== *小结*
 
 - 2个传播公式的推导以及理解
 
@@ -402,11 +406,11 @@ $ Delta_h = Delta_"logits" dot.op W^T wide $
 
 #line(length: 100%, stroke: 0.6pt)
 
-= 笔者的话
+== *笔者的话*
 
 后续将分模块介绍FFN，Attenion，RMSNorm等Transformer经典架构的反向传播过程，以及将通过这里的探讨对Pre与Post-Norm的设计的选择等问题做一些探究～
 
-= 参考资料
+== *参考资料*
 
 - Laurent Bou´,_Deep learning for pedestrians: backpropagation in Transformers_
 - Stanford lecture,_cs336(2025-2026)_

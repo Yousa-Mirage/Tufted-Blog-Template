@@ -2,21 +2,25 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "深度学习｜无监督学习、推荐系统与强化学习",
-  description: "深度学习｜无监督学习、推荐系统与强化学习",
-  date: datetime(year: 2026, month: 7, day: 20),
+  title: "机器学习｜无监督学习、推荐系统与强化学习",
+  description: "整理聚类、异常检测、推荐系统与强化学习的核心概念和常见方法。",
+  date: datetime(year: 2026, month: 8, day: 6),
   category: "数学与算法",
   lang: "zh",
 )
 
 
-= 深度学习｜无监督学习、推荐系统与强化学习
-\#2026-8-6 \#深度学习
+= 机器学习｜无监督学习、推荐系统与强化学习
+
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 8, day: 6),
+  tags: ("机器学习", "学习笔记"),
+)
 
 #tufted.margin-note[
 要来台风了🌀，真让人惶恐。祝食用愉快～🫠
 ]
-== 1. 无监督学习：聚类、异常检测与降维
+== *1. 无监督学习：聚类、异常检测与降维*
 
 - *聚类 (Clustering) - K-Means 算法：*
   - *优化目标（畸变函数 Distortion Function）：*
@@ -39,7 +43,7 @@ $ p(arrow(x)) = product_(j = 1)^n p(x_j ; mu_j , sigma_j^2) $
   - *原理：* 寻找一个低维子空间，将高维数据投影于其上，使得*投影误差（Projection Error）最小*，同时最大程度地*保留数据的方差（信息量）*。
   - 在使用 PCA 前，必须对特征进行*均值归一化 (Mean Normalization)* 和特征缩放。
 
-== 2. 推荐系统 (Recommender Systems)
+== *2. 推荐系统 (Recommender Systems)*
 
 个性化推荐是互联网最核心的落地场景。
 
@@ -67,7 +71,7 @@ $ J(w, b, x) = 1/2 sum_((i, j) : r(i, j) = 1) (w^((j)) dot.op x^((i)) + b^((j)) 
     + *检索阶段 (Retrieval)：* 采用简单快速的规则或轻量模型（如协同过滤、相似分类等），快速筛选出几百个候选项目。
     + *重排阶段 (Ranking)：* 将检索出的候选项目送入深度双塔模型进行精准打分、排序，并结合去重、多样性控制等业务逻辑展示给用户。
 
-== 3. 强化学习 (Reinforcement Learning)
+== *3. 强化学习 (Reinforcement Learning)*
 
 强化学习解决了智能体在复杂环境中如何通过试错，自主学习最优决策路径（Policy）的问题。
 

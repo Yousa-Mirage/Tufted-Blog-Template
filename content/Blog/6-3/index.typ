@@ -2,17 +2,21 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "cs336（2025）｜assignment 1：Transformer架构的测试实验",
-  description: "cs336（2025）｜assignment 1：Transformer架构的测试实验",
+  title: "CS336（2025）｜Assignment 1：Transformer 架构测试实验",
+  description: "记录 CS336 Assignment 1 中 Transformer 组件实现、测试与训练实验。",
   date: datetime(year: 2026, month: 6, day: 3),
   category: "实践与工具",
   lang: "zh",
 )
 
 
-= *cs336（2025）｜assignment 1：Transformer架构的测试实验*
+= CS336（2025）｜Assignment 1：Transformer 架构测试实验
 
-\#2026-6-3 \#cs336 \#transformer \#实验总结
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 3),
+  tags: ("CS336", "项目实践"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -219,7 +223,7 @@ OpenWebText 的 final validation loss 为 3.9649，perplexity 约 52.6，明显�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.1 TinyStories参数*
+=== *6.1 TinyStories 参数*
 
 #table(
   columns: (1fr, 1fr),
@@ -230,7 +234,7 @@ OpenWebText 的 final validation loss 为 3.9649，perplexity 约 52.6，明显�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.2 TinyStories结果*
+=== *6.2 TinyStories 结果*
 
 #table(
   columns: (1fr, 1fr, 1fr, 1fr, 1fr, 1fr, 1fr),
@@ -254,7 +258,7 @@ best val loss = 1.4950
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.3 OpenWebText参数*
+=== *6.3 OpenWebText 参数*
 
 #table(
   columns: (1fr, 1fr),
@@ -265,7 +269,7 @@ best val loss = 1.4950
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.4 OpenWebText结果*
+=== *6.4 OpenWebText 结果*
 
 #table(
   columns: (1fr, 1fr, 1fr),
@@ -362,7 +366,7 @@ avg throughput = 47,565 tok/s
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 8. *架构消融实验*
+== *8. 架构消融实验*
 
 #quote[
   架构消融实验用于判断 Transformer 中不同组件的实际贡献。本组实验在 TinyStories 上进行，使用 5k steps、81.92M tokens，baseline 使用 TinyStories LR sweep 中的最佳学习率 `3e-3`。
@@ -379,7 +383,7 @@ avg throughput = 47,565 tok/s
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 8.2 架构消融结果
+=== *8.2 架构消融结果*
 
 #table(
   columns: (1fr, 1fr, 1fr, 1fr, 1fr, 1fr, 1fr, 1fr, 1fr),
@@ -424,7 +428,7 @@ avg throughput = 47,565 tok/s
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 9.2 TinyStories 生成片段
+=== *9.2 TinyStories 生成片段*
 
 ```
 Once upon a time, there was a little dog named Spot. Spot loved to play and run all day long. One day, Spot saw a big red ball in the park. He wanted to play with it, but he didn't know who it belonged to.
@@ -432,7 +436,7 @@ Once upon a time, there was a little dog named Spot. Spot loved to play and run 
 
 TinyStories 模型的输出已经有明显儿童故事结构：角色清晰，事件简单，有动作和对话，整体比较连贯。它的问题主要是小模型常见的重复表达、局部逻辑跳跃和结尾不够自然，但整体符合 TinyStories 数据域预期。
 
-=== 9.3 OpenWebText 生成片段
+=== *9.3 OpenWebText 生成片段*
 
 ```
 Once upon a time, I would have been met with a few short weeks ago.
