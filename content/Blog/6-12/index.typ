@@ -3,17 +3,21 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜架构演进（5）：Position Encoding 系统（二）——相对位置编码",
-  description: "Transformer｜架构演进（5）：Position Encoding 系统（二）——相对位置编码",
+  title: "Transformer｜架构演进（5）：Position Encoding 系统（2）——相对位置编码",
+  description: "梳理相对位置编码的核心思想、常见形式及其相对绝对位置编码的优势。",
   date: datetime(year: 2026, month: 6, day: 12),
   category: "数学与算法",
   lang: "zh",
 )
 
 
-= *Transformer｜架构演进（5）：Position Encoding 系统（2）——相对位置编码*
+= Transformer｜架构演进（5）：Position Encoding 系统（2）——相对位置编码
 
-\#2026-6-12 \#transformer \#PositionEmbedding
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 12),
+  tags: ("Transformer", "位置编码"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -23,7 +27,7 @@
 ]
 
 
-== *导言*
+== 导言
 #figure(caption: "相对位置编码")[
   #image("imgs/2.png", width: 40%)
 ]
@@ -47,7 +51,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *绝对位置编码的局限*
+=== 绝对位置编码的局限
 
 #quote[
   我们先来回顾一下上一个blog的内容
@@ -86,7 +90,7 @@ Self-Attention 本质上是在建模 token pair 之间的关系。既然 attenti
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *相对位置编码*
+== 相对位置编码
 
 标准 attention score 是：
 
@@ -113,7 +117,7 @@ $ s c o r e_(i j) = "content" (i, j) + "position" (i - j) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Shaw et al.*
+== Shaw et al.
 
 #quote[
   相对位置编码的经典起点是 Shaw et al. 2018 的 *Self-Attention with Relative Position Representations*。
@@ -129,7 +133,7 @@ $ s c o r e_(i j) = "content" (i, j) + "position" (i - j) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *在 Key 里加入相对位置向量*
+=== 在 Key 里加入相对位置向量
 
 标准 attention score 是：
 
@@ -167,7 +171,7 @@ _*这里就巧妙的把位置的信息融合到attention score的部分了*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *在 Value 里也加入相对位置向量*
+=== 在 Value 里也加入相对位置向量
 
 #quote[
   Shaw et al. 不只修改 attention score，还修改了 value 聚合。
@@ -187,7 +191,7 @@ $ o_i = sum_j alpha_(i j) (v_j + r_(i - j)^V) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *裁剪距离*
+=== 裁剪距离
 #figure(caption: "距离窗口的影响")[
   #image("imgs/1.png", width: 40%)
 ]
@@ -213,7 +217,7 @@ $ c l i p(i - j, k) = max(- k, min(k, i - j)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *相对位置编码解决了什么？*
+=== 相对位置编码解决了什么？
 
 相比绝对位置编码，Shaw 方法的优势是：
 
@@ -226,7 +230,7 @@ $ c l i p(i - j, k) = max(- k, min(k, i - j)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Shaw 方法的局限*
+=== Shaw 方法的局限
 
 - Shaw 方法也有代价。
   - 第一，朴素实现会引入和 token pair 相关的相对位置向量，计算和显存更复杂。
@@ -241,7 +245,7 @@ $ c l i p(i - j, k) = max(- k, min(k, i - j)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Transformer-XL*
+== Transformer-XL
 
 #quote[
   Shaw et al. 解决了相对距离建模，但 Transformer-XL 面对的是另一个问题：长文本语言模型如何跨 segment 保留记忆。
@@ -255,7 +259,7 @@ Transformer-XL 提出了 segment-level recurrence：把上一段的 hidden state
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *为什么绝对位置在跨 segment 时会出问题？*
+=== 为什么绝对位置在跨 segment 时会出问题？
 
 假设每个 segment 长度是 4。
 
@@ -287,7 +291,7 @@ Transformer-XL 提出了 segment-level recurrence：把上一段的 hidden state
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Transformer-XL 的 attention score 分解*
+=== Transformer-XL 的 attention score 分解
 
 Transformer-XL 重新参数化 attention score，把它分成几项。
 
@@ -324,7 +328,7 @@ Transformer-XL 的设计比 Shaw 更复杂，但目标也更明确：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Transformer-XL 解决了什么？*
+=== Transformer-XL 解决了什么？
 
 Transformer-XL 的相对位置机制主要服务于长程语言建模。
 
@@ -338,7 +342,7 @@ Transformer-XL 的相对位置机制主要服务于长程语言建模。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Transformer-XL 的局限*
+=== Transformer-XL 的局限
 
 #quote[
   Transformer-XL 的相对位置机制很强，但也比较复杂。
@@ -356,7 +360,7 @@ Transformer-XL 的相对位置机制主要服务于长程语言建模。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *T5 Relative Position Bias*
+== T5 Relative Position Bias
 
 #quote[
   T5 使用了更简洁的相对位置方法：Relative Position Bias。
@@ -380,7 +384,7 @@ _*这里的 $b$ 是可学习标量。*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *为什么只加一个 scalar bias 也有用？*
+=== 为什么只加一个 scalar bias 也有用？
 
 #quote[
   Attention logits 决定 softmax 之后的注意力分布。
@@ -399,7 +403,7 @@ Shaw 方法让相对位置参与 query-key 点积；T5 则直接让距离影响 
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *为什么要 bucket？*
+=== 为什么要 bucket？
 
 #quote[
   如果每个相对距离都学习一个 bias，长序列下距离数量很多，而且远距离样本稀疏。
@@ -435,7 +439,7 @@ _*这和人类对距离的需求也有点类似。我们通常很在意“前一
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *T5 Relative Bias 的优势*
+=== T5 Relative Bias 的优势
 
 - T5 Relative Position Bias 有几个优点。
   - 第一，它非常简单。只是在 attention logits 上加一个 bias。
@@ -446,7 +450,7 @@ _*这和人类对距离的需求也有点类似。我们通常很在意“前一
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *T5 Relative Bias 的局限*
+=== T5 Relative Bias 的局限
 
 - 它的问题也很清楚。
   - 第一，bucket 会丢失远距离的精确信息。如果很多远距离都落入同一个 bucket，模型无法区分它们的具体距离。
@@ -457,7 +461,7 @@ _*所以 T5 bias 很适合中长序列和 encoder-decoder 任务，但不是现�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *DeBERTa*
+== DeBERTa
 
 #quote[
   DeBERTa 的 disentangled attention 也很值得放在相对位置编码的脉络里。
@@ -500,7 +504,7 @@ DeBERTa 的重点不是简单加一个相对距离 bias，而是更明确地区�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *相对位置编码和绝对位置编码的区别*
+== 相对位置编码和绝对位置编码的区别
 
 现在可以总结两者的区别。
 
@@ -528,7 +532,7 @@ $ s c o r e_(i j) = c o n t e n t(i, j) + p o s i t i o n(i - j) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *不同相对位置方法的对比*
+== 不同相对位置方法的对比
 
 - 可以把几种典型方法放在一起看。
 
@@ -543,7 +547,7 @@ _*共同点是：都不满足于只告诉模型绝对位置，而是试图让 at
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *从相对位置到 ALiBi 和 RoPE*
+== 从相对位置到 ALiBi 和 RoPE
 
 #quote[
   相对位置编码之后，有两条非常重要的后续路线。
@@ -563,7 +567,7 @@ RoPE 不直接加 bias，而是把 Q/K 放进旋转位置空间。它用旋转�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *为什么现代 LLM 后来更多使用 RoPE？*
+== 为什么现代 LLM 后来更多使用 RoPE？
 
 #quote[
   啊啦，到这里你是不是自然会有一个疑问：既然相对位置编码已经解决了很多问题，为什么现代 LLM 没有普遍使用 Shaw 或 T5 bias，而是大量转向 RoPE？主要原因有几个，让我们细细分解。
@@ -571,7 +575,7 @@ RoPE 不直接加 bias，而是把 Q/K 放进旋转位置空间。它用旋转�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *1. RoPE 兼具绝对和相对性质*
+=== 1. RoPE 兼具绝对和相对性质
 
 RoPE 对 Q/K 按绝对位置做旋转，但两个位置的 attention score 会自然依赖相对位置差。
 
@@ -579,7 +583,7 @@ RoPE 对 Q/K 按绝对位置做旋转，但两个位置的 attention score 会�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *2. RoPE 对 decoder-only 和 KV cache 友好*
+=== 2. RoPE 对 decoder-only 和 KV cache 友好
 
 现代 LLM 主要是 decoder-only，自回归生成时需要 KV cache。
 
@@ -589,7 +593,7 @@ Shaw-style relative value 或复杂 attention 分解在推理工程上更麻烦�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *3. RoPE 适合长上下文 scaling*
+=== 3. RoPE 适合长上下文 scaling
 
 虽然原始 RoPE 也有长度外推问题，但它可以通过 Position Interpolation、NTK Scaling、YaRN 等方法扩展上下文。
 
@@ -597,7 +601,7 @@ Shaw-style relative value 或复杂 attention 分解在推理工程上更麻烦�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 相对位置编码是位置编码演化中的关键一步。它的核心思想是：
 
@@ -620,7 +624,7 @@ Shaw-style relative value 或复杂 attention 分解在推理工程上更麻烦�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   相对位置编码是相对早期的方法，你可以发现现在已经鲜有见到他们的身影，但是他们的贡献是实实在在的，如今的百花齐放的模型设计，就是这一步步探索的脚步所垒成的。有时候笔者也很理解痴迷于历史，痴迷于听书的人，看到前人精彩的故事纷呈，许多后人也追随着从历史中照见自己，有所体悟，有所思考，而论文不正是对一个领域历史进程权威的侧写吗？
@@ -628,7 +632,7 @@ Shaw-style relative value 或复杂 attention 分解在推理工程上更麻烦�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *参考文献*
+== 参考文献
 
 + Shaw et al., 2018. *Self-Attention with Relative Position Representations.*\
 相对位置表示的经典工作。\

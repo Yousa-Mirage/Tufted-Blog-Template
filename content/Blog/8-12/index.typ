@@ -2,18 +2,22 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Agentic AI｜个人完整框架解读",
-  description: "Agentic AI｜个人完整框架解读",
-  date: datetime(year: 2026, month: 7, day: 20),
-  category: "数学与算法",
+  title: "Agentic AI（1）｜个人完整框架解读",
+  description: "从反射、工具使用、评估、规划和多智能体协作梳理 Agentic AI 的完整框架。",
+  date: datetime(year: 2026, month: 8, day: 12),
+  category: "实践与工具",
   lang: "zh",
 )
 
 
 = Agentic AI（1）｜个人完整框架解读
 
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 8, day: 12),
+  tags: ("Agentic AI", "框架"),
+)
+
 #line(length: 100%, stroke: 0.6pt)
-\#2026-8-12 \#Agent
 
 #tufted.margin-note[
 简单学习一点东西，浅浅的基础。祝食用愉快～🫠

@@ -2,16 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "深度学习｜无监督学习、推荐系统与强化学习",
-  description: "深度学习｜无监督学习、推荐系统与强化学习",
-  date: datetime(year: 2026, month: 7, day: 20),
+  title: "机器学习｜无监督学习、推荐系统与强化学习",
+  description: "整理聚类、异常检测、推荐系统与强化学习的核心概念和常见方法。",
+  date: datetime(year: 2026, month: 8, day: 6),
   category: "数学与算法",
   lang: "zh",
 )
 
 
-= 深度学习｜无监督学习、推荐系统与强化学习
-\#2026-8-6 \#深度学习
+= 机器学习｜无监督学习、推荐系统与强化学习
+
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 8, day: 6),
+  tags: ("机器学习", "学习笔记"),
+)
 
 #tufted.margin-note[
 要来台风了🌀，真让人惶恐。祝食用愉快～🫠

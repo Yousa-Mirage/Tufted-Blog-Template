@@ -2,19 +2,21 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "杂谈整理｜深度学习发展路径的MindMap",
-  description: "杂谈整理｜深度学习发展路径的MindMap",
+  title: "深度学习｜发展脉络与学习路线图",
+  description: "以路线图方式梳理传统机器学习、神经网络、CNN、Transformer 与生成模型的发展脉络。",
   date: datetime(year: 2026, month: 6, day: 18),
   category: "数学与算法",
   lang: "zh",
 )
 
 
+= 深度学习｜发展脉络与学习路线图
 
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 18),
+  tags: ("深度学习", "学习路线"),
+)
 
-= *杂谈整理｜深度学习发展路径的MindMap*
-
-\#2026-6-18 \#深度学习 \#整理 \#脉络
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -25,9 +27,9 @@
 #figure(caption: "深度学习")[
   #image("imgs/1.png", width: 40%)
 ]
-== *前引：机器学习*
+== 前引：机器学习
 
-=== *什么是机器学习*
+=== 什么是机器学习
 
 #quote[
   在深度学习出现之前，人类已经在研究如何让计算机"从数据中学习规律"这件事上探索了数十年。核心思想出奇地简单：我们收集了一堆*输入*（比如病人的年龄、血压、肿瘤大小）和对应的*输出*（比如是否复发），想要找到一个函数 $f$，让 $f("输入") approx "输出"$。这个寻找的过程，就叫*机器学习*。
@@ -40,7 +42,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *线性回归*
+=== 线性回归
 
 #quote[
   如果输出是一个连续数字（比如房价、肿瘤大小、血糖值），最简单的假设就是：输出和输入之间是*线性关系*。也就是说，所有输入特征加权求和，再加上一个偏置，就是预测值。
@@ -71,7 +73,7 @@ $ upright(bold(w)) = (X^T X)^(-1) X^T upright(bold(y)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *逻辑回归*
+=== 逻辑回归
 
 #quote[
   很多医学问题不是预测一个数值，而是*二选一*：良性/恶性，阳性/阴性，复发/未复发。线性回归直接输出一个范围无限的数字，不太适合表示概率。于是统计学家在1958年（没错，和感知机同一年）发明了一个巧妙的办法：把线性输出通过一个*S型函数*（Sigmoid）压缩到0和1之间，把它当作"概率"。
@@ -93,7 +95,7 @@ $ L = - 1/n sum_(i = 1)^n [y_i log(hat(y)_i) + (1 - y_i) log(1 - hat(y)_i)] $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *支持向量机（SVM）*
+=== 支持向量机（SVM）
 
 #quote[
   线性回归和逻辑回归都在试图画一条*分界线*把两类分开。但如果有无数条直线都能分开数据，哪一条才是最好的？直觉上，你应该选那条"离两边数据点都最远"的线——因为中间地带最宽，容错率最高，对新数据的泛化能力最强。
@@ -125,7 +127,7 @@ $ K(upright(bold(x))_i , upright(bold(x))_j) = exp(-gamma | | upright(bold(x))_i
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *决策树与随机森林*
+=== 决策树与随机森林
 
 #quote[
   线性模型和SVM都假设决策边界是某种光滑曲线（直线或超平面）。但现实世界的决策往往像*流程图*一样：先看年龄是否大于50，再看血压是否高于140，再看肿瘤标记物是否超标，一步步分支下去。决策树（Decision Tree）就是来干这个的。
@@ -162,7 +164,7 @@ $ H(D) = - sum_(k = 1)^K p_k log_2 p_k $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *梯度提升树*
+=== 梯度提升树
 
 #quote[
   如果说随机森林是"多个弱学习器并行投票"，那么梯度提升树（Gradient Boosting Decision Trees, GBDT）就是"多个弱学习器串行纠错"。核心思想极其精妙：第一个树做出一个粗糙预测，第二个树专门学习*第一个树的错误*，第三个树学习前两个树的残留错误，以此类推，最后把所有树的结果加起来，得到精准预测。
@@ -196,11 +198,11 @@ GBDT 的思想出现得很早，但2014年陈天奇的 *XGBoost* 和后来的 *L
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *无监督学习*
+=== 无监督学习
 
 不是所有数据都有标签。医生面对罕见病时，往往先遇到的困惑是："这些患者表现出来的症状五花八门，他们真的是同一种病吗？还是其实分成好几个亚型？" 这时候没有"标准答案"，你需要*无监督学习*来发现数据中隐藏的结构。
 
-==== *K-means 聚类："物以类聚"*
+==== K-means 聚类：“物以类聚”
 
 *公式*（K-means 目标函数）：
 
@@ -215,7 +217,7 @@ $ J = sum_(i = 1)^k sum_(upright(bold(x)) in C_i) | | upright(bold(x)) - bold(mu
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== *主成分分析（PCA）*
+==== 主成分分析（PCA）
 
 #quote[
   医学数据经常有几百个特征（基因表达、影像组学、生化指标），人脑无法直观想象。但是如果把数据投影到这些方向上，降到2D或3D，不就可以了吗？
@@ -241,7 +243,7 @@ PCA 在医学影像和组学中无处不在。比如把病理切片的成千上�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *传统机器学习的"阿喀琉斯之踵"*
+=== 传统机器学习的“阿喀琉斯之踵”
 
 #quote[
   传统机器学习在表格数据、小样本、需要强可解释性的场景下依然强大，但它有几个*结构性缺陷*，正是这些缺陷催生了深度学习：
@@ -268,9 +270,9 @@ PCA 在医学影像和组学中无处不在。比如把病理切片的成千上�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *一、感知机与神经网络*
+== 一、感知机与神经网络
 
-=== *1.1 感知机（1958年）*
+=== 1.1 感知机（1958 年）
 
 #quote[
   在深度学习还没有这个名字的时候，一位叫 Frank Rosenblatt 的心理学家从 neurons（神经元）中汲取了灵感，于是他造出了*感知机（Perceptron）*——世界上第一个能"学习"的机器。
@@ -295,7 +297,7 @@ $ hat(y) = "sign" (sum_(i = 1)^n w_i x_i + b) = "sign" (upright(bold(w))^T uprig
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *1.2 多层感知机（MLP）与反向传播（1986年）*
+=== 1.2 多层感知机（MLP）与反向传播（1986 年）
 
 #quote[
   为了能处理曲线分界，科学家们做了一件非常聪明的事：在中间加几个"传话层"（隐藏层）。每个隐藏层神经元先对输入做一次加权求和，再通过一个*非线性激活函数*（比如 Sigmoid）扭曲一下结果，再传给下一层。
@@ -339,7 +341,7 @@ $ (partial L)/(partial w_i) = (partial L)/(partial hat(y)) dot.op (partial hat(y
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *1.3 从 Sigmoid 到 ReLU*
+=== 1.3 从 Sigmoid 到 ReLU
 
 #quote[
   Sigmoid 在很长时间内都是默认选择，但它有一个致命的缺陷：当输入很大或很小时，Sigmoid 的输出几乎不再变化（饱和），导致梯度接近0。在反向传播中，接近0的梯度意味着难以继续往下传播信息。
@@ -357,9 +359,9 @@ $ f(z) = max(0, z) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *二、卷积神经网络（CNN）*
+== 二、卷积神经网络（CNN）
 
-=== *2.1 为什么MLP看不了图片？*
+=== 2.1 为什么 MLP 看不了图片？
 
 #quote[
   假设你有一张 1000×1000 像素的彩色照片。如果把它展平成一个向量输入给 MLP，输入维度是 $1000 times 1000 times 3 = 3, 000, 000$。如果第一层有1000个神经元，权重矩阵的大小就是 $3, 000, 000 times 1000 = 30$ 亿个参数。这在30年前，连超级计算机都吃不消。
@@ -373,7 +375,7 @@ $ f(z) = max(0, z) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *2.2 卷积*
+=== 2.2 卷积
 
 #quote[
   CNN（Convolutional Neural Network，卷积神经网络）引入了*卷积核（Kernel/Filter）* 的概念。卷积核是一个小矩阵（比如 $3 times 3$ 或 $5 times 5$），它在整张图像上滑动，每到一个位置就和当地的像素做 *逐元素相乘再相加*。
@@ -399,7 +401,7 @@ $ (I * K)(i, j) = sum_(m = 0)^(k - 1) sum_(n = 0)^(k - 1) I(i + m, j + n) dot.op
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *2.3 池化（Pooling）*
+=== 2.3 池化（Pooling）
 
 #quote[
   卷积之后通常会接一个*池化层*（通常是 Max Pooling）。池化也是一个滑动窗口，但操作更简单：在每个窗口内取最大值（或平均值）。
@@ -418,7 +420,7 @@ $ "MaxPool" (i, j) = max_(m, n in "window") I(i + m, j + n) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *2.4 从 LeNet 到 AlexNet 到 VGG*
+=== 2.4 从 LeNet 到 AlexNet 到 VGG
 
 - *LeNet（1998）*：Yann LeCun 设计，用于识别手写邮政编码。5层，几万个参数。它是CNN的"亚当和夏娃"。
 - *AlexNet（2012）*：Hinton 的学生 Alex Krizhevsky 设计，8层，6000万参数。在 ImageNet 图像分类竞赛上把错误率从 26.2% 降到 15.3%。*这是深度学习的" iPhone 时刻"*。关键改进：ReLU + Dropout + GPU训练。
@@ -426,9 +428,9 @@ $ "MaxPool" (i, j) = max_(m, n in "window") I(i + m, j + n) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *三、ResNet 与残差学习*
+== 三、ResNet 与残差学习
 
-=== *3.1 网络越深，效果越差？*
+=== 3.1 网络越深，效果越差？
 
 #quote[
   按照直觉，如果 8 层的 AlexNet 很好，那 80 层应该已经让人看了就“瘫倒在椅子上”了吧？
@@ -442,7 +444,7 @@ $ "MaxPool" (i, j) = max_(m, n in "window") I(i + m, j + n) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *3.2 残差学习*
+=== 3.2 残差学习
 
 #quote[
   2015年，何恺明（Kaiming He）等人提出了一个极其简单但违反直觉的想法：与其让网络学 $H(x)$，不如让它学 *$F(x) = H(x) - x$*，也就是*输入和输出之间的残差（Residual）*。然后输出变成：
@@ -468,16 +470,16 @@ $ upright(bold(y)) = cal(F) (upright(bold(x)) , {W_i}) + upright(bold(x)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *3.3 ResNet 的成就*
+=== 3.3 ResNet 的成就
 
 - ResNet 最深做到了 *152 层*（甚至后来有 1000+ 层的实验版），并在 ImageNet 上碾压了所有对手。
 - ResNet 后来成为计算机视觉的默认骨架。从检测、分割到病理图像分析，ResNet 及其变体（DenseNet、ResNeXt 等）统治了视觉领域很多年，直到 Vision Transformer（ViT）出现。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *四、RNN、LSTM 与 Seq2Seq*
+== 四、RNN、LSTM 与 Seq2Seq
 
-=== *4.1 为什么CNN处理不了序列？*
+=== 4.1 为什么 CNN 处理不了序列？
 
 - 图像有空间结构，但*语言、股票、DNA、心电图*有的是时间或顺序结构。它们的特点是：
   - 长度不固定（一句话可以3个字，也可以300个字）
@@ -490,7 +492,7 @@ $ upright(bold(y)) = cal(F) (upright(bold(x)) , {W_i}) + upright(bold(x)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *4.2 RNN*
+=== 4.2 RNN
 
 #quote[
   RNN（Recurrent Neural Network）引入了一个核心概念：*隐藏状态（Hidden State）*。
@@ -514,7 +516,7 @@ $ o_t = W_(h o) h_t + b_o $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *4.3 长程依赖与梯度消失（再次）*
+=== 4.3 长程依赖与梯度消失（再次）
 
 #quote[
   RNN 在理论上能记住任意远的过去，但实践中，当序列较长时（比如100个词），反向传播经过100步的连乘，梯度会指数级衰减或爆炸。这意味着*RNN 实际上只能记住最近几个时间步的内容*，早期的信息几乎无法影响现在的决策。
@@ -528,7 +530,7 @@ GRU（Gated Recurrent Unit）是 LSTM 的简化版，合并了部分门，效果
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *4.4 Seq2Seq*
+=== 4.4 Seq2Seq
 
 #quote[
   RNN/LSTM 解决了一个序列的处理问题，但机器翻译需要*两个序列*：输入一句法语，输出一句英语。于是出现了 *Seq2Seq（Sequence-to-Sequence）* 架构：
@@ -544,9 +546,9 @@ GRU（Gated Recurrent Unit）是 LSTM 的简化版，合并了部分门，效果
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *五、注意力机制*
+== 五、注意力机制
 
-=== *5.1 注意力机制的直觉*
+=== 5.1 注意力机制的直觉
 
 #quote[
   我们知道，人类阅读时，眼睛不会均匀扫过每一个字。读到"猫坐在\_\_\_上"时，你会在"垫子"、"椅子"、"键盘"几个词上多停留一会儿；读到不重要的虚词时，你会快速略过。
@@ -556,7 +558,7 @@ GRU（Gated Recurrent Unit）是 LSTM 的简化版，合并了部分门，效果
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *5.2 注意力在 Seq2Seq 中的首次登场（2014）*
+=== 5.2 注意力在 Seq2Seq 中的首次登场（2014）
 
 #quote[
   Dzmitry Bahdanau 等人提出：解码器在生成每个输出词时，不应该只盯着那个固定的上下文向量，而应该*回头去看编码器的所有隐藏状态*，并决定"此刻我最需要关注输入的哪些部分"。
@@ -583,7 +585,7 @@ $ "score" (s_t , h_i) = v_a^T tanh(W_s s_t + W_h h_i) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *5.3 自注意力（Self-Attention）*
+=== 5.3 自注意力（Self-Attention）
 
 #quote[
   传统的注意力发生在*编码器和解码器之间*（Cross-Attention）。但很快研究者发现：为什么不把注意力用在*输入序列内部*？让句子中的每个词都去"看看"其他词，并根据语义相关性决定"我应该多关注谁"。
@@ -595,9 +597,9 @@ _*你们知道，它终于要出场了对吧？*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *六：Transformer*
+== 六：Transformer
 
-=== *6.1 2017年：《Attention Is All You Need》*
+=== 6.1 2017 年：《Attention Is All You Need》
 
 #quote[
   Google Brain 的研究员们在2017年扔出了一篇论文，标题极其嚣张："注意力就是你所需要的一切"。他们提出了 *Transformer*，一个*完全抛弃 RNN 和 CNN*，纯粹用注意力机制来处理序列的架构。
@@ -609,7 +611,7 @@ _*但 Transformer 做到了。它不仅在机器翻译上碾压了当时的 SOTA
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.2 Scaled Dot-Product Self-Attention*
+=== 6.2 Scaled Dot-Product Self-Attention
 
 #quote[
   Transformer 的核心是自注意力层。它的工作方式比 Seq2Seq 的注意力更简洁、更强大。
@@ -633,7 +635,7 @@ $ "Attention" (Q, K, V) = "softmax" ((Q K^T)/sqrt(d_k)) V $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.3 多头注意力（Multi-Head Attention）*
+=== 6.3 多头注意力（Multi-Head Attention）
 
 #quote[
   单一的注意力机制可能只能捕获一种关系。比如一个词只能问"谁和我是主谓关系？"。但语言中有多重关系：主谓、动宾、修饰、指代、共指等等。
@@ -652,7 +654,7 @@ $ "head"_i = "Attention" (Q W_i^Q , K W_i^K , V W_i^V) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.4 位置编码（Positional Encoding）*
+=== 6.4 位置编码（Positional Encoding）
 
 #quote[
   RNN 天然知道顺序，因为它一步一步读内容。但是Transformer 一次性看所有词，*对位置不敏感*。"我爱你"和"你爱我"对它来说，如果词向量相同，初始计算结果完全一样！
@@ -676,7 +678,7 @@ $ P E_((p o s, 2 i + 1)) = cos((p o s)/(10000^(2 i \/ d_(m o d e l)))) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.5 Transformer 的整体架构：编码器-解码器*
+=== 6.5 Transformer 的整体架构：编码器-解码器
 
 - Transformer 论文最初是为机器翻译设计的，包含左右两部分：
   - *Encoder（左）*：由 $N$ 个相同的层堆叠，每层有 Multi-Head Self-Attention + Feed-Forward Network。只处理输入序列。
@@ -694,9 +696,9 @@ $ "LayerNorm" (x) = gamma dot.circle (x - mu)/sqrt(sigma^2 + epsilon.alt) + beta
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *七、预训练与大模型*
+== 七、预训练与大模型
 
-=== *7.1 监督学习的瓶颈*
+=== 7.1 监督学习的瓶颈
 
 #quote[
   Transformer 出来后，大家最初还是用它做监督学习：收集几万对"英法翻译句对"，训练模型。但标注数据太贵了。一个医学专家标注一份病历可能要30分钟，一台GPU训练一天要几百美元。而类比人类幼崽学语言，只需要*听和读*，不需要父母逐字逐句地"标注"哪句是正确翻译。
@@ -710,7 +712,7 @@ $ "LayerNorm" (x) = gamma dot.circle (x - mu)/sqrt(sigma^2 + epsilon.alt) + beta
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *7.2 BERT：双向编码器表征（2018）*
+=== 7.2 BERT：双向编码器表征（2018）
 
 #quote[
   Google 的 BERT（Bidirectional Encoder Representations from Transformers）是 Transformer Encoder 的纯熟运用。
@@ -737,7 +739,7 @@ $ cal(L)_"MLM" = - EE_(x ~ cal(D)) med log P(x_"masked" divides x_"context") $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *7.3 GPT：生成式预训练（2018-2020）*
+=== 7.3 GPT：生成式预训练（2018-2020）
 
 #quote[
   OpenAI 走了另一条路。他们没有用双向Encoder，而是用了*Transformer Decoder*（只保留Masked Self-Attention，去掉Cross-Attention）。
@@ -763,7 +765,7 @@ $ cal(L)_"AR" = - sum_(t = 1)^T log P(x_t divides x_(< t) ; theta) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *7.4 涌现能力（Emergent Abilities）与 Scaling Laws*
+=== 7.4 涌现能力（Emergent Abilities）与 Scaling Laws
 
 #quote[
   当模型参数从百万级推到十亿、百亿、千亿级时，研究者发现了一件神奇的事：*模型不是线性变强，而是在某个规模阈值后突然"开窍"*。
@@ -785,9 +787,9 @@ $ L(N) = ((N_c)/N)^(alpha_N) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *八、多模态与通用人工智能的雏形*
+== 八、多模态与通用人工智能的雏形
 
-=== *8.1 Vision Transformer（ViT）（2020）*
+=== 8.1 Vision Transformer（ViT）（2020）
 
 #quote[
   CNN 在图像界统治了8年，直到 Google 的研究者问了一个问题：既然 Transformer 在文本上这么强，为什么不直接用它处理图像？
@@ -810,7 +812,7 @@ $ z_0 = [x_"class" ; x_p^1 E ; x_p^2 E ; ... ; x_p^N E] + E_"pos" $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *8.2 CLIP（2021）*
+=== 8.2 CLIP（2021）
 
 #quote[
   OpenAI 的 CLIP（Contrastive Language-Image Pre-training）做了一件更疯狂的事：它同时训练一个图像编码器（ViT）和一个文本编码器（Transformer），让它们在*同一个向量空间*里对齐。
@@ -834,7 +836,7 @@ $ cal(L) = - 1/N sum_(i = 1)^N [log (exp(f_I (x_i^I) dot.op f_T (x_i^T) \/ tau))
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *8.3 大模型时代：从 GPT-3 到 GPT-4 到多模态 AGI*
+=== 8.3 大模型时代：从 GPT-3 到 GPT-4 到多模态 AGI
 
 - 2022-2024年，大模型经历了爆炸式发展：
   - *ChatGPT（2022）*：基于 GPT-3.5，用 RLHF（人类反馈强化学习）训练，让模型学会"说人话"、遵循指令、拒绝有害请求。
@@ -854,7 +856,7 @@ $ cal(L)_"PPO" = EE_((x, y) ~ pi_(theta_"old")) [min(r_t (theta) hat(A)_t , med 
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 - 让我们以暂且生物医疗发展为主题，把整条脉络用一张图串起来：
 
@@ -948,7 +950,7 @@ $ cal(L)_"PPO" = EE_((x, y) ~ pi_(theta_"old")) [min(r_t (theta) hat(A)_t , med 
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *核心主线*
+=== 核心主线
 
 #quote[
   于是我们可以发现深度学习的发展伴随着几个常见的话题：
@@ -961,7 +963,7 @@ $ cal(L)_"PPO" = EE_((x, y) ~ pi_(theta_"old")) [min(r_t (theta) hat(A)_t , med 
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   *写在最后*：笔者慢慢整理资料整理了蛮久的，一直想做这次的内容，之后还会再慢慢消化，里面很多内容笔者自己也需要在细细考虑，目前做出来的目的是为了梳理清楚整个领域的脉络，如果有帮助到你，那真是太好了。当然，深度学习这个故事还没有结束。我们发现：今天的模型依然不知道"自己知道什么"（缺乏可靠的不确定性估计），依然在幻觉（hallucination），依然没有真正的因果推理和世界模型。但回看这条从感知机到大模型的发展脉络，所以说我们有理由相信：下一个 breakthrough，可能就藏在某个现在还看似疯狂的 idea 里。让我们打破第四面墙来发问：哈哈哈哈，*你会成为那个“弗兰肯斯坦”吗？* 👽
@@ -969,6 +971,6 @@ $ cal(L)_"PPO" = EE_((x, y) ~ pi_(theta_"old")) [min(r_t (theta) hat(A)_t , med 
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *参考文献*
+== 参考文献
 
 没有统计文献，依靠搜索的相关资料拼凑的～

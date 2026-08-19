@@ -4,16 +4,20 @@
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
   title: "Transformer｜架构演进（4）：Position Encoding 系统（1）——理解绝对位置编码",
-  description: "Transformer｜架构演进（4）：Position Encoding 系统（1）——理解绝对位置编码",
+  description: "从序列顺序问题出发，理解绝对位置编码的必要性、实现与局限。",
   date: datetime(year: 2026, month: 6, day: 10),
   category: "数学与算法",
   lang: "zh",
 )
 
 
-= *Transformer｜架构演进（4）：Position Encoding 系统（1）——理解绝对位置编码*
+= Transformer｜架构演进（4）：Position Encoding 系统（1）——理解绝对位置编码
 
-\#2026-6-10 \#transformer \#PositionEmbedding
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 10),
+  tags: ("Transformer", "位置编码"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -23,7 +27,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *导言*
+== 导言
 #figure(caption: "正弦编码")[
   #image("imgs/1.png", width: 40%)
 ]
@@ -52,7 +56,7 @@ Self-Attention 本身并不天然知道顺序。如果不额外注入位置信�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Position Encoding 的几大路线*
+== Position Encoding 的几大路线
 
 在正式讲绝对位置编码之前，先给出一张整体地图。
 
@@ -60,7 +64,7 @@ Self-Attention 本身并不天然知道顺序。如果不额外注入位置信�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *绝对位置编码*
+=== 绝对位置编码
 
 这是最早、最直观的路线。
 
@@ -77,7 +81,7 @@ Self-Attention 本身并不天然知道顺序。如果不额外注入位置信�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *相对位置编码*
+=== 相对位置编码
 
 绝对位置编码告诉模型：这个 token 在第几个位置。
 
@@ -93,7 +97,7 @@ Self-Attention 本身并不天然知道顺序。如果不额外注入位置信�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *RoPE*
+=== RoPE
 
 RoPE 是现代 LLM 中最重要的位置编码之一。
 
@@ -106,7 +110,7 @@ RoPE 是现代 LLM 中最重要的位置编码之一。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Attention Bias*
+=== Attention Bias
 
 还有一类方法不显式给 hidden state 添加位置向量，直接给 attention score 加上位置偏置。代表方法是 ALiBi。
 
@@ -116,7 +120,7 @@ ALiBi在 attention score 里加一个和距离成比例的线性惩罚。距离�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *长上下文 RoPE Scaling*
+=== 长上下文 RoPE Scaling
 
 #quote[
   现代长上下文模型中，RoPE 仍然很主流。但原始 RoPE 在训练长度之外会遇到外推问题。
@@ -134,7 +138,7 @@ ALiBi在 attention score 里加一个和距离成比例的线性惩罚。距离�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Position Encoding的必要性*
+== Position Encoding 的必要性
 
 要理解位置编码，先要理解一个事实：
 
@@ -170,7 +174,7 @@ $ "Attention" (X)
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *绝对位置编码的基本思想*
+== 绝对位置编码的基本思想
 
 #quote[
   绝对位置编码是最直观的一类方法。
@@ -212,7 +216,7 @@ $ x_"巴黎 at pos 10" = e_"巴黎" + p_10 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *相加or拼接？*
+=== 相加 or 拼接？
 
 #quote[
   一个自然问题是：为什么位置向量要和 token embedding 相加，而不是拼接？
@@ -235,7 +239,7 @@ $ x_i = [e_i ; p_i] $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Sinusoidal Positional Encoding*
+== Sinusoidal Positional Encoding
 
 2017 年的 *Attention Is All You Need* 使用的是固定正弦位置编码。
 
@@ -259,13 +263,13 @@ $ P E(p o s, 2 i + 1) = cos((p o s)/(10000^(2 i \/ d_(m o d e l)))) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *构造流程*
+=== 构造流程
 
 可以把正弦位置编码的构造过程拆成四步。
 #figure(caption: "前50个位置在不同 embedding 维度上的正弦位置编码值")[
   #image("imgs/2.png", width: 40%)
 ]
-==== *1. 先确定最大长度和 hidden size*
+==== 1. 先确定最大长度和 hidden size
 
 假设模型最大长度是 $L$，hidden size 是 $d$。
 
@@ -275,7 +279,7 @@ $ P in RR^(L times d) $
 
 其中第 $p o s$ 行就是位置 $p o s$ 的位置向量。
 
-==== *2. 每个位置都要生成一个 $d$ 维向量*
+==== 2. 每个位置都要生成一个 $d$ 维向量
 
 对于每个位置：
 
@@ -285,7 +289,7 @@ $ p o s = 0, 1, 2, ..., L - 1 $
 
 $ P E(p o s) in RR^d $
 
-==== *3. 每两个维度使用一组 sin/cos*
+==== 3. 每两个维度使用一组 sin/cos
 
 第 $2 i$ 维使用 sine：
 
@@ -299,7 +303,7 @@ $ P E(p o s, 2 i + 1) = cos(p o s dot.op omega_i) $
 
 $ omega_i = 10000^(-2 i \/ d) $
 
-==== *4. 把位置向量加到 token embedding 上*
+==== 4. 把位置向量加到 token embedding 上
 
 如果 token embedding 是：
 
@@ -317,7 +321,7 @@ $ x_(p o s) = e_(p o s) + p_(p o s) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *不同频率？*
+=== 不同频率？
 
 #quote[
   如果只用一种频率，位置编码会很容易出现周期性混淆。
@@ -348,7 +352,7 @@ $ sin(p o s) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *相对偏移*
+=== 相对偏移
 
 #quote[
   只用 sine 也能表示周期变化，为什么还要 cosine？
@@ -393,7 +397,7 @@ _*这也是后来 RoPE 的思想来源之一。RoPE 更进一步，不是把 sin
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *从傅立叶视角理解正弦位置编码*
+=== 从傅立叶视角理解正弦位置编码
 
 正弦位置编码也可以从傅立叶特征的角度理解。
 
@@ -407,7 +411,7 @@ $ p o s |-> [sin(p o s omega_1), cos(p o s omega_1), ..., sin(p o s omega_m), co
 
 这种映射有几个好处。
 
-==== *1. 把一维位置映射到高维周期特征*
+==== 1. 把一维位置映射到高维周期特征
 
 原始位置只是一个整数：
 
@@ -417,7 +421,7 @@ $ p o s = 17 $
 
 傅立叶特征把它展开成多个频率下的响应。模型可以通过后续线性层组合这些频率，学习复杂的位置模式。
 
-==== *2. 多尺度表示*
+==== 2. 多尺度表示
 
 不同频率对应不同尺度。
 
@@ -425,7 +429,7 @@ $ p o s = 17 $
 
 这和傅立叶表示中“高频表示细节，低频表示整体结构”的直觉一致。
 
-==== *3. 有利于外推*
+==== 3. 有利于外推
 
 因为正弦位置编码是函数形式，不是有限参数表。只要给定任意位置 $p o s$，都可以计算：
 
@@ -443,7 +447,7 @@ $ P E(p o s) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *为什么底数是 10000？*
+=== 为什么底数是 10000？
 
 原始 Transformer 里使用的是：
 
@@ -475,7 +479,7 @@ _*这说明位置编码里的频率范围，其实是长上下文能力的一个
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Learned Absolute Position Embedding*
+== Learned Absolute Position Embedding
 
 #quote[
   后来很多模型没有使用固定正弦函数，而是直接学习一个位置 embedding table。
@@ -509,7 +513,7 @@ GPT-2 使用 learned position embedding，在固定上下文窗口内也表现�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Learned Position Embedding 的 forward 过程*
+=== Learned Position Embedding 的 forward 过程
 
 #quote[
   既然这是一个可学习参数，那么你是否好奇它在整个模型的训练过程中是怎么被训练的呢？往下看，先看forward过程。
@@ -545,7 +549,7 @@ $ x_4 = e_4 + p_4 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Learned Position Embedding 的 backward 过程*
+=== Learned Position Embedding 的 backward 过程
 
 训练时，loss 会对输入向量 $x_(p o s)$ 产生梯度：
 
@@ -567,7 +571,7 @@ $ (partial L)/(partial p_(p o s)) + = (partial L)/(partial x_(p o s)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *位置向量会被哪些信号更新？*
+=== 位置向量会被哪些信号更新？
 
 以 causal LM 为例，假设训练句子是：
 
@@ -600,7 +604,7 @@ $ (partial L)/(partial p_(p o s)) + = (partial L)/(partial x_(p o s)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Learned Absolute 在训练长度以内的效果*
+=== Learned Absolute 在训练长度以内的效果
 
 Learned position embedding 的优势是灵活。
 
@@ -618,7 +622,7 @@ $ p_0 , p_1 , ..., p_511 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *正弦编码和 Learned 编码的对比*
+=== 正弦编码和 Learned 编码的对比
 
 可以从几个维度比较这两种绝对位置编码。
 
@@ -631,7 +635,7 @@ $ p_0 , p_1 , ..., p_511 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *绝对位置编码在 Encoder 和 Decoder 中的不同表现*
+== 绝对位置编码在 Encoder 和 Decoder 中的不同表现
 
 #quote[
   绝对位置编码在 encoder-only 和 decoder-only 模型中有不同特点。
@@ -639,7 +643,7 @@ $ p_0 , p_1 , ..., p_511 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Encoder-only 模型*
+=== Encoder-only 模型
 
 BERT 这类 encoder-only 模型通常使用双向 attention。输入长度相对固定，很多任务也在 512 token 内完成。
 
@@ -647,7 +651,7 @@ BERT 这类 encoder-only 模型通常使用双向 attention。输入长度相对
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Decoder-only 模型*
+=== Decoder-only 模型
 
 GPT 类 decoder-only 模型是自回归生成。它每次根据前文预测下一个 token。
 
@@ -661,7 +665,7 @@ GPT 类 decoder-only 模型是自回归生成。它每次根据前文预测下�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *绝对位置编码为什么会被后续方法取代？*
+== 绝对位置编码为什么会被后续方法取代？
 
 绝对位置编码解决了 Transformer 的第一个问题：没有顺序感。但它没有很好解决第二个问题：如何建模 token 之间的相对距离。
 
@@ -679,7 +683,7 @@ GPT 类 decoder-only 模型是自回归生成。它每次根据前文预测下�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *从绝对位置到现代长上下文*
+== 从绝对位置到现代长上下文
 
 - 可以把位置编码的演化理解成这样：
   - 首先，原始 Transformer 用正弦绝对位置编码解决“Transformer 不知道顺序”的问题。
@@ -694,7 +698,7 @@ GPT 类 decoder-only 模型是自回归生成。它每次根据前文预测下�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 绝对位置编码是 Transformer 位置建模的起点。它的基本思想非常简单：给每个位置一个位置向量，然后和 token embedding 相加。
 
@@ -710,7 +714,7 @@ GPT 类 decoder-only 模型是自回归生成。它每次根据前文预测下�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   这里是位置编码的第一部分，简单介绍了一下比较有代表性的2种编码方式，后续会聚焦于更加常用的方法。虽然这里绝对位置编码看起来已经较为落后，但是他的编码方式在一些特定领域的任务上还是展现出一定的效果，以巧妙的方式与应用场景结合。
@@ -718,7 +722,7 @@ GPT 类 decoder-only 模型是自回归生成。它每次根据前文预测下�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *参考文献与延伸阅读*
+== 参考文献与延伸阅读
 
 + Vaswani et al., 2017. *Attention Is All You Need.*\
 原始 Transformer 论文，提出 sinusoidal positional encoding。\

@@ -2,19 +2,23 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "流匹配｜个人理解记录",
-  description: "流匹配｜个人理解记录",
-  date: datetime(year: 2026, month: 7, day: 20),
+  title: "流匹配｜原理与个人理解",
+  description: "整理 Flow Matching 的基本原理、训练目标及其与扩散模型的联系。",
+  date: datetime(year: 2026, month: 7, day: 29),
   category: "数学与算法",
   lang: "zh",
 )
 
-= *流匹配｜个人理解记录*
+= 流匹配｜原理与个人理解
 
-\#2026-7-29 \#流匹配 \#记录
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 7, day: 29),
+  tags: ("流匹配", "生成模型"),
+)
+
 
 #tufted.margin-note[
-  本篇基于ICML-2026的一些关于流匹配的分享slides做的，看下来大致理解了Fow Matching的一些原理，不过数学内容涉及的比较深，之后按需求去学习就好了，现在先有一个体系的认知就可以了。祝食用愉快～😋
+  本篇基于ICML-2026的一些关于流匹配的分享slides做的，看下来大致理解了Flow Matching的一些原理，不过数学内容涉及的比较深，之后按需求去学习就好了，现在先有一个体系的认知就可以了。祝食用愉快～😋
 ]
 
 #line(length: 100%, stroke: 0.6pt)
@@ -23,7 +27,7 @@
   #image("imgs/1.png", width: 40%)
 ]
 
-== *引言：基本定义*
+== 引言：基本定义
 
 *连续归一化流与速度场*
 
@@ -49,7 +53,7 @@ $ x_t = (1 - t) x_0 + t x_1 , wide x_0 ~ p_0 , thick x_1 ~ hat(p)_"data" . $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Memorization*
+== Memorization
 
 *流匹配的优化目标*
 
@@ -101,9 +105,9 @@ $ lambda_i (x, t) = op("softmax")_i (-(norm(t x^((i)) - x)^2)/(2(1 - t)^2)) . $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Creativity*
+== Creativity
 
-=== *平移等变性*
+=== 平移等变性
 
 *平移等变约束*
 
@@ -129,7 +133,7 @@ $ hat(u)_"Eq"^"*" (x, t) = sum_(i = 1)^n sum_(T in cal(T)^(2 D)) lambda_(i, T) (
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *局域性与维纳滤波*
+== 局域性与维纳滤波
 
 *局域感受野约束*
 
@@ -171,7 +175,7 @@ $ W_t = U op("diag")(((1 - t) - t lambda_i^2)/((1 - t)^2 + t^2 lambda_i^2)) U^to
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *思考问题*
+== 思考问题
 
 *架构与优化的交互*
 
@@ -187,13 +191,13 @@ $ W_t = U op("diag")(((1 - t) - t lambda_i^2)/((1 - t)^2 + t^2 lambda_i^2)) U^to
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 流匹配在*无约束*时的最优解会整图照搬训练样本；我们引入卷积的*平移等变性*再叠加*局域性*，权重从整图标量变成逐像素向量，再用*维纳滤波*让掩码由数据协方差自适应生成，实证上，这套闭式解与真实小型网络高度吻合，反过来坐实了这套解释。剩下的开放问题，大多围绕架构、规模与条件引导这三股力量如何重新定义记忆与泛化的边界。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   老早就说着想赶紧看完了，这下终于～，里面有些具体的数学部分我没看的特别细，主要是先理解了这里的过程，毕竟干什么活拿什么工具，这把工具现在用不太上，我先寄存着，但这也总比把工具放在商店好。买来了总归是自己的😌
@@ -201,6 +205,6 @@ $ W_t = U op("diag")(((1 - t) - t lambda_i^2)/((1 - t)^2 + t^2 lambda_i^2)) U^to
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *参考*
+== 参考
 
 - ICML2026 Flow Matching Shared Slides

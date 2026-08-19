@@ -1,3 +1,22 @@
+/// Renders a compact metadata row below an article title.
+#let post-meta(date: datetime, tags: ()) = {
+  let date-display = date.display()
+
+  html.div(
+    class: "post-meta",
+    {
+      html.elem(
+        "time",
+        attrs: (datetime: date-display),
+        date-display,
+      )
+      for tag in tags {
+        html.span(class: "post-meta-tag", tag)
+      }
+    },
+  )
+}
+
 /// Renders a blog index entry with a date column and linked title.
 ///
 /// The `date` argument may be either a `datetime` value or preformatted

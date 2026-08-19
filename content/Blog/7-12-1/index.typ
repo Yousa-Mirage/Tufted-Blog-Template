@@ -4,8 +4,8 @@
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
   title: "Diffusion｜DDPM & DDIM 从加噪到采样的完整推导",
-  description: "Diffusion｜DDPM & DDIM 从加噪到采样的完整推导",
-  date: datetime(year: 2026, month: 7, day: 10),
+  description: "完整推导 DDPM 的前向加噪、反向去噪与 DDIM 采样过程。",
+  date: datetime(year: 2026, month: 7, day: 12),
   category: "数学与算法",
   lang: "zh",
 )
@@ -15,23 +15,27 @@
 #let post = $"post"$
 #let const = $"const"$
 
-= *Diffusion｜DDPM & DDIM 从加噪到采样的完整推导*
+= Diffusion｜DDPM & DDIM 从加噪到采样的完整推导
 
-\#2026-7-12 \#DDPM \#DDIM \#Diffusion \#推导
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 7, day: 12),
+  tags: ("Diffusion", "数学推导"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 
 #tufted.margin-note[
   *阅读提示：* 这里是学习DDPM和DDIM非常重要的理解推导过程，有助于之后按照这个范式去学习的Flow Matching，因为思想是基于这种扩散来做的，不过引入了向量场去计算这里的降噪直线的性质和速度，也是我在理解流匹配出现问题时打算回到最开始的原理去学习一下这样，可能涉及到一些概率论的知识，包括先验和后验以及Bayes以及Markov的内容，可能有点困难，但是好好理解也还好。祝食用愉快～🪣
 ]
-== *1 问题设定与符号*
+== 1 问题设定与符号
 
 扩散模型把数据生成写成「先逐步加噪，再学习去噪」。
 
 - *前向（加噪）*：人为定义、完全已知的马尔可夫链
 - *反向（去噪 / 采样）*：需要学习，因为不知道如何从纯噪声一步步回到数据分布
 
-=== *常用符号*
+=== 常用符号
 
 #table(
   columns: (auto, 1fr),
@@ -64,15 +68,15 @@ $ macron(alpha)_t = product_(s = 1)^t alpha_s $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *2 前向过程*
+== 2 前向过程
 
-=== *2.1 单步加噪*
+=== 2.1 单步加噪
 
 $ q(x_t | x_(t - 1)) = cal(N)(x_t\; sqrt(alpha_t)\, x_(t - 1),\, beta_t I) $
 
 含义：在 $x_(t - 1)$ 上按比例 $sqrt(alpha_t)$ 缩小信号，再加方差为 $beta_t$ 的高斯噪声。
 
-=== *2.2 从 $x_0$ 一步跳到任意 $t$（边缘分布，闭式）*
+=== 2.2 从 $x_0$ 一步跳到任意 $t$（边缘分布，闭式）
 
 反复代入单步公式，并用高斯的可加性，得到：
 
@@ -88,7 +92,7 @@ $ q(x_(t - 1) | x_0) = cal(N)(x_(t - 1)\; sqrt(macron(alpha)_(t - 1))\, x_0,\, (
 
 *这一点极其重要*：不必真的走 $t$ 步，只要有 $x_0$ 和 $t$，就能直接采样 $x_t$。训练时也是这样构造输入的。
 
-=== *2.3 由 $x_t$ 反解 $x_0$（代数闭式）*
+=== 2.3 由 $x_t$ 反解 $x_0$（代数闭式）
 
 把边缘公式变形：
 
@@ -101,7 +105,7 @@ $ x_0 = (x_t - sqrt(1 - macron(alpha)_t)\, epsilon) / sqrt(macron(alpha)_t) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *3 反向的核心目标*
+== 3 反向的核心目标
 
 生成时的处境：
 
@@ -129,9 +133,9 @@ x0  --------►  x_{t-1}  --------►  x_t
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *4 Bayes 分解*
+== 4 Bayes 分解
 
-=== *4.1 问题：想要的分布不能直接抄*
+=== 4.1 问题：想要的分布不能直接抄
 
 前向模型直接给出的是：
 
@@ -141,7 +145,7 @@ x0  --------►  x_{t-1}  --------►  x_t
 *没有*直接给出 $q(x_(t - 1) | x_t, x_0)$。 \
 所以需要用概率定义，把「难写的反向量」用「已知的前向量」表达出来。
 
-=== *4.2 Bayes 公式（一般形式）*
+=== 4.2 Bayes 公式（一般形式）
 
 对任意随机变量 $A, B, C$：
 
@@ -153,7 +157,7 @@ $ q(A | B, C) = (q(B | A, C)\, q(A | C)) / (q(B | C)) $
 
 $ q(x_(t - 1) | x_t, x_0) = (q(x_t | x_(t - 1), x_0)\, q(x_(t - 1) | x_0)) / (q(x_t | x_0)) $
 
-=== *4.3 Markov 性质带来的简化*
+=== 4.3 Markov 性质带来的简化
 
 前向被定义成马尔可夫链：
 
@@ -169,7 +173,7 @@ $ q(x_t | x_(t - 1), x_0) = q(x_t | x_(t - 1)) $
 
 $ q(x_(t - 1) | x_t, x_0) = (q(x_t | x_(t - 1))\, q(x_(t - 1) | x_0)) / (q(x_t | x_0)) $
 
-=== *4.4 分解后三项的角色*
+=== 4.4 分解后三项的角色
 
 关于 $x_(t - 1)$ 的依赖可以读成：
 
@@ -181,7 +185,7 @@ $ q(x_(t - 1) | x_t, x_0) prop q(x_t | x_(t - 1)) times q(x_(t - 1) | x_0) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *5 条件后验的闭式推导*
+== 5 条件后验的闭式推导
 
 目标：求出
 
@@ -189,7 +193,7 @@ $ q(x_(t - 1) | x_t, x_0) = cal(N)(x_(t - 1)\; tilde(mu)_t (x_t, x_0),\, tilde(b
 
 中的均值 $tilde(mu)_t$ 与方差 $tilde(beta)_t$。
 
-=== *5.1 为何后验仍是高斯*
+=== 5.1 为何后验仍是高斯
 
 右边出现的三个分布都是高斯：
 
@@ -207,7 +211,7 @@ $ q(x_(t - 1) | x_t, x_0) = cal(N)(x_(t - 1)\; tilde(mu)_t (x_t, x_0),\, tilde(b
 两个关于 $x_(t - 1)$ 的高斯因子相乘（log 密度相加 = 二次型相加），结果仍是高斯。 \
 因此后验必为高斯，只需确定 $tilde(mu)_t$ 与 $tilde(beta)_t$。
 
-=== *5.2 用精度加权求后验*
+=== 5.2 用精度加权求后验
 
 把 $x_(t - 1)$ 记为 $y$（多维时各坐标独立，一维推导即可推广）。
 
@@ -241,7 +245,7 @@ $ mu_1 = (x_t)/sqrt(alpha_t), quad sigma_1^2 = (beta_t)/(alpha_t) $
 
 $ mu_2 = sqrt(macron(alpha)_(t - 1))\, x_0, quad sigma_2^2 = 1 - macron(alpha)_(t - 1) $
 
-=== *5.3 计算后验方差 $tilde(beta)_t$*
+=== 5.3 计算后验方差 $tilde(beta)_t$
 
 $ 1/(tilde(beta)_t) = (alpha_t)/(beta_t) + 1/(1 - macron(alpha)_(t - 1)) = (alpha_t (1 - macron(alpha)_(t - 1)) + beta_t)/(beta_t (1 - macron(alpha)_(t - 1))) $
 
@@ -259,7 +263,7 @@ $ tilde(beta)_t = (1 - macron(alpha)_(t - 1))/(1 - macron(alpha)_t)\, beta_t $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *5.4 计算后验均值 $tilde(mu)_t$*
+=== 5.4 计算后验均值 $tilde(mu)_t$
 
 $ tilde(mu)_t = tilde(beta)_t (sqrt(alpha_t)/(beta_t)\, x_t + sqrt(macron(alpha)_(t - 1))/(1 - macron(alpha)_(t - 1))\, x_0) $
 
@@ -281,7 +285,7 @@ $ tilde(beta)_t dot sqrt(macron(alpha)_(t - 1))/(1 - macron(alpha)_(t - 1)) = (b
 
 $ tilde(mu)_t (x_t, x_0) = (sqrt(macron(alpha)_(t - 1))\, beta_t)/(1 - macron(alpha)_t)\, x_0 + (sqrt(alpha_t)\, (1 - macron(alpha)_(t - 1)))/(1 - macron(alpha)_t)\, x_t $
 
-=== *5.5 汇总：有真 $x_0$ 时的精确后验*
+=== 5.5 汇总：有真 $x_0$ 时的精确后验
 
 $ q(x_(t - 1) | x_t, x_0) = cal(N)(x_(t - 1)\; tilde(mu)_t (x_t, x_0),\, tilde(beta)_t I) $
 
@@ -295,7 +299,7 @@ $ tilde(beta)_t = (1 - macron(alpha)_(t - 1))/(1 - macron(alpha)_t)\, beta_t $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *6 后验均值与方差的含义*
+== 6 后验均值与方差的含义
 
 把 $tilde(mu)_t$ 想成：
 
@@ -312,9 +316,9 @@ $tilde(beta)_t$ 则是这座「桥」上中间点的剩余方差：两端钉死�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *7 真实采样：用估计的 x0 代替真 x0*
+== 7 真实采样：用估计的 x0 代替真 x0
 
-=== *7.1 理想情况*
+=== 7.1 理想情况
 
 若知道真 $x_0$：
 
@@ -323,7 +327,7 @@ $ x_(t - 1) = tilde(mu)_t (x_t, x_0) + sqrt(tilde(beta)_t)\, z, quad z ~ cal(N)(
 这是精确从 $q(x_(t - 1) | x_t, x_0)$ 抽样。 \
 从 $t = T$ 做到 $t = 1$，相当于在「$x_0$ 已知」的条件世界里模拟前向过程的时间反转。
 
-=== *7.2 现实：只有 $x_t$，没有 $x_0$*
+=== 7.2 现实：只有 $x_t$，没有 $x_0$
 
 网络学习预测噪声（DDPM 常见做法）：
 
@@ -345,7 +349,7 @@ $ x_(t - 1) = tilde(mu)_t (x_t, hat(x)_0) + sqrt(tilde(beta)_t)\, z, quad z ~ ca
 
 （实现里方差有时改用 $beta_t$ 等变体，原理相同。）
 
-=== *7.3 误差*
+=== 7.3 误差
 
 #table(
   columns: (1.1fr, 1.1fr, 1fr),
@@ -361,7 +365,7 @@ $ x_(t - 1) = tilde(mu)_t (x_t, hat(x)_0) + sqrt(tilde(beta)_t)\, z, quad z ~ ca
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *8 与噪声预测参数化的等价写法*
+== 8 与噪声预测参数化的等价写法
 
 把
 
@@ -384,7 +388,7 @@ $ x_(t - 1) = 1/sqrt(alpha_t) (x_t - (1 - alpha_t)/sqrt(1 - macron(alpha)_t)\, e
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *9 训练目标*
+== 9 训练目标
 
 DDPM 并不直接拟合后验参数；它拟合前向里的噪声（与预测 $x_0$ 本质等价）：
 
@@ -402,7 +406,7 @@ $ x_t = sqrt(macron(alpha)_t)\, x_0 + sqrt(1 - macron(alpha)_t)\, epsilon $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *10 精确 / 闭式 / 估计：一张表分清*
+== 10 精确 / 闭式 / 估计：一张表分清
 
 #table(
   columns: (1.3fr, 0.9fr, 1fr),
@@ -419,7 +423,7 @@ $ x_t = sqrt(macron(alpha)_t)\, x_0 + sqrt(1 - macron(alpha)_t)\, epsilon $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *11 DDPM 的限制*
+== 11 DDPM 的限制
 
 + *马尔可夫*：$p(x_(t - 1) | x_t)$，必须一步步 \
   $T -> T - 1 -> dots.c -> 0$，不能随意跳到很远的更早时刻而不改公式含义。
@@ -429,9 +433,9 @@ $ x_t = sqrt(macron(alpha)_t)\, x_0 + sqrt(1 - macron(alpha)_t)\, epsilon $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *12 DDIM*
+== 12 DDIM
 
-=== *12.1 核心思想*
+=== 12.1 核心思想
 
 Song et al. 引入*非马尔可夫*的推断过程族，使得：
 
@@ -443,7 +447,7 @@ $ q(x_t | x_0) = cal(N)(sqrt(macron(alpha)_t)\, x_0,\, (1 - macron(alpha)_t) I) 
 
 + 给定 $x_t$ 后，可以构造到*任意更早噪声水平* $x_s$（$s < t$，不必 $s = t - 1$）的转移。
 
-=== *12.2 直观图像*
+=== 12.2 直观图像
 
 前向在「真 $x_0$ + 真噪声方向 $epsilon$」下：
 
@@ -456,14 +460,14 @@ $ x_s = sqrt(macron(alpha)_s)\, x_0 + sqrt(1 - macron(alpha)_s)\, epsilon $
 DDIM 用网络估 $hat(x)_0$ 与 $epsilon_theta$（二者线性相关、信息等价），再把「预测的干净图 + 同一噪声方向」投影到目标时刻的噪声强度上。 \
 于是不必经过每一个中间整数时间步。
 
-=== *12.3 与 DDPM 的关系*
+=== 12.3 与 DDPM 的关系
 
 - *DDPM*：像每一步都在局部后验里抖一下，再走一小格
 - *DDIM*：像先估终点方向，再沿概率流 / 噪声 ODE 落到更低噪声水平；可大步、可全确定
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *13 统一更新式与 sigma 的两种极端*
+== 13 统一更新式与 sigma 的两种极端
 
 从 $t$ 到 $t - 1$ 的 DDIM 一般形式（把 $t - 1$ 换成任意 $s < t$ 同理）：
 
@@ -471,7 +475,7 @@ $ hat(x)_0 = (x_t - sqrt(1 - macron(alpha)_t)\, epsilon_theta (x_t, t)) / sqrt(m
 
 $ x_(t - 1) = sqrt(macron(alpha)_(t - 1))\, hat(x)_0 + sqrt(1 - macron(alpha)_(t - 1) - sigma_t^2)\, epsilon_theta (x_t, t) + sigma_t z $
 
-=== *13.1 三项分别是什么*
+=== 13.1 三项分别是什么
 
 + $sqrt(macron(alpha)_(t - 1))\, hat(x)_0$ \
   把「预测的干净图」放到 $t - 1$ 时刻应有的信号尺度。
@@ -480,14 +484,14 @@ $ x_(t - 1) = sqrt(macron(alpha)_(t - 1))\, hat(x)_0 + sqrt(1 - macron(alpha)_(t
 + $sigma_t z$ \
   新鲜随机噪声；控制随机性大小。
 
-=== *13.2 两个极端*
+=== 13.2 两个极端
 
 - $sigma_t = 0$：完全确定性（常说的 DDIM 采样）
 - $sigma_t = sqrt(tilde(beta)_t)$：可退化为 DDPM 的随机更新
 
 中间取值则在「更确定」与「更随机」之间插值。
 
-=== *13.3 少步采样怎么做*
+=== 13.3 少步采样怎么做
 
 取时间子序列
 
@@ -502,7 +506,7 @@ $ x_(tau_i) --> x_(tau_(i - 1)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *14 加速*
+== 14 加速
 
 DDIM 加速*不是*因为多训了数据信息，而是采样时显式利用了三样东西：
 
@@ -516,7 +520,7 @@ DDIM 加速*不是*因为多训了数据信息，而是采样时显式利用了�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *log 密度配方法*
+== log 密度配方法
 
 只保留与 $x_(t - 1)$ 有关的项。一维记号 $y = x_(t - 1)$。
 
@@ -538,7 +542,7 @@ $ tilde(mu)_t = (sqrt(macron(alpha)_(t - 1))\, beta_t)/(1 - macron(alpha)_t)\, x
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *符号速查*
+== 符号速查
 
 $ alpha_t = 1 - beta_t, quad macron(alpha)_t = product_(s = 1)^t alpha_s $
 
@@ -561,7 +565,7 @@ $ x_(t - 1) = sqrt(macron(alpha)_(t - 1))\, hat(x)_0 + sqrt(1 - macron(alpha)_(t
 #line(length: 100%, stroke: 0.6pt)
 
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   看完的话不妨看看流匹配吧，也是一个火热的方向。相信我，理解完这一篇之后，你就没有那么大的负担了～

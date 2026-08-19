@@ -2,18 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜反向传播 (Backpropagation)（5）：残差连接与归一化的选择",
-  description: "Transformer｜反向传播 (Backpropagation)（5）：残差连接与归一化的选择",
+  title: "Transformer｜反向传播（Backpropagation）（5）：残差连接与归一化的选择",
+  description: "从梯度传播角度比较残差连接、Pre-Norm 与 Post-Norm 的结构差异。",
   date: datetime(year: 2026, month: 5, day: 22),
   category: "数学与算法",
   lang: "zh",
 )
 
 
+= Transformer｜反向传播（Backpropagation）（5）：残差连接与归一化的选择
 
-
-
-= *Transformer｜反向传播 (Backpropagation)（5）：残差连接与归一化的选择*
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 22),
+  tags: ("Transformer", "反向传播"),
+)
 
 #tufted.margin-note[
   *阅读提醒*：前面我们推导了 Transformer 反向传播的完整主干。但有一个关键细节被一笔带过了——RMSNorm 到底放在哪里？这个看似微小的设计选择，直接影响了梯度能不能顺畅地流过几十层网络。这篇我们来彻底搞清楚。接下来我们要拿起放大镜来看细节了。祝食用愉快～🥱
@@ -21,9 +23,9 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *导言：归一化的种类和演化*
+== 导言：归一化的种类和演化
 
-=== *为什么需要归一化？*
+=== 为什么需要归一化？
 
 #figure(caption: "归一化示意图")[
   #image("imgs/1.png", width: 40%)
@@ -45,7 +47,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *主要的归一化方法*
+== 主要的归一化方法
 
 
 #figure(caption: "多种归一化图示")[
@@ -102,7 +104,7 @@ RMSNorm：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *两种位置：Post-Norm vs Pre-Norm*
+== 两种位置：Post-Norm vs Pre-Norm
 
 #tufted.margin-note[
   #image("imgs/3.png", width: 50%)
@@ -110,7 +112,7 @@ RMSNorm：
 
 #tufted.margin-note[*Post-Norm vs Pre-Norm*]
 
-=== *Post-Norm（原始 Transformer，2017）*
+=== Post-Norm（原始 Transformer，2017）
 
 归一化放在残差相加 *之后*：
 
@@ -137,7 +139,7 @@ x_out
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Pre-Norm（GPT-2 开始，现在主流）*
+=== Pre-Norm（GPT-2 开始，现在主流）
 
 归一化放在残差相加 *之前*（子模块之前）：
 
@@ -166,7 +168,7 @@ x_out = x_in + x_sub ←─┘（残差相加，之后没有 Norm）
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *为什么选择Pre-Norm ？答案在反向传播里*
+=== 为什么选择 Pre-Norm？答案在反向传播里
 
 #quote[
   *要理解这个问题，我们得先彻底搞清楚残差连接的反向传播。*
@@ -174,9 +176,9 @@ x_out = x_in + x_sub ←─┘（残差相加，之后没有 Norm）
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *残差连接*
+== 残差连接
 
-=== *前向传播的本质*
+=== 前向传播的本质
 
 残差连接做的事情极其简单：
 
@@ -199,7 +201,7 @@ $ x_"out" = x_"in" + f(x_"in") $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *反向传播*
+=== 反向传播
 
 由：
 
@@ -245,7 +247,7 @@ dot.op
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *残差直路为什么如此重要？*
+=== 残差直路为什么如此重要？
 
 第一项：
 
@@ -278,9 +280,9 @@ $ Delta_(x_"out") $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Norm 的位置问题*
+== Norm 的位置问题
 
-=== *Post-Norm 的梯度流动*
+=== Post-Norm 的梯度流动
 
 ```text
 x_in
@@ -364,7 +366,7 @@ Delta_(hat(z) , j)
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Pre-Norm 的梯度流动*
+=== Pre-Norm 的梯度流动
 
 ```text
 x_in
@@ -429,7 +431,7 @@ $ Delta_(x_"out") $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *用具体例子来看差异*
+=== 用具体例子来看差异
 
 假设：
 
@@ -439,7 +441,7 @@ $ Delta = 1.0 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== *Post-Norm*
+==== Post-Norm
 
 ```text
 第4层 → Δ = 1.0 × 0.8 = 0.80
@@ -456,7 +458,7 @@ $ 0.8^32 approx 0.001 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== *Pre-Norm*
+==== Pre-Norm
 
 ```text
 第4层 → Δ = 1.0
@@ -473,7 +475,7 @@ $ Delta_"直路" = 1.0 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Pre-Norm 有没有缺点？*
+== Pre-Norm 有没有缺点？
 
 #quote[
   既然我都这么问了，那答案当然是有。
@@ -481,7 +483,7 @@ $ Delta_"直路" = 1.0 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *问题1：最终输出没有经过 Norm*
+=== 问题 1：最终输出没有经过 Norm
 
 Pre-Norm 每层输出：
 
@@ -512,7 +514,7 @@ W_lm · x → logits
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *问题2：理论上 Post-Norm 表达能力可能更强*
+=== 问题 2：理论上 Post-Norm 表达能力可能更强
 
 一些研究认为：
 
@@ -536,7 +538,7 @@ Pre-RMSNorm + 残差连接 + Final RMSNorm
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *一个 Block 里的两层残差*
+== 一个 Block 里的两层残差
 
 ```text
 Block 输入：x_in
@@ -571,7 +573,7 @@ sum "all path grad" $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *例：32 层 Transformer 的梯度路径*
+=== 例：32 层 Transformer 的梯度路径
 
 如果：
 
@@ -596,7 +598,7 @@ $ 2^64 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *残差连接对初始化的影响*
+== 残差连接对初始化的影响
 
 残差层：
 
@@ -614,7 +616,7 @@ $ x_"out" approx x $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *例：GPT-2 的初始化*
+=== 例：GPT-2 的初始化
 
 普通初始化：
 
@@ -650,9 +652,9 @@ $ sqrt(2 N) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *拓展：其他归一化策略*
+== 拓展：其他归一化策略
 
-=== *Sandwich Norm*
+=== Sandwich Norm
 
 #figure(caption: "Sandwich Norm")[
   #image("imgs/4.png", width: 40%)
@@ -691,7 +693,7 @@ x_out
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *DeepNorm*
+=== DeepNorm
 
 修改残差连接：
 
@@ -736,7 +738,7 @@ Delta_"via sub" $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 #quote[
   回答我们最开始的问题：为什么选择Pre Norm？
@@ -768,7 +770,7 @@ Pre-RMSNorm + 残差连接 + Final RMSNorm
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *放回到完整反向传播图景中*
+=== 放回到完整反向传播图景中
 
 ```text
 Loss
@@ -816,7 +818,7 @@ Pre-Norm 则保证：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   现在进入了我们对细节内容的探索，希望对Norm的深入讨论能让你对整体的理解更加深入与透彻。很多时候一些看起来“确实是这样”的选择，背后其实存在更多深处的原因，不管是在数学中还是人生中，我们只是缺少了一些参悟的决心。
@@ -824,7 +826,7 @@ Pre-Norm 则保证：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *参考资料*
+== 参考资料
 
 
 - Laurent Bou´,_Deep learning for pedestrians: backpropagation in Transformers_

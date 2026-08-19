@@ -2,13 +2,12 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜反向传播 (Backpropagation)（1）：误差和梯度在Linear层的基础推导",
-  description: "Transformer｜反向传播 (Backpropagation)（1）：误差和梯度在Linear层的基础推导",
+  title: "Transformer｜反向传播（Backpropagation）（1）：误差和梯度在 Linear 层的基础推导",
+  description: "从交叉熵与输出层出发，推导 Linear 层的权重梯度和误差传播公式。",
   date: datetime(year: 2026, month: 5, day: 18),
-  category: "数学算法",
+  category: "数学与算法",
   lang: "zh",
 )
-
 
 
 #let boxeq(body) = rect(
@@ -19,7 +18,12 @@
 )[#body]
 
 
-= *Transformer｜反向传播 (Backpropagation)（1）：误差和梯度在Linear层的基础推导*
+= Transformer｜反向传播（Backpropagation）（1）：误差和梯度在 Linear 层的基础推导
+
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 18),
+  tags: ("Transformer", "反向传播"),
+)
 
 #tufted.margin-note[
   *阅读前提*：本文假设你对 Transformer 的基本架构有一定了解，虽然是基础内容，但最好具有一点点线性代数、微积分基础理解起来会比较容易。如果你还不熟悉，笔者建议先了解一下Transformer 的前向传播流程再回来。本篇文章会非常详细地拆解反向传播的流程(主要基于个人的理解来表述)，祝食用愉快～😊
@@ -382,7 +386,7 @@ FFN 的每一层：
 
 #line(length: 100%, stroke: 0.6pt)
 
-= 小结
+== 小结
 
 - 2个传播公式的推导以及理解
 
@@ -402,11 +406,11 @@ $ Delta_h = Delta_"logits" dot.op W^T wide $
 
 #line(length: 100%, stroke: 0.6pt)
 
-= 笔者的话
+== 笔者的话
 
 后续将分模块介绍FFN，Attenion，RMSNorm等Transformer经典架构的反向传播过程，以及将通过这里的探讨对Pre与Post-Norm的设计的选择等问题做一些探究～
 
-= 参考资料
+== 参考资料
 
 - Laurent Bou´,_Deep learning for pedestrians: backpropagation in Transformers_
 - Stanford lecture,_cs336(2025-2026)_

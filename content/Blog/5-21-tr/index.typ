@@ -2,17 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜反向传播 (Backpropagation)（4）：Self-Attention联合推导与整体总结",
-  description: "Transformer｜反向传播 (Backpropagation)（4）：Self-Attention联合推导与整体总结",
+  title: "Transformer｜反向传播（Backpropagation）（4）：Self-Attention 联合推导与整体总结",
+  description: "从矩阵计算路径出发，联合推导 Self-Attention 的反向传播与 token 间梯度耦合。",
   date: datetime(year: 2026, month: 5, day: 21),
   category: "数学与算法",
   lang: "zh",
 )
 
 
+= Transformer｜反向传播（Backpropagation）（4）：Self-Attention 联合推导与整体总结
 
-
-= *Transformer｜反向传播 (Backpropagation)（4）：Self-Attention联合推导与整体总结*
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 21),
+  tags: ("Transformer", "反向传播"),
+)
 
 #tufted.margin-note[
   *阅读提醒*：这是整个系列最重要的一篇。前面我们推导了线性层的两个核心公式，看到了 FFN 里 token 独立传播的干净结构。现在这些工具都要用上——但 Attention 会把它们推到一个新的复杂度：token 之间的耦合。就是我们在Softmax和RMSNorm中初步见过的情况，相信仔细理解完这篇之后能让你对Transformer的架构有一个更深刻的了解。现在，*Attention is all you need！* 祝食用愉快～ 😈
@@ -20,7 +23,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *导言：Attention 为什么是核心？*
+== 导言：Attention 为什么是核心？
 
 
 #quote[
@@ -50,7 +53,7 @@ Attention 让 "it" 去看整句话，发现 "tired" 更靠近生物属性，
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *回顾已有的工具*
+=== 回顾已有的工具
 
 #quote[
   *在开始作战✍️之前，先把我们手上的兵器都点一遍：*
@@ -72,7 +75,7 @@ Attention 的反向传播，本质上就是*把工具1反复应用到一个有�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Single-Head Attention 的完整前向传播*
+== Single-Head Attention 的完整前向传播
 
 #quote[
   *我们用 Single-Head Attention 来推导，结构最清晰。同时笔者会全程使用具体例子解说，来防止你因为维度形状的变化而感到吃力😥。我们假设：*
@@ -89,7 +92,7 @@ d_v = 2    （V 的投影维度）
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *完整前向传播*
+=== 完整前向传播
 
 #tufted.margin-note[
   #image("imgs/1.png", width: 50%)
@@ -141,9 +144,9 @@ x [3×4]
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *反向传播*
+== 反向传播
 
-=== *第五步：$"output" = P dot.op V$*
+=== 第五步：$"output" = P dot.op V$
 
 从上层传来 $Delta_"output"$，形状 $[3 times 2]$。
 
@@ -162,7 +165,7 @@ $ Delta_P = Delta_"output" dot.op V^T $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *第一个耦合点：$P dot.op V$ 里的 token 混合*
+=== 第一个耦合点：$P dot.op V$ 里的 token 混合
 
 在 FFN 里，$"output" [0]$ 只依赖 $x [0]$。但在 Attention 里：
 
@@ -197,7 +200,7 @@ token 0 的输出，用了所有三个 token 的 $V$。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *第四步：$P = "Softmax" (S \_ "scaled")$*
+=== 第四步：$P = "Softmax" (S \_ "scaled")$
 
 我们已经有了 $Delta_P$，形状 $[3 times 3]$。
 
@@ -215,7 +218,7 @@ $ Delta_(S \_ "scaled") [s] = p_s dot.circle(delta_s - sum_j delta_(s, j) dot.op
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *第二个耦合点：同一行内 token 之间的耦合*
+=== 第二个耦合点：同一行内 token 之间的耦合
 
 注意 Softmax 的耦合方向和 $P dot.op V$ 不一样：
 
@@ -229,7 +232,7 @@ Softmax 的耦合：行内（同一行里，不同位置的注意力权重互相
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *第三步：$S \_ "scaled" = S \/ sqrt(d_k)$*
+=== 第三步：$S \_ "scaled" = S \/ sqrt(d_k)$
 
 除以常数的反向传播，就是乘以同一个常数：
 
@@ -237,7 +240,7 @@ $ Delta_S = Delta_(S \_ "scaled") \/ sqrt(d_k) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *第二步：$S = Q dot.op K^T$*
+=== 第二步：$S = Q dot.op K^T$
 
 #quote[
   注意注意⚠️：这是整个 Attention 反向传播里*耦合最复杂的一步*。
@@ -287,7 +290,7 @@ $  Delta_K = Delta_S^T dot.op Q $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *用图理解 Q 和 K 的耦合*
+=== 用图理解 Q 和 K 的耦合
 
 ```
 S 矩阵（3×3）：
@@ -314,7 +317,7 @@ K[1] 的误差 ← 来自第1列所有行的误差（和所有 Q 有关）
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *第一步：三个线性投影层*
+=== 第一步：三个线性投影层
 
 现在我们手上有三路误差：
 
@@ -352,7 +355,7 @@ $ Delta_(x, "via V") = Delta_V dot.op W_V^T quad [3 times 2] dot.op [2 times 4] 
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *三路误差在 x 处汇合*
+=== 三路误差在 x 处汇合
 
 $x$ 同时"兼职"了三个角色，三条路的误差全部加回来：
 
@@ -366,7 +369,7 @@ $ Delta_x = Delta_(x, "via Q") + Delta_(x, "via K") + Delta_(x, "via V") $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *完整流程图*
+== 完整流程图
 
 ```
 Δ_output [3×2]
@@ -401,7 +404,7 @@ $ Delta_x = Delta_(x, "via Q") + Delta_(x, "via K") + Delta_(x, "via V") $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Q、K、V 三个线性层的关系*
+== Q、K、V 三个线性层的关系
 
 笔者认为这里有必要把三个投影层的*角色分工*说清楚，因为它们虽然结构一样，但意义完全不同：
 
@@ -428,7 +431,7 @@ W_V（Value 投影）：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *拓展：多头 Attention（Multi-Head Attention）*
+== 拓展：多头 Attention（Multi-Head Attention）
 
 #quote[
   *Single-Head Attention 让每个 token 从一个角度关注其他 token。但现实中，一个词和其他词的关系可以有很多维度：*
@@ -467,7 +470,7 @@ final_output = concat · W_O                   [seq_len × d_model]
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *拓展：Causal Mask（因果掩码）*
+== 拓展：Causal Mask（因果掩码）
 
 #quote[
   我们知道：在语言模型里，我们不能让一个词"看到"它后面还没生成的词（否则就是作弊了）。这通过 Causal Mask 实现：
@@ -508,13 +511,13 @@ S_scaled（加 mask 之前）：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *最后一站：Embedding 层*
+== 最后一站：Embedding 层
 
 #quote[
   *让我们一鼓作气，啃完了Attention后，误差经过所有 Transformer Block 的层层传递，最终到达网络的入口——Embedding 层。这里的反向传播非常简单，你会发现你几乎看看就可以理解了～*
 ]
 
-=== *Embedding 在做什么？*
+=== Embedding 在做什么？
 
 #tufted.margin-note[
   #image("imgs/3.png", width: 50%)
@@ -543,7 +546,7 @@ Embedding 本质上是一个线性层（用 one-hot 向量做输入的矩阵乘�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Embedding 的反向传播*
+=== Embedding 的反向传播
 
 
 经过所有 Block 的传播，最终到达 Embedding 层的误差是 $Delta_x$，形状 $["seq_len" times d \_ "model"]$。
@@ -566,7 +569,7 @@ $ (partial L)/(partial W_"emb" ["token_id" [t]]) class("relation", +) = Delta_x 
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *为什么 Embedding 也需要更新？*
+=== 为什么 Embedding 也需要更新？
 
 你可能会想：词向量不是已经预训练好了吗？
 
@@ -588,7 +591,7 @@ $ (partial L)/(partial W_"emb" ["token_id" [t]]) class("relation", +) = Delta_x 
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 #quote[
   至此，我们走完了 Transformer 反向传播的万里长征。朋友，为自己鼓个掌吧👏：
@@ -655,7 +658,7 @@ _*这就是 Transformer 反向传播的全貌。*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   *至此，我们走完了Transformer反向传播主干的所有内容🎉。*
@@ -664,7 +667,7 @@ _*这就是 Transformer 反向传播的全貌。*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *参考资料*
+== 参考资料
 
 - Laurent Bou´,_Deep learning for pedestrians: backpropagation in Transformers_
 - Stanford lecture,_cs336(2025-2026)_

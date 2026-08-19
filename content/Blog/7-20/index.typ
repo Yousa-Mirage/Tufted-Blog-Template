@@ -2,19 +2,21 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Idea杂谈｜“How to read a paper？",
-  description: "Idea杂谈｜“How to read a paper？",
+  title: "学习方法｜如何阅读一篇论文？",
+  description: "从阅读目标、分层阅读、问题意识与 Idea 提炼等角度整理科研论文阅读方法。",
   date: datetime(year: 2026, month: 7, day: 20),
-  category: "数学与算法",
+  category: "实践与工具",
   lang: "zh",
 )
 
 
+= 学习方法｜如何阅读一篇论文？
 
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 7, day: 20),
+  tags: ("学习方法", "论文阅读"),
+)
 
-= *Idea杂谈｜“How to read a paper？”*
-
-\#2026-7-20 \#idea
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -28,7 +30,7 @@
   *阅读提示：* 这里临时产生了一些有趣的想法，和之前交大的PaMaster联袂出演了再一次hhhh。祝食用愉快～🪣
 ]
 
-== *导言*
+== 导言
 
 #quote[
   这篇文章文概述了一种实用且高效的*三遍阅读法（three-pass method）*。
@@ -46,13 +48,13 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *三遍阅读法（THE THREE-PASS APPROACH）*
+== 三遍阅读法（THE THREE-PASS APPROACH）
 
 #quote[
   研究人员应该最多读一篇论文*三遍*，而不是从头到尾一口气读完。每一遍都完成特定目标，并在前一遍的基础上逐步深入：*第一遍是快速浏览*，了解大致内容；*第二遍抓住内容，但不看细节*；*第三遍才深入理解细节*。
 ]
 
-=== *第一遍（The first pass）*
+=== 第一遍（The first pass）
 
 #quote[
   这是一次*快速浏览（quick scan）*，目的是获得论文的*大致轮廓（bird's-eye view）*。你也可以借此判断是否需要再读更多遍。整个过程大约需要五到十分钟，包含以下步骤：
@@ -83,7 +85,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *第二遍（The second pass）*
+=== 第二遍（The second pass）
 
 #quote[
   第二遍要*更仔细地读论文，但忽略细节如证明*。这有助于抓住要点，或向同事做评论。读完后，你应该能总结论文的主要论点，并附上支持证据。这一遍通常需要约一个小时。
@@ -102,7 +104,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *第三遍（The third pass）*
+=== 第三遍（The third pass）
 
 #quote[
   要完全理解一篇论文，*需要第三遍*。关键在于*试图“虚拟重现（virtually re-implement）”这篇论文*：也就是说，做出与作者相同的假设，重新创作这项工作。通过比较这种重现与实际论文，你不仅能轻松识别论文的创新之处，还能发现其隐藏的缺陷和假设。
@@ -116,7 +118,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *做文献综述（DOING A LITERATURE SURVEY）*
+=== 做文献综述（DOING A LITERATURE SURVEY）
 
 #quote[
   论文阅读技能不仅在做研究时重要，在做*文献综述（literature survey）* 时也至关重要。文献综述要求你在一个不熟悉的领域读*数十篇论文*。那么，应该读哪些？以下是如何用三遍法高效完成的建议：
@@ -128,7 +130,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *概述*
+== 概述
 
 #quote[
   可以把这个过程概括为这几个词
@@ -144,7 +146,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *关于Idea*
+== 关于 Idea
 
 #quote[
   有一篇是上海交大团队提出的 *PaSaMaster*（_Towards Self-Evolving Agentic Literature Retrieval_，arXiv:2605.14306），它试图把文献检索从一次性的 query-document matching，改造成一个根据检索证据不断修正意图、重新检索和排序的 agentic retrieval 系统。于是……
@@ -152,7 +154,7 @@
 
 在读完 Keshav 的三遍法和 PaSaMaster 的架构后，我产生了一个比较有趣的联想。如果把这两个思想结合起来，不只是做“更好的检索系统”，而是做一个*可持续沉淀知识、并反过来指导写作和 Agent 行为的闭环系统*，会怎样？
 
-=== *从“检索结果”到“背景知识库”*
+=== 从“检索结果”到“背景知识库”
 
 PaSaMaster 的 `REFLECT` 步骤强调：根据已排序证据发现缺失术语、覆盖空洞和未探索方向。这意味着每一轮检索不仅产出一份论文清单，还在“修正对问题本身的理解”。
 
@@ -160,7 +162,7 @@ PaSaMaster 的 `REFLECT` 步骤强调：根据已排序证据发现缺失术�
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== *背景知识库的构成要素*
+==== 背景知识库的构成要素
 
 - *Intent Spec 演化历史*：每一轮用户意图的结构化表达（objective / domain / must\_have / exclude / freshness / evidence\_needs / acceptance\_rule）。
 - *Checklist 模板库*：不同领域任务的验证清单模式，例如“术语对齐任务”与“知识图谱综述任务”所需的 checkpoint 结构差异。
@@ -172,7 +174,7 @@ PaSaMaster 的 `REFLECT` 步骤强调：根据已排序证据发现缺失术�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *“文章润色 Skill”*
+=== “文章润色 Skill”
 
 更有趣的一步是：如果把这个知识库反过来用于指导写作，而不只是检索，会怎样？
 
@@ -182,7 +184,7 @@ PaSaMaster 的 `REFLECT` 步骤强调：根据已排序证据发现缺失术�
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== *文章润色 Skill 的规则*
+==== 文章润色 Skill 的规则
 
 - *第一遍可读性检查*：标题是否连贯？摘要是否在 300 字内包含类别、背景、贡献、清晰度四要素？章节标题是否构成自洽的逻辑流？
 - *图表证据检查*：图表坐标轴是否完整？是否有误差条或统计显著性标注？插图是否能独立传达核心信息？
@@ -194,7 +196,7 @@ PaSaMaster 的 `REFLECT` 步骤强调：根据已排序证据发现缺失术�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结：检索 → 知识库 → 写作指导 → 更好的检索？*
+== 小结：检索 → 知识库 → 写作指导 → 更好的检索？
 
 如果把这三个环节串起来，就形成了一个有趣的闭环：
 
@@ -208,7 +210,7 @@ PaSaMaster 的 `REFLECT` 步骤强调：根据已排序证据发现缺失术�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   这个读取论文的方法需要习惯习惯就可以上手作为一个好的方法了，但是也可以把这个教授的思想蒸馏掉，做成其他Agent以及Skill的样板hhhhh。这里展示一下笔者在思考这个框架的时候的手稿，有点抽象说实话，之后有时间可以仔细看看。🧐

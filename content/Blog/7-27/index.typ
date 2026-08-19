@@ -2,31 +2,34 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "机器学习｜个人基础收获整理",
-  description: "机器学习｜个人基础收获整理",
-  date: datetime(year: 2026, month: 7, day: 20),
+  title: "机器学习｜基础知识学习笔记",
+  description: "整理机器学习课程中的监督学习、损失函数、梯度下降与模型训练基础。",
+  date: datetime(year: 2026, month: 7, day: 27),
   category: "数学与算法",
   lang: "zh",
 )
 
 
+= 机器学习｜基础知识学习笔记
 
-= *机器学习｜个人基础收获整理*
-\#2026-7-27 \#机器学习
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 7, day: 27),
+  tags: ("机器学习", "学习笔记"),
+)
 #tufted.margin-note[
   来自吴恩达《机器学习》，闲暇的时候看了一点，比较基础所以看的很快，但是也补充了一些基础知识。老师很风趣幽默，点赞👍爱来自华东师大。祝食用愉快～～🐟
 ]
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *引言：机器学习是什么*
+== 引言：机器学习是什么
 
 - 经典定义（Arthur Samuel）：不用显式编程，让计算机*从数据/经验中自己获得能力*。（编写了自己和自己下棋的程序hhh）
 - Tom Mitchell 的形式化说法：程序在任务 *T* 上，用经验 *E* 学习，使性能度量 *P* 得到提升。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *机器学习的分类*
+== 机器学习的分类
 
 #table(
   columns: (1fr, 1fr, 1fr, 1fr),
@@ -40,7 +43,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *监督学习*
+== 监督学习
 
 #table(
   columns: (1fr, 1fr, 1fr),
@@ -51,21 +54,21 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *线性回归*
+== 线性回归
 
-=== *1. 模型*
+=== 1. 模型
 
 $ f_(w, b) (x) = w x + b quad "（多特征）" thick f(upright(bold(x))) = upright(bold(w)) dot.op upright(bold(x)) + b $
 线性拟合不够用时，可以构造 $x^2 , x^3 , sqrt(x)$ 等特征做*多项式（非线性）拟合*——注意它本质上仍是"对参数线性"的线性回归。
 
-=== *2. 代价函数：均方误差 MSE*
+=== 2. 代价函数：均方误差 MSE
 
 $ J(w, b) = 1/(2 m) sum_(i = 1)^m (f_(w, b) (x^((i))) - y^((i)))^2 $
 
 - 衡量预测值与真实标签的平均偏差；除以 2 只是为了求导后系数变干净。（梯度下降时导数可以约去）
 - 对线性回归而言，$J$ 是*凸函数（碗状）*，只有一个全局最小值。（此时存在一个convex）
 
-=== *3. 梯度下降*
+=== 3. 梯度下降
 
 $ w : = w - alpha (partial J)/(partial w) , wide b : = b - alpha (partial J)/(partial b) $
 
@@ -75,25 +78,25 @@ $ w : = w - alpha (partial J)/(partial w) , wide b : = b - alpha (partial J)/(pa
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *逻辑回归（分类）*
+== 逻辑回归（分类）
 
-=== *1. 不用线性回归*
+=== 1. 不用线性回归
 
 线性回归输出会跑到 0~1 之外，且一个远处的离群点就能把决策边界拽偏。
 
-=== *2. Sigmoid*
+=== 2. Sigmoid
 
 $ g(z) = 1/(1 + e^(-z)) , wide z = upright(bold(w)) dot.op upright(bold(x)) + b $
 输出被压到 (0,1)，解释为 $P(y = 1 divides x)$；一般以 0.5 为阈值判定类别。
 
-=== *3. 决策边界 Decision Boundary*
+=== 3. 决策边界 Decision Boundary
 
 $z = upright(bold(w)) dot.op upright(bold(x)) + b = 0$ 所对应的那条线/面，就是把两类分开的边界。
 
 - 特征是一次项 → *线性边界*（直线、平面）
 - 加入 $x_1^2 , x_2^2$ 等高次特征 → *非线性边界*（圆、椭圆等复杂形状）
 
-=== *4. 代价函数（交叉熵）*
+=== 4. 代价函数（交叉熵）
 
 $ L = - y log(f(x)) -(1 - y) log(1 - f(x)) $
 $ J(upright(bold(w)) , b) = 1/m sum_(i = 1)^m L^((i)) $
@@ -101,7 +104,7 @@ $ J(upright(bold(w)) , b) = 1/m sum_(i = 1)^m L^((i)) $
 - 预测对了损失趋近 0，预测得又错又自信 → 损失趋近 *+∞*
 - 如果对 sigmoid 硬套 MSE，$J$ 会变成*非凸*、坑坑洼洼、梯度下降容易卡在局部最优；换成对数损失后 $J$ 重新变凸。
 
-=== *5. 梯度下降*
+=== 5. 梯度下降
 
 更新式子*长得和线性回归一模一样*：
 $ w_j : = w_j - alpha 1/m sum(f(x^((i))) - y^((i))) x_j^((i)) $
@@ -109,7 +112,7 @@ $ w_j : = w_j - alpha 1/m sum(f(x^((i))) - y^((i))) x_j^((i)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *工程优化手段*
+== 工程优化手段
 
 #table(
   columns: (1fr, 1fr, 1fr),

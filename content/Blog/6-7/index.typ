@@ -3,17 +3,21 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜架构演进（2）：Vocab 系统（二）——Embedding、LM Head 与 Tied Embedding",
-  description: "Transformer｜架构演进（2）：Vocab 系统（二）——Embedding、LM Head 与 Tied Embedding",
+  title: "Transformer｜架构演进（2）：Vocab 系统（2）——Embedding、LM Head 与 Tied Embedding",
+  description: "梳理 Input Embedding、LM Head 与 Tied Embedding 的结构、训练方式和约束。",
   date: datetime(year: 2026, month: 6, day: 7),
   category: "数学与算法",
   lang: "zh",
 )
 
 
-= *Transformer｜架构演进（2）：Vocab 系统（2）——Embedding、LM Head 与 Tied Embedding*
+= Transformer｜架构演进（2）：Vocab 系统（2）——Embedding、LM Head 与 Tied Embedding
 
-\#2026-6-7 \#tranformer \#vocab
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 7),
+  tags: ("Transformer", "架构演进"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -26,7 +30,7 @@
 #figure(caption: "Tied Embedding")[
   #image("imgs/1.png", width: 40%)
 ]
-== *导言*
+== 导言
 
 #quote[
   上一篇我们讲了 tokenizer：原始文本如何被切成 token，以及为什么 vocabulary size 会影响序列长度、上下文效率、多语言公平性和推理成本。
@@ -66,7 +70,7 @@ Tokenizer 的输出不是向量，而是一串整数 ID。比如：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *从 Token ID 到 Input Embedding*
+== 从 Token ID 到 Input Embedding
 
 Tokenizer 输出的是 token id。Token id 只是一个索引，比如：
 
@@ -131,7 +135,7 @@ token vector
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *从 Hidden State 到 LM Head*
+== 从 Hidden State 到 LM Head
 
 Decoder-only language model 的训练目标是预测下一个 token。
 
@@ -191,7 +195,7 @@ $ p_i = (exp(z_i))/(sum_j exp(z_j)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Input Embedding与LM Head*
+== Input Embedding 与 LM Head
 
 现在我们有两个矩阵。
 
@@ -238,7 +242,7 @@ _*这就是 tied embedding。*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Tied Embedding*
+== Tied Embedding
 
 #quote[
   Tied embedding 指的是：输入 embedding matrix 和输出 LM Head matrix 使用同一套参数。
@@ -291,7 +295,7 @@ tied embedding还有一个更深的表示假设：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Tied Embedding训练*
+== Tied Embedding 训练
 
 在 tied embedding 中，模型只有一套矩阵：
 
@@ -327,7 +331,7 @@ $ (partial L)/(partial E)
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Output Path*
+=== Output Path
 
 对于某个位置 $t$，模型输出：
 
@@ -382,7 +386,7 @@ $ h_"法国 的 首都 是" $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Input Path*
+=== Input Path
 
 输入 token 通过 embedding table 变成向量：
 
@@ -415,7 +419,7 @@ sum_(t : w_t = j)
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *两种信号合并*
+=== 两种信号合并
 
 对于任意 token $j$，tied embedding 的梯度可以理解为：
 
@@ -442,7 +446,7 @@ sum_(t : w_t = j)
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *训练时先后顺序*
+=== 训练时先后顺序
 
 从计算图实现上看，反向传播会从 loss 开始，先经过输出层，再经过 Transformer，最后到输入 embedding。
 
@@ -473,11 +477,11 @@ $ g_E = g_"output" + g_"input" $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Tied Embedding的有效性*
+== Tied Embedding 的有效性
 
 Tied embedding 的有效性主要来自三个方面。
 
-=== *1. 参数效率*
+=== 1. 参数效率
 
 这是最直接的好处。
 
@@ -489,7 +493,7 @@ Tied embedding 的有效性主要来自三个方面。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *2. 表示空间对齐*
+=== 2. 表示空间对齐
 
 语言模型的输入和输出并不是完全无关的任务。
 
@@ -503,7 +507,7 @@ Tied embedding 强制输入空间和输出空间使用同一套 token vectors，
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *3. 正则化*
+=== 3. 正则化
 
 共享参数会降低模型自由度。
 
@@ -513,7 +517,7 @@ Tied embedding 强制输入空间和输出空间使用同一套 token vectors，
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Tied Embedding和约束*
+== Tied Embedding 和约束
 
 虽然 tied embedding 很优雅，但它不是所有模型都必须使用的标准答案。
 
@@ -523,7 +527,7 @@ Tied embedding 强制输入空间和输出空间使用同一套 token vectors，
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *1. 输入角色和输出角色并不完全相同*
+=== 1. 输入角色和输出角色并不完全相同
 
 - Input embedding 的任务是：
 
@@ -547,7 +551,7 @@ Tied embedding 强制输入空间和输出空间使用同一套 token vectors，
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *2. 输出分类空间可能需要更高自由度*
+=== 2. 输出分类空间可能需要更高自由度
 
 LM Head 是一个巨大的多分类器。
 
@@ -561,7 +565,7 @@ LM Head 是一个巨大的多分类器。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *3. 大模型不一定缺这部分参数*
+=== 3. 大模型不一定缺这部分参数
 
 对于小模型，省掉 $V d$ 参数非常重要。
 
@@ -571,7 +575,7 @@ LM Head 是一个巨大的多分类器。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *4. 多模态和特殊 token 会让输入输出更不对称*
+=== 4. 多模态和特殊 token 会让输入输出更不对称
 
 现代 LLM 不只是纯文本模型。
 
@@ -592,7 +596,7 @@ LM Head 是一个巨大的多分类器。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小模型更适合 Tied Embedding*
+== 小模型更适合 Tied Embedding
 
 小模型的核心问题是参数预算有限。
 
@@ -625,7 +629,7 @@ $ 268 M $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Factorized Embedding*
+== Factorized Embedding
 
 我们知道Tied embedding 解决的是：
 
@@ -675,7 +679,7 @@ $ V r + r H $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Factorized、Tiny Embedding 和低秩输出层*
+== Factorized、Tiny Embedding 和低秩输出层
 
 继续往下看，factorized embedding 本质上是在问：
 
@@ -712,7 +716,7 @@ $ r << d $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 - tied embedding 的本质是一个表示空间设计问题：
 
@@ -730,7 +734,7 @@ $ r << d $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *参考文献*
+== 参考文献
 
 + Hakan Inan, Khashayar Khosravi, Richard Socher. *Tying Word Vectors and Word Classifiers: A Loss Framework for Language Modeling.* ICLR 2017.
 + Ofir Press, Lior Wolf. *Using the Output Embedding to Improve Language Models.* EACL 2017.

@@ -3,8 +3,8 @@
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
   title: "机器学习｜系统工程与实践",
-  description: "机器学习｜系统工程与实践",
-  date: datetime(year: 2026, month: 7, day: 20),
+  description: "梳理模型评估、偏差与方差、学习曲线、错误分析及机器学习项目生命周期。",
+  date: datetime(year: 2026, month: 8, day: 5),
   category: "数学与算法",
   lang: "zh",
 )
@@ -12,7 +12,11 @@
 
 = 机器学习｜系统工程与实践
 
-\#2026-8-5 \#深度学习
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 8, day: 5),
+  tags: ("机器学习", "工程实践"),
+)
+
 
 #tufted.margin-note[
 天气好热，空调好贵www祝食用愉快～🫠

@@ -2,15 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜反向传播 (Backpropagation)（3）：以SwiGLU为例的前馈网络层推导",
-  description: "Transformer｜反向传播 (Backpropagation)（3）：以SwiGLU为例的前馈网络层推导",
+  title: "Transformer｜反向传播（Backpropagation）（3）：以 SwiGLU 为例的前馈网络层推导",
+  description: "以 SwiGLU 为例拆解 Transformer 前馈网络的结构与完整反向传播路径。",
   date: datetime(year: 2026, month: 5, day: 20),
-  category: "数学算法",
+  category: "数学与算法",
   lang: "zh",
 )
 
 
-= *Transformer｜反向传播 (Backpropagation)（3）：以SwiGLU为例的前馈网络层推导*
+= Transformer｜反向传播（Backpropagation）（3）：以 SwiGLU 为例的前馈网络层推导
+
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 20),
+  tags: ("Transformer", "反向传播"),
+)
 
 #tufted.margin-note[
   *阅读提醒*：我们推导了线性层的两个核心公式，以及 Softmax 和 RMSNorm 的反向传播。现在我们带着这些工具，正式进入 Transformer Block 的内部。于是我们来到了：*前馈网络（Feed-Forward Network，FFN）*。这里的计算比较稀松平常，所以就多嘴整理了一下FFN的发展流程，作为一些完整的补充，如果前2篇你很顺利地理解下来了，那么恭喜你，这一篇你可以以喝杯下午茶的心情来愉悦地看了。祝食用愉快～☕️
@@ -22,13 +27,13 @@
 #line(length: 100%, stroke: 0.6pt)
 
 
-== *导言：FFN 的发展：从 ReLU 到 SwiGLU*
+== 导言：FFN 的发展：从 ReLU 到 SwiGLU
 
 #quote[
   FFN 的基本框架一直没变（展开 → 激活 → 压缩），但中间的"激活函数"和"结构"经历了几代演化。
 ]
 
-=== *第一代：ReLU FFN（原始 Transformer，2017）*
+=== 第一代：ReLU FFN（原始 Transformer，2017）
 
 #tufted.margin-note[
   #image("imgs/ru.png", width: 50%)
@@ -61,7 +66,7 @@ z ≤ 0：直接变成 0（"关门"）
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *第二代：GELU FFN（BERT / GPT-2，2018-2019）*
+=== 第二代：GELU FFN（BERT / GPT-2，2018-2019）
 
 #tufted.margin-note[
   #image("imgs/g.png", width: 50%)
@@ -93,7 +98,7 @@ GELU：z 很大 → 几乎全开
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *第三代：门控 FFN — SwiGLU（LLaMA / PaLM，2022-2023）*
+=== 第三代：门控 FFN — SwiGLU（LLaMA / PaLM，2022-2023）
 
 ```
 FFN(x) = (SiLU(x · W_gate) ⊙ (x · W_up)) · W_down
@@ -144,7 +149,7 @@ W_up 路线（内容路线）：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *为什么我们选择SwiGLU ？*
+=== 为什么我们选择 SwiGLU？
 
 ```
 ReLU FFN：
@@ -162,7 +167,7 @@ _*这也是为什么现在主流的大模型（LLaMA、PaLM、Gemma、Qwen 等�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *SwiGLU 的 SiLU 激活函数*
+== SwiGLU 的 SiLU 激活函数
 
 #quote[
   没错，聪明的你肯定发现了，我们的主角就是SwiGLU，让我们走近它来仔细看看🧐
@@ -198,7 +203,7 @@ $ "SiLU"' (z) = sigma(z) + z dot.op sigma(z) dot.op (1 - sigma(z)) = sigma(z) do
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *进入 Block：先碰到残差连接*
+== 进入 Block：先碰到残差连接
 
 #quote[
   在正式进入 FFN 的反向传播之前，我们需要知道 FFN 在 Transformer Block 里的位置：
@@ -240,7 +245,7 @@ _*现在我们拿着 $Delta_(x \_ f f n)$，进入 FFN 的内部。*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *SwiGLU FFN 的前向传播*
+== SwiGLU FFN 的前向传播
 
 给每一步起个名字：
 
@@ -263,13 +268,13 @@ _*现在我们拿着 $Delta_(x \_ f f n)$，进入 FFN 的内部。*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *反向传播*
+== 反向传播
 
 #quote[
   我们拿着 $Delta_"output"$（形状 $["seq_len" times d \_ "model"]$），倒着走。
 ]
 
-=== *第五步：$"output" = h dot.op W_"down"$*
+=== 第五步：$"output" = h dot.op W_"down"$
 
 这就是我们已经推过的线性层！直接用两个核心公式：
 
@@ -279,7 +284,7 @@ $W_"down"$ 的梯度交给优化器，$Delta_h$ 继续往前传。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *第四步：$h = g dot.circle u p$*
+=== 第四步：$h = g dot.circle u p$
 
 这里是逐元素乘法，不是矩阵乘法。
 
@@ -321,7 +326,7 @@ $ Delta_(u p) = Delta_h dot.circle g $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *第三步：$g = "SiLU" ("gate")$*
+=== 第三步：$g = "SiLU" ("gate")$
 
 SiLU 是逐元素函数，反向传播的规则很简单：
 
@@ -353,7 +358,7 @@ $ "SiLU"' (z) = sigma(z) dot.op (1 + z dot.op (1 - sigma(z))) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *第二步和第一步：两个线性层*
+=== 第二步和第一步：两个线性层
 
 现在我们有两路误差分别回到了两个线性层：
 
@@ -381,7 +386,7 @@ $ Delta_(x \_ n o r m) = Delta_(x, "via gate") + Delta_(x, "via up") $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *完整流程图*
+== 完整流程图
 
 ```
 Δ_output [seq_len × d_model]
@@ -419,11 +424,11 @@ $ Delta_(x \_ n o r m) = Delta_(x, "via gate") + Delta_(x, "via up") $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
-=== *FFN 反向传播的关键特性*
+=== FFN 反向传播的关键特性
 
-==== *1.Token 之间完全独立*
+==== 1. Token 之间完全独立
 
 ```
 FFN 的前向传播：
@@ -449,7 +454,7 @@ $ (partial L)/(partial W_"gate") = x_"norm"^T dot.op Delta_"gate" = sum_t x_"nor
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *2.需要存档哪些数据*
+=== 2. 需要存档哪些数据
 
 ```
 前向传播时需要存档（反向传播时会用到）：
@@ -465,7 +470,7 @@ h         → 用于计算 W_down 的梯度
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   FFN 的反向传播之所以相对简单，是因为 token 之间完全独立——每个 token 的误差老老实实地沿着自己的路往回走，不会跑到别人的地盘上去。
@@ -485,7 +490,7 @@ P · V：  每个 token 的输出是所有 token 的 Value 的加权和
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *参考资料*
+== 参考资料
 
 - Laurent Bou´,_Deep learning for pedestrians: backpropagation in Transformers_
 - Stanford lecture,_cs336(2025-2026)_

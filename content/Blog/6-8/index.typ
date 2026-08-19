@@ -2,24 +2,28 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer算法｜架构演进（拓展）：Vocab 系统——Unigram LM的subword概率收敛证明",
-  description: "Transformer算法｜架构演进（拓展）：Vocab 系统——Unigram LM的subword概率收敛证明",
+  title: "Transformer｜架构演进（扩展）：Unigram LM 的 Subword 概率收敛证明",
+  description: "围绕 Unigram LM，推导 Subword 概率更新与收敛过程，并联系 Tokenization 实践。",
   date: datetime(year: 2026, month: 6, day: 8),
-  category: "数学算法",
+  category: "数学与算法",
   lang: "zh",
 )
 
 
-= *Transformer算法｜架构演进（拓展）：Vocab 系统——Unigram LM的subword概率收敛证明*
+= Transformer｜架构演进（扩展）：Unigram LM 的 Subword 概率收敛证明
 
-\#2026-6-5 \#拓展 \#数学证明 \#Vocab \#Tokenization
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 8),
+  tags: ("Transformer", "数学推导"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 #tufted.margin-note[
   *阅读提示：* 这是拓展内容，仅作参考学习。祝食用愉快～🌧️
 ]
 
-== *导言*
+== 导言
 
 #quote[
   前面讲 Unigram LM 的时候，我们说它和 BPE、WordPiece 的思路不太一样。
@@ -64,7 +68,7 @@ EM 的直觉是：一句话可以有很多种切分方式，而切分方式本�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *优化目标*
+== 优化目标
 
 #quote[
   再回顾一下 Unigram LM优化的目标
@@ -127,7 +131,7 @@ _*而EM 的优化核心思路就是：不直接优化这个难处理的 $L(theta
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *下界*
+== 下界
 
 对每个 $x$，我们引入一个任意的分布 $q_x (z)$。
 
@@ -205,7 +209,7 @@ EM 每一轮不是直接优化 $L$，而是先构造一个下界，然后优化�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *下界逼近*
+== 下界逼近
 
 现在的问题变成：
 
@@ -265,7 +269,7 @@ $ q_x (z) = P(z divides x, theta) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *下界差距与 KL 散度*
+== 下界差距与 KL 散度
 
 #quote[
   上面的 Jensen 推导已经说明了 $cal(F)$ 是下界。但还有一个更直观的方式可以看出为什么这个下界成立。
@@ -347,7 +351,7 @@ KL 散度为 0，下界取等。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *期望计数归一化*
+== 期望计数归一化
 
 E-step 之后，我们得到了每种切分的后验概率 $q_x (z)$。
 
@@ -447,7 +451,7 @@ $ P(v) = (E [v])/(sum_(v') E [v']) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *$L$非下降趋势*
+== $L$非下降趋势
 
 现在我们把 E-step 和 M-step 串起来。
 
@@ -501,7 +505,7 @@ $ L(theta^(n e w)) >= L(theta^(o l d)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *subword收敛*
+== subword 收敛
 
 #quote[
   既然每一轮都不下降，那它会不会一直涨到无穷大？subword收敛又是在这个基础上怎么看的?
@@ -533,7 +537,7 @@ $ L(theta) = sum_x log P(x divides theta) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *收敛非全局最优*
+== 收敛非全局最优
 
 EM 还有一个很重要的限制：
 
@@ -562,7 +566,7 @@ EM 还有一个很重要的限制：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *与tokenizer*
+== 与 tokenizer
 
 #quote[
   这部分数学推导看起来有点抽象，但它其实解释了 Unigram LM tokenizer 的核心机制。
@@ -603,7 +607,7 @@ internationalization
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 Unigram LM 之所以可以用 EM 训练，是因为 tokenization 中存在一个天然隐变量：切分方式 $z$。
 
@@ -637,7 +641,7 @@ $ L(theta^(n e w)) >= L(theta^(o l d)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   对每一个问题发现了之后去尽量弄明白是件比较好的习惯。如果你愿意的的话，就请打破砂锅尽情的问吧，狠狠地打破！
@@ -645,6 +649,6 @@ $ L(theta^(n e w)) >= L(theta^(o l d)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *关联*
+== 关联
 
 - Transformer｜架构演进（1）：Vocab 系统（1）——Tokenizer 与 Vocabulary Size： Unigram LM补充部分

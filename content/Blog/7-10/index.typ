@@ -2,18 +2,21 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "图像处理｜从卷积与 UNet的学习",
-  description: "图像处理｜从卷积与 UNet的学习",
+  title: "图像处理｜卷积与 U-Net 学习笔记",
+  description: "从卷积基础出发，整理 U-Net 的编码器、解码器、跳跃连接及其图像任务应用。",
   date: datetime(year: 2026, month: 7, day: 10),
   category: "数学与算法",
   lang: "zh",
 )
 
 
+= 图像处理｜卷积与 U-Net 学习笔记
 
-= *图像处理｜从卷积与 UNet的学习*
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 7, day: 10),
+  tags: ("计算机视觉", "U-Net"),
+)
 
-\#2026-7-10 \#CNN \#Convolution \#UNet \#DiffusionBackbone
 
 #tufted.margin-note[
   *阅读提示：* 这篇是个人在学习扩散模型以及尝试理解交大张娅教授发的一篇MRGen的学习过程中完成的，也是回归blog的第一作，尝试设计了一些回顾用的问题，用来加深自己的理解，可以不用有许多基础即可读懂，而且笔者这次加入了很多导图助于理解，后续对这篇论文我会去深度学习，在这个过程中会有一些补充的学习内容。祝食用愉快～❤️
@@ -23,7 +26,7 @@
 #figure(caption: "发展流程")[
   #image("imgs/1.png", width: 40%)
 ]
-== *导言*
+== 导言
 
 在大模型叙事里，落到图像生成，尤其是经典 Stable Diffusion 管线，马上就会撞上另一个名字：*UNet*。再往下挖一层，UNet 的基本积木又是 *卷积（Convolution）*。
 
@@ -40,9 +43,9 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *卷积？*
+== 卷积？
 
-=== *全连接*
+=== 全连接
 
 设输入有 $N$ 个位置（一维信号长度，或图像拉平后的 $H times W$）。若每个输出位置 $i$ 都用自己的权重看全部输入：
 
@@ -50,7 +53,7 @@ $ y_i = sum_(j = 1)^N W_(i j) thin x_j + b_i $
 
 参数大约 $N times N$。对 $224 times 224$ 图像，$N approx 5 times 10^4$，全连接一层就极不现实。更糟的是：*没有平移结构*——左边的「竖边」和右边的「竖边」要各学一套权重。
 
-=== *图像的两个先验*
+=== 图像的两个先验
 
 #table(
   columns: (1fr, 1fr, 1fr),
@@ -67,7 +70,7 @@ $ y_i = sum_(j = 1)^N W_(i j) thin x_j + b_i $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *一维卷积*
+== 一维卷积
 
 #quote[
   先忘掉二维图像，从一维信号开始吧～
@@ -75,7 +78,7 @@ $ y_i = sum_(j = 1)^N W_(i j) thin x_j + b_i $
 #figure(caption: "一维卷积")[
   #image("imgs/2.png", width: 40%)
 ]
-=== *实际定义*
+=== 实际定义
 
 输入 $x = (x_0 , ..., x_(n - 1))$，核 $w = (w_0 , ..., w_(k - 1))$，$k$ 通常很小（3、5、7）。在位置 $i$：
 
@@ -87,7 +90,7 @@ $ y_i = chevron.l w, thick x_(i : i + k) chevron.r $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *例子*
+=== 例子
 
 取 $x = [1, 2, 3, 4, 5]$，$w = [1, 0, - 1]$，无 padding、stride $= 1$：
 
@@ -106,7 +109,7 @@ $ w = [frac(1, 3) , frac(1, 3) , frac(1, 3)] $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Padding、Stride 与输出尺寸*
+=== Padding、Stride 与输出尺寸
 
 输入长 $n$，核长 $k$，两端各 pad $p$，stride 为 $s$：
 
@@ -133,13 +136,13 @@ $s = 1$ 且 $p = floor(k \/ 2)$（如 $k = 3 => p = 1$）时，常保持 $n_"out
 
 $ y_i = sum_(u = 0)^(k - 1) w_u thin x_(i dot.op s + u)^"pad" $
 
-=== *手算：padding $= 1$*
+=== 手算：padding $= 1$
 
 $x = [1, 2, 3]$，$w = [1, 0, - 1]$，$p = 1$ 时 $x^"pad" = [0, 1, 2, 3, 0]$，可得到长度仍为 3 的输出。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *二维卷积*
+== 二维卷积
 
 #quote[
   *卷积核（kernel / filter）* = 一个很小的数字表，比如 3×3。  这些数字是 *可学习参数*（类似 Linear 的 weight）。这里介绍晚了，上面的一维卷积也是使用的核去做。
@@ -165,7 +168,7 @@ Kernel K (3×3):
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *一个输出像素*
+=== 一个输出像素
 
 输入局部 3×3（盖住的那一块）：
 
@@ -187,7 +190,7 @@ Kernel K (3×3):
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *实际定义*
+=== 实际定义
 
 单通道输入 $X in RR^(H times W)$，核 $W in RR^(k_h times k_w)$：
 
@@ -210,7 +213,7 @@ $ Y_(i, j) = chevron.l W, thick X [i : i + k_h , thick j : j + k_w] chevron.r_F 
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *例子*
+=== 例子
 
 $ X =
 mat(delim: "[", 1, 2, 3, 0;
@@ -233,7 +236,7 @@ $ Y_(0, 0) = - 6 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *多通道卷积*
+== 多通道卷积
 
 #quote[
   真实输入几乎从不是单平面：RGB 是 3 通道；网络中间常见 64、128、256 通道。*通道 = 每个空间位置上特征向量的长度*，中间层的通道*不是*「颜色」，而是学出来的特征维——有点像 Transformer 里的 $d_"model"$，只是布局是网格 $(C, H, W)$ 而不是序列 $(T, D)$。
@@ -241,7 +244,7 @@ $ Y_(0, 0) = - 6 $
 #figure(caption: "多通道卷积")[
   #image("imgs/4.png", width: 40%)
 ]
-=== *张量形状*
+=== 张量形状
 
 #table(
   columns: (1fr, 1fr),
@@ -289,7 +292,7 @@ N dot.op H' dot.op W' dot.op C_upright(o u t) dot.op C_upright(i n) dot.op k_h d
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *1x1卷积*
+=== 1x1 卷积
 
 核高宽都是 1 时：
 
@@ -337,7 +340,7 @@ upright(bold(b)) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *卷积和结构化稀疏线性层*
+== 卷积和结构化稀疏线性层
 
 把输入拉平为 $upright(bold(x))$，输出拉平为 $upright(bold(y))$，任意卷积都可写成：
 
@@ -363,7 +366,7 @@ mat(delim: "[", x_0; x_1; x_2; x_3) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *视角对比*
+=== 视角对比
 
 设位置 $p$ 的特征为 $h_p$：
 
@@ -386,13 +389,13 @@ mat(delim: "[", x_0; x_1; x_2; x_3) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *层数、感受野、分辨率、通道*
+=== 层数、感受野、分辨率、通道
 
 #quote[
   这是容易出现疑惑的概念，这里简要介绍一下。
 ]
 
-==== *层数*
+==== 层数
 
 *卷积层数* = 数据依次穿过多少次卷积（通常还带归一化与激活）。示意：
 
@@ -402,7 +405,7 @@ x0 --Conv1--> x1 --Conv2--> x2 -- ...
 
 每一层做一次局部（及通道）混合。类比 Transformer 的 “L 层 Block”：CNN 的层数也是「混合了多少次」，但混合范围默认是局部邻域，而不是全局 Attention。
 
-==== *感受野*
+==== 感受野
 
 *感受野（Receptive Field）*：输出特征图上*某一个点*，最多依赖输入图像上多大一块区域。
 
@@ -423,7 +426,7 @@ $ R_L = R_(L - 1) + (k_L - 1) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== *分辨率*
+==== 分辨率
 
 分辨率下降 = 特征图的 $H, W$ 变小，来自：
 
@@ -435,7 +438,7 @@ $ R_L = R_(L - 1) + (k_L - 1) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== *纠正*
+==== 纠正
 
 #table(
   columns: (1fr, 1fr),
@@ -500,9 +503,9 @@ $ 1/4 times 2 times 2 = 1 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *扩张卷积与常见变体*
+== 扩张卷积与常见变体
 
-=== *Dilation*
+=== Dilation
 
 $ Y_(i, j)
 =
@@ -512,14 +515,14 @@ X_(i + d dot.op u, thick j + d dot.op v) $
 
 $d = 1$ 为普通卷积；$d = 2$ 时取样隔一格。*参数个数不变，感受野变大*，常用于分割（DeepLab）等不想猛降分辨率又想看远的场景。
 
-=== *分组卷积与深度可分离*
+=== 分组卷积与深度可分离
 
 - *分组卷积*：输入通道分组，组内卷积，参数大约除以组数。
 - *深度可分离*（MobileNet 思路）：先每通道独立做空间卷积（Depthwise），再用 $1 times 1$ 混通道（Pointwise）。把「空间混合」和「通道混合」拆开，换效率。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *反传*
+== 反传
 
 前向（一维示意）：
 
@@ -540,7 +543,7 @@ $w_u$ 的梯度 = 输出梯度图与输入再做一次对齐的局部相关。�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *为什么光有卷积堆叠还不够？*
+=== 为什么光有卷积堆叠还不够？
 
 只在高分辨率上堆卷积：
 
@@ -561,7 +564,7 @@ UNet 正是为这个矛盾设计的拓扑。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *UNet*
+== UNet
 
 UNet（Ronneberger et al., 2015）原为生物医学图像分割提出，结构是：
 
@@ -571,7 +574,7 @@ UNet（Ronneberger et al., 2015）原为生物医学图像分割提出，结构�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *三大部分*
+=== 三大部分
 #figure(caption: "UNet流程")[
   #image("imgs/5.png", width: 40%)
 ]
@@ -595,7 +598,7 @@ UNet（Ronneberger et al., 2015）原为生物医学图像分割提出，结构�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Skip*
+=== Skip
 
 设 Decoder 上采样后特征为 $D$，对称 Encoder 特征为 $E$，空间尺寸已对齐。
 
@@ -617,7 +620,7 @@ C_U = C_D + C_E $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *一个 Stage*
+=== 一个 Stage
 
 教学简化版：
 
@@ -636,7 +639,7 @@ Decoder stage:
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *UNet 整体数据流*
+== UNet 整体数据流
 
 以极小教学网络为例：输入 $(B = 1, C = 1, H = 32, W = 32)$，base 通道 64，下采样 2 次。
 
@@ -669,9 +672,9 @@ function UNet_forward(x):
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *训练任务*
+== 训练任务
 
-=== *语义分割*
+=== 语义分割
 
 ```text
 输入 x: (B, 3, H, W)
@@ -682,7 +685,7 @@ loss = CrossEntropy(logits, y)  # 在所有像素上平均
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *去噪 / 扩散中的去噪器*
+=== 去噪 / 扩散中的去噪器
 
 ```text
 输入:  noisy 图或 latent x_t，以及时间 t（常还有文本条件）
@@ -694,7 +697,7 @@ loss = MSE(ε_pred, ε_true)
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *和语言模型训练对照*
+=== 和语言模型训练对照
 
 #table(
   columns: (1fr, 1fr, 1fr),
@@ -705,7 +708,7 @@ loss = MSE(ε_pred, ε_true)
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *扩散 UNet*
+== 扩散 UNet
 
 #table(
   columns: (1fr, 1fr, 1fr),
@@ -720,7 +723,7 @@ loss = MSE(ε_pred, ε_true)
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *UNet vs Transformer*
+== UNet vs Transformer
 
 #table(
   columns: (1fr, 1fr, 1fr),
@@ -737,7 +740,7 @@ loss = MSE(ε_pred, ε_true)
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *和生成范式的关系*
+== 和生成范式的关系
 
 #quote[
   我们可以讨论一下讨论过大模型的三维拆分：*生成范式 × 骨干 × 组成形态*。
@@ -766,7 +769,7 @@ loss = MSE(ε_pred, ε_true)
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *回顾与思考*
+== 回顾与思考
 
 #quote[
   这是笔者加入的新模块，也方便我自己回顾与思考，很多都是我自己学习的疑问
@@ -788,7 +791,7 @@ loss = MSE(ε_pred, ε_true)
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *参考*
+=== 参考
 
 *T1.* 输出 $(1, 16, 32, 32)$；参数 $16 times 3 times 3 times 3 + 16 = 464$。
 
@@ -806,7 +809,7 @@ loss = MSE(ε_pred, ε_true)
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 + *卷积*用局部模板滑动点积，强制局部性与权值共享；多通道时再对输入通道求和，形成 $C_upright(o u t)$ 组检测器。
 + *层数*增加感受野；*下采样*降低分辨率并放大后续层对原图的等效视野；*通道*常随阶段加宽以平衡容量与算力——三者相关但不是同一件事。
@@ -815,13 +818,13 @@ loss = MSE(ε_pred, ε_true)
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 笔者终于在漫长的期末周后回归了。这篇之所以写得偏长，是因为这些概念一旦拆开讲，就会在别的地方以别的名字再出现一次：比如说 UNet 不讲 Skip，讲不出具体的卷积是怎么做的，那就容易发虚。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *参考文献*
+== 参考文献
 
 + LeCun et al. *Gradient-Based Learning Applied to Document Recognition.*\
 CNN 早期系统工作的重要代表。

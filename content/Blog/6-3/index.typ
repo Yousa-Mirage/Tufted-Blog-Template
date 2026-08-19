@@ -2,17 +2,21 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "cs336（2025）｜assignment 1：Transformer架构的测试实验",
-  description: "cs336（2025）｜assignment 1：Transformer架构的测试实验",
+  title: "CS336（2025）｜Assignment 1：Transformer 架构测试实验",
+  description: "记录 CS336 Assignment 1 中 Transformer 组件实现、测试与训练实验。",
   date: datetime(year: 2026, month: 6, day: 3),
   category: "实践与工具",
   lang: "zh",
 )
 
 
-= *cs336（2025）｜assignment 1：Transformer架构的测试实验*
+= CS336（2025）｜Assignment 1：Transformer 架构测试实验
 
-\#2026-6-3 \#cs336 \#transformer \#实验总结
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 3),
+  tags: ("CS336", "项目实践"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -22,7 +26,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *1. 实验内容概览*
+== 1. 实验内容概览
 
 本次 Assignment 1 的实验可以分成两条主线：
 
@@ -42,7 +46,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *2. 相关评估指标解释*
+== 2. 相关评估指标解释
 
 #quote[
   在正式看结果前，先解释几个贯穿全文的指标。
@@ -61,13 +65,13 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *3. Tokenizer 训练：TinyStories 10K vs OpenWebText 32K*
+== 3. Tokenizer 训练：TinyStories 10K vs OpenWebText 32K
 
 Tokenizer 是语言模型训练的第一步。原始文本不能直接输入 Transformer，需要先通过 BPE tokenizer 编码成 token ID 序列。
 
 TinyStories 使用 10K 词表，OpenWebText 使用 32K 词表。两者都采用 byte-level BPE，并加入 special token `<|endoftext|>`。
 
-=== *3.1 Tokenizer 训练参数与结果*
+=== 3.1 Tokenizer 训练参数与结果
 
 #table(
   columns: (1fr, 1fr, 1fr),
@@ -76,7 +80,7 @@ TinyStories 使用 10K 词表，OpenWebText 使用 32K 词表。两者都采用 
   [数据集], [TinyStories], [OpenWebText], [tokenizer 类型], [byte-level BPE], [byte-level BPE], [vocab size], [10,000], [32,000], [special token], [endoftext], [endoftext], [merge 数量], [9,743], [31,743], [最长 token], [`b' accomplishment'`], [长度 64 bytes 的重复乱码 byte 串], [train token 数], [541,229,347], [2,727,120,452], [validation token 数], [5,465,883], [66,401,098], [wallclock time], [8:17.83], [4:08:28], [最大 RSS 内存], [约 1.9 GB], [约 9.5 GB], [是否需要 GPU], [否], [否], [handout 资源限制], [未超限], [低于 12h / 100GB RAM]
 )
 
-=== *3.2 结果分析*
+=== 3.2 结果分析
 
 TinyStories tokenizer 的训练非常轻量，10K 词表在 8 分钟左右完成，最大内存只有约 1.9GB。最长 token 是 `b' accomplishment'`，这是一个带前导空格的英文词片段，说明 tokenizer 学到的是自然语言中常见的 subword，而不是随机 byte 串。
 
@@ -86,7 +90,7 @@ OpenWebText tokenizer 的训练成本明显更高，耗时约 4 小时，内存�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *4. Tokenizer 压缩率与吞吐实验*
+== 4. Tokenizer 压缩率与吞吐实验
 
 #quote[
   Tokenizer 不只是前处理工具，它会直接影响语言模型看到的序列长度。相同文本如果被切成更多 token，模型在固定 context length 下看到的真实字符范围就更短，训练和推理成本也更高。
@@ -94,7 +98,7 @@ OpenWebText tokenizer 的训练成本明显更高，耗时约 4 小时，内存�
 
 本实验比较了 TinyStories tokenizer 和 OWT tokenizer 在 TinyStories 样本与 OWT 样本上的压缩率。
 
-=== *4.1 压缩率实验参数*
+=== 4.1 压缩率实验参数
 
 #table(
   columns: (1fr, 1fr),
@@ -105,7 +109,7 @@ OpenWebText tokenizer 的训练成本明显更高，耗时约 4 小时，内存�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *4.2 压缩率结果*
+=== 4.2 压缩率结果
 
 #table(
   columns: (1fr, 1fr, 1fr, 1fr, 1fr),
@@ -119,7 +123,7 @@ OpenWebText tokenizer 的训练成本明显更高，耗时约 4 小时，内存�
 ]
 #line(length: 100%, stroke: 0.6pt)
 
-=== *4.3 分析*
+=== 4.3 分析
 
 在 TinyStories 样本上，TinyStories tokenizer 的压缩率略优于 OWT tokenizer：
 
@@ -142,7 +146,7 @@ TinyStories tokenizer: 3.3438 bytes/token
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *4.4 Tokenizer 吞吐结果*
+=== 4.4 Tokenizer 吞吐结果
 
 #table(
   columns: (1fr, 1fr, 1fr, 1fr),
@@ -161,13 +165,13 @@ OWT 32K tokenizer 比 TinyStories 10K tokenizer 慢约 6.1%。这也符合预期
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *5. 主训练实验*
+== 5. 主训练实验
 
 #quote[
   接下来比较 TinyStories 和 OpenWebText 上的主训练结果。两个实验使用相同的 Transformer 主体规模、相同 context length、相同 batch size 和相同训练步数。主要差异是数据集和 tokenizer。
 ]
 
-=== *5.1 主训练参数对比*
+=== 5.1 主训练参数对比
 
 #table(
   columns: (1fr, 1fr, 1fr),
@@ -178,7 +182,7 @@ OWT 32K tokenizer 比 TinyStories 10K tokenizer 慢约 6.1%。这也符合预期
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *5.2 主训练结果对比*
+=== 5.2 主训练结果对比
 
 #table(
   columns: (1fr, 1fr, 1fr),
@@ -189,7 +193,7 @@ OWT 32K tokenizer 比 TinyStories 10K tokenizer 慢约 6.1%。这也符合预期
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *5.3 结果分析*
+=== 5.3 结果分析
 #figure(caption: "TinyStory learning rate")[
   #image("imgs/3.png", width: 40%)
 ]
@@ -211,7 +215,7 @@ OpenWebText 的 final validation loss 为 3.9649，perplexity 约 52.6，明显�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *6. Learning Rate Sweep*
+== 6. Learning Rate Sweep
 
 #quote[
   学习率是语言模型训练中最重要的超参数之一。学习率太小，模型学得慢；学习率太大，训练不稳定甚至发散。这里分别在 TinyStories 和 OWT 上做了学习率搜索。
@@ -219,7 +223,7 @@ OpenWebText 的 final validation loss 为 3.9649，perplexity 约 52.6，明显�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.1 TinyStories参数*
+=== 6.1 TinyStories 参数
 
 #table(
   columns: (1fr, 1fr),
@@ -230,7 +234,7 @@ OpenWebText 的 final validation loss 为 3.9649，perplexity 约 52.6，明显�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.2 TinyStories结果*
+=== 6.2 TinyStories 结果
 
 #table(
   columns: (1fr, 1fr, 1fr, 1fr, 1fr, 1fr, 1fr),
@@ -254,7 +258,7 @@ best val loss = 1.4950
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.3 OpenWebText参数*
+=== 6.3 OpenWebText 参数
 
 #table(
   columns: (1fr, 1fr),
@@ -265,7 +269,7 @@ best val loss = 1.4950
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.4 OpenWebText结果*
+=== 6.4 OpenWebText 结果
 
 #table(
   columns: (1fr, 1fr, 1fr),
@@ -285,7 +289,7 @@ OWT 的 LR sweep 只覆盖了 3 个点，比 TinyStories 更窄，但已经能�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.5 高学习率失稳实验*
+=== 6.5 高学习率失稳实验
 
 为了观察 edge of stability，还补充了 TinyStories 上的高学习率实验。
 
@@ -307,7 +311,7 @@ OWT 的 LR sweep 只覆盖了 3 个点，比 TinyStories 更窄，但已经能�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *7. Batch Size Sweep*
+== 7. Batch Size Sweep
 
 #quote[
   Batch size 并不是越大越好。大 batch 每一步看到更多 token，梯度更稳定，但在固定 token budget 下会减少参数更新次数，也可能导致显存压力和吞吐下降。
@@ -317,7 +321,7 @@ OWT 的 LR sweep 只覆盖了 3 个点，比 TinyStories 更窄，但已经能�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *7.1 Batch-size sweep 参数*
+=== 7.1 Batch-size sweep 参数
 
 #table(
   columns: (1fr, 1fr),
@@ -328,7 +332,7 @@ OWT 的 LR sweep 只覆盖了 3 个点，比 TinyStories 更窄，但已经能�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *7.2 Batch-size sweep 结果*
+=== 7.2 Batch-size sweep 结果
 
 #table(
   columns: (1fr, 1fr, 1fr, 1fr, 1fr, 1fr, 1fr, 1fr, 1fr),
@@ -339,7 +343,7 @@ OWT 的 LR sweep 只覆盖了 3 个点，比 TinyStories 更窄，但已经能�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *7.3 分析*
+=== 7.3 分析
 #figure(caption: "Batch-size sweep")[
   #image("imgs/12.png", width: 40%)
 ]
@@ -368,7 +372,7 @@ avg throughput = 47,565 tok/s
   架构消融实验用于判断 Transformer 中不同组件的实际贡献。本组实验在 TinyStories 上进行，使用 5k steps、81.92M tokens，baseline 使用 TinyStories LR sweep 中的最佳学习率 `3e-3`。
 ]
 
-=== *8.1 架构消融实验参数*
+=== 8.1 架构消融实验参数
 
 #table(
   columns: (1fr, 1fr),
@@ -390,7 +394,7 @@ avg throughput = 47,565 tok/s
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *8.3 消融结果分析*
+=== 8.3 消融结果分析
 
 #figure(caption: "消融结果")[
   #image("imgs/14.png", width: 40%)
@@ -407,13 +411,13 @@ avg throughput = 47,565 tok/s
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *9. 生成文本对比*
+== 9. 生成文本对比
 
 #quote[
   生成文本可以帮助我们从定性角度理解模型学到了什么。虽然生成文本不是严格量化指标，但它能直观反映模型的语言风格、连贯性和数据域差异。
 ]
 
-=== *9.1 生成实验参数*
+=== 9.1 生成实验参数
 
 #table(
   columns: (1fr, 1fr, 1fr),
@@ -446,7 +450,7 @@ OWT 模型的输出词面更像成人文本，句法也更复杂，但整体质�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *10. 实验日志与可复现性*
+== 10. 实验日志与可复现性
 
 #quote[
   本次实验的日志系统基本满足 handout 要求。各 run 目录下包含 `metrics.json`、`summary.json` 和 `.log` 文件，可以追踪 step、loss、perplexity、wallclock time 等信息。
@@ -461,7 +465,7 @@ OWT 模型的输出词面更像成人文本，句法也更复杂，但整体质�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 这组实验完整展示了从 tokenizer 到语言模型训练的基本流程，也清楚体现了 TinyStories 和 OpenWebText 两个数据域的差异。
 
@@ -470,7 +474,7 @@ OWT 模型的输出词面更像成人文本，句法也更复杂，但整体质�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   这里展现的是cs336（2025）的第一部分，是笔者第一个跑完的大型实验流程，结果挺有预见性的，帮助对这里的Transformer的大型架构的理解更加的深刻

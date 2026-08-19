@@ -18,7 +18,7 @@
   /// 网站作者。用于生成 <meta name="author"> 标签。（可选）
   author: "Shiyi Li",
   /// 网站描述。用于 SEO 搜索引擎摘要和社交媒体分享预览。（可选）
-  description: "Shiyi Li 的个人博客，记录数学算法、个人评论、绘画方法心得与日记。",
+  description: "Shiyi Li 的个人博客，整理技术学习、论文阅读、项目实践与个人记录。",
   /// 站点的根 URL (例如 "https://example.com")。用于生成 Canonical URL 元数据。（可选）
   website-url: "https://shiyilee11.github.io/Tufted-Blog-Template/",
   /// GitHub Pages 项目站点部署在子路径下时填写仓库名；如果部署到域名根目录则留空。

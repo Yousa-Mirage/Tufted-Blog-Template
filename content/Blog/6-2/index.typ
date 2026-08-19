@@ -3,17 +3,21 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜架构演进（0）：从Transformer架构到现代大模型导览",
-  description: "Transformer｜架构演进（0）：从Transformer架构到现代大模型导览",
+  title: "Transformer｜架构演进（0）：从 Transformer 架构到现代大模型导览",
+  description: "从原始 Transformer 出发，梳理词表、位置编码、注意力与现代大模型架构的演进主线。",
   date: datetime(year: 2026, month: 6, day: 2),
   category: "数学与算法",
   lang: "zh",
 )
 
 
-= *Transformer｜架构演进（0）：从Transformer架构到现代大模型导览*
+= Transformer｜架构演进（0）：从 Transformer 架构到现代大模型导览
 
-_*\#2026-6-2\#反向传播\#tranformer\#初始化\#缩放因子*_
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 2),
+  tags: ("Transformer", "架构演进"),
+)
+
 
 #tufted.margin-note[
   *阅读提示：* 笔者打算新开一个系列，想从我们从cs336出发看到的基本模型架构系统性地去了解现代大模型的一些比较新的架构原理，所以在这里先以一个序言来来开始我们新的旅途。对一个领域的学习总是逃不开对这个领域发展历史的了解，这有助于我们更加全面系统地将每一个由Transformer组件演化来的新的部分给纳入我们的认知体系，使它不再是单一的凌乱的知识点。整理和总结是非常重要的：抽离出一系列演化的基本准则以及规律，理解行业，预测风向，都是我们可以借此去做到的。以下展示的仅是作者的个人想法，如果你有什么好的思考，请联系笔者📮好了，这部分不需要什么前置知识，如果你感兴趣，大可以当成科普内容来读，笔者会尽量讲的清晰。祝食用愉快～👼
@@ -21,7 +25,7 @@ _*\#2026-6-2\#反向传播\#tranformer\#初始化\#缩放因子*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *导言：从哪里开始？*
+== 导言：从哪里开始？
 
 #quote[
   2017 年，Vaswani 等人在论文 *Attention Is All You Need* 中提出 Transformer。这个模型最初主要服务于机器翻译任务，但在之后几年里，它逐渐成为自然语言处理乃至现代大模型的基础架构。
@@ -76,7 +80,7 @@ _*这些模型为什么会在相同的 Transformer 主干上，对不同组件�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *2017 Transformer：原始框架长什么样？*
+== 2017 Transformer：原始框架长什么样？
 
 原始 Transformer 是一个 Encoder-Decoder 架构。
 
@@ -151,7 +155,7 @@ Encoder-Decoder Architecture
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Transformer后的三条主要路线*
+== Transformer 后的三条主要路线
 
 #quote[
   Transformer 提出之后，模型结构逐渐分化成三条主线：
@@ -170,7 +174,7 @@ Encoder-Decoder
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Encoder-only：BERT 路线*
+=== Encoder-only：BERT 路线
 
 #quote[
   Encoder-only 模型只保留 Transformer Encoder。代表模型是 *BERT*。
@@ -216,7 +220,7 @@ The cat [MASK] on the mat.
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Decoder-only：GPT 路线*
+=== Decoder-only：GPT 路线
 
 #quote[
   Decoder-only 模型只保留 Transformer Decoder 中的 causal self-attention 部分。代表模型是 *GPT 系列*。
@@ -266,7 +270,7 @@ Decoder-only 模型有一个非常重要的特点：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Encoder-Decoder：T5 / BART 路线*
+=== Encoder-Decoder：T5 / BART 路线
 
 Encoder-Decoder 模型同时保留 Encoder 和 Decoder。代表模型包括：T5、BART、mT5、UL2
 这类模型适合把一个输入序列转换成另一个输出序列。
@@ -303,7 +307,7 @@ _*这3条路径各有优劣。不过，我们也可以看到，在超大规模�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *为什么现代 LLM 主要走向 Decoder-only？*
+== 为什么现代 LLM 主要走向 Decoder-only？
 
 现代聊天模型、代码模型、通用助手模型和 agent 模型，大多采用 decoder-only 架构。
 
@@ -311,7 +315,7 @@ _*这3条路径各有优劣。不过，我们也可以看到，在超大规模�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *1.训练目标足够简单*
+=== 1. 训练目标足够简单
 
 Decoder-only 模型的预训练目标是：
 
@@ -327,7 +331,7 @@ Decoder-only 模型的预训练目标是：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *2.生成能力天然统一*
+=== 2. 生成能力天然统一
 
 很多任务都可以统一成生成问题。
 
@@ -346,7 +350,7 @@ Decoder-only 模型的预训练目标是：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *3.容易衔接指令微调和偏好对齐*
+=== 3. 容易衔接指令微调和偏好对齐
 
 预训练之后，模型可以通过 instruction tuning 学会遵循人类指令。
 
@@ -362,7 +366,7 @@ Assistant: 梯度下降是一种优化算法……
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *4.推理时可以使用 KV Cache*
+=== 4. 推理时可以使用 KV Cache
 
 自回归生成时，模型每次只生成一个新 token。如果每次生成都重新计算整个上下文，成本会非常高。
 
@@ -388,7 +392,7 @@ Sliding Window Attention
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *现代 LLM 的组件*
+== 现代 LLM 的组件
 
 虽然现代大模型大多采用 decoder-only 架构，但它们内部仍然可以拆成多个核心组件。
 
@@ -420,7 +424,7 @@ Next-token logits
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *1.Vocab、Tokenizer、Embedding 与 LM Head*
+=== 1. Vocab、Tokenizer、Embedding 与 LM Head
 
 模型首先需要把文本变成 token。
 
@@ -450,7 +454,7 @@ Next-token logits
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *2.Positional Encoding*
+=== 2. Positional Encoding
 
 Attention 本身并不知道 token 的顺序。
 
@@ -491,7 +495,7 @@ _*所以 positional encoding 是现代 LLM 架构演进中的关键模块之一�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *3.Attention*
+=== 3. Attention
 
 Attention 是 Transformer 的核心。
 
@@ -530,7 +534,7 @@ _*因此，现代 attention 已经不只是原始论文中的 MHA，而是变成
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *4.FFN*
+=== 4. FFN
 
 Transformer block 中除了 attention，另一个重要组件是 FFN。
 
@@ -560,7 +564,7 @@ FFN 在大模型中非常重要，因为它通常占据大量参数。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *5.MoE*
+=== 5. MoE
 
 MoE，全称是 *Mixture of Experts*。它是近年来大模型扩展的重要路线。
 
@@ -594,7 +598,7 @@ _*所以 MoE 不只是一个简单的“参数变多技巧”，其实是一整�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *6.Normalization 与 Residual*
+=== 6. Normalization 与 Residual
 
 Normalization 和 residual connection 决定了深层 Transformer 是否容易训练。
 
@@ -629,7 +633,7 @@ _*模型越深、参数越大、训练步数越长，normalization 和 residual 
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *现代优化的需求来源*
+== 现代优化的需求来源
 
 现在我们可以回答一个更本质的问题：
 
@@ -644,7 +648,7 @@ _*模型越深、参数越大、训练步数越长，normalization 和 residual 
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *1.模型规模变大*
+=== 1. 模型规模变大
 
 2017 年的 Transformer 和今天的大模型不是一个量级。
 
@@ -670,7 +674,7 @@ MoE
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *2.上下文变长*
+=== 2. 上下文变长
 
 早期 Transformer 的上下文长度通常比较短。
 
@@ -699,7 +703,7 @@ _*长上下文是一个系统能力。它要求位置编码、attention 机制�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *3.推理成本变高*
+=== 3. 推理成本变高
 
 大模型不仅要训练出来，还要能服务用户。（需求是很重要的）
 
@@ -727,7 +731,7 @@ _*现代 LLM 架构设计已经不能只考虑训练效果，还必须考虑部�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *4.表达能力要求更强*
+=== 4. 表达能力要求更强
 
 - 现代模型要处理的任务越来越复杂：
   - 数学推理
@@ -752,7 +756,7 @@ Reasoning Post-training
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *5.模型从语言模型变成助手*
+=== 5. 模型从语言模型变成助手
 
 原始语言模型只需要学会预测下一个 token。
 
@@ -782,7 +786,7 @@ Reasoning RL
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *从 2017 Transformer 到现代 LLM*
+== 从 2017 Transformer 到现代 LLM
 
 #quote[
   我们先在这里总结一下涉及到的主流内容：
@@ -797,7 +801,7 @@ Reasoning RL
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *如何展开？*
+=== 如何展开？
 
 这个系列会按照组件逐一展开。示例如下：
 
@@ -814,7 +818,7 @@ Reasoning RL
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 #quote[
   从 2017 年的 Transformer 到今天的现代大模型，最重要的变化不局限于某一个单点技巧，而是整个架构在大规模训练和大规模部署中的系统性进化。
@@ -850,7 +854,7 @@ Post-training 更关注助手行为。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   非常兴奋我们将要开始讲一段新的故事，我预感到这将是一个长长的系列，笔者这次要更加负责一点，回到最原始的文献去看每一个架构的诞生，会做的尽量更加仔细，希望能对你有帮助。有任何建议或者想要补充以及后续有兴趣看的架构组件部分可以练习笔者，十分欢迎👏
@@ -858,7 +862,7 @@ Post-training 更关注助手行为。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *参考文献*
+== 参考文献
 
 #tufted.margin-note[
   这里涉及到了部分后续解析的时候会详细讲到的内容以及相关涉及到的论文

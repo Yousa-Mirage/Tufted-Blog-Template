@@ -4,22 +4,26 @@
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
   title: "Transformer｜架构演进（3）：Vocab 系统（3）——高效词表、词表适配与 Tokenizer-free",
-  description: "Transformer｜架构演进（3）：Vocab 系统（3）——高效词表、词表适配与 Tokenizer-free",
+  description: "讨论高效词表、跨语言词表适配与 Tokenizer-free 模型的设计取舍。",
   date: datetime(year: 2026, month: 6, day: 9),
   category: "数学与算法",
   lang: "zh",
 )
 
 
-= *Transformer｜架构演进（3）：Vocab 系统（3）——高效词表、词表适配与 Tokenizer-free*
+= Transformer｜架构演进（3）：Vocab 系统（3）——高效词表、词表适配与 Tokenizer-free
 
-\#2026-6-9 \#transformer \#vocab
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 6, day: 9),
+  tags: ("Transformer", "架构演进"),
+)
+
 
 #line(length: 100%, stroke: 0.6pt)
 #tufted.margin-note[
   *阅读提示：* Vocab的最后一部分，是时候说再见了，“萨扬娜拉”。祝食用愉快～🥹
 ]
-== *导言*
+== 导言
 
 #quote[
   前两篇里，我们默认了一件事：模型有一个固定词表。
@@ -48,7 +52,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *固定词表的问题*
+== 固定词表的问题
 
 固定词表系统的核心矛盾，可以用两个变量概括：
 
@@ -69,7 +73,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *在固定词表内提高效率*
+== 在固定词表内提高效率
 
 #quote[
   最直接的思路是：我们仍然使用 fixed vocabulary，但不再天真地给每个 token 同样的计算和表示待遇。
@@ -77,7 +81,7 @@
 
 自然语言的 token 分布高度不均匀。少数高频 token 覆盖了大量文本，大量低频 token 很少出现。这个 Zipf 分布特性，是很多高效词表方法的出发点。
 
-=== *Adaptive Softmax*
+=== Adaptive Softmax
 
 在 decoder-only language model 里，LM Head 要把 hidden state 映射到整个 vocabulary 上。
 
@@ -107,7 +111,7 @@ Grave 等人在 2017 年提出 *Efficient Softmax Approximation for GPUs*，利�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Adaptive Input Representations*
+=== Adaptive Input Representations
 
 #quote[
   既然输出侧可以按词频分配计算，那么输入侧是否也可以按词频分配表示容量？
@@ -139,7 +143,7 @@ Tied embedding 解决的是“输入输出是否重复存两份”。Factorized 
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Vocab Parallelism*
+=== Vocab Parallelism
 
 #quote[
   在现代大模型训练中，很多时候不会用 approximate softmax，而是保留 full softmax，然后靠系统并行解决。
@@ -167,7 +171,7 @@ Megatron-LM 这类系统会把 embedding / unembedding 按 vocabulary dimension 
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *更高效的 tokenization*
+=== 更高效的 tokenization
 
 #quote[
   前面几个方法主要优化 $V$ 相关的参数和计算。但还有另一条思路：不一定先压缩 embedding 或 LM Head，而是让 tokenizer 切得更高效，减少序列长度 $T$。
@@ -191,7 +195,7 @@ SuperBPE 就是这类方法。它指出，大多数 tokenizer 默认 token 应�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *让词表适应任务、语言和领域*
+== 让词表适应任务、语言和领域
 
 #quote[
   第一条路线是在固定词表内提升效率。第二条路线则是：既然固定词表不一定适合所有场景，那我们能不能根据目标任务修改它？
@@ -208,7 +212,7 @@ SuperBPE 就是这类方法。它指出，大多数 tokenizer 默认 token 应�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Vocabulary Expansion*
+=== Vocabulary Expansion
 
 假设我们拿一个英语中心模型去做韩语、中文、生物医学、法律、游戏文本或代码领域。
 
@@ -239,7 +243,7 @@ SuperBPE 就是这类方法。它指出，大多数 tokenizer 默认 token 应�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *EEVE*
+=== EEVE
 
 #quote[
   EEVE 是一个典型的多语言词表扩展示例。它面向韩语适配，针对英语中心模型在韩语文本上 tokenization 低效的问题，提出使用 vocabulary expansion、subword-based embedding initialization 和分阶段参数冻结训练。报告中指出，它可以在相对较少的 2B token 训练下显著提升韩语能力。
@@ -263,7 +267,7 @@ SuperBPE 就是这类方法。它指出，大多数 tokenizer 默认 token 应�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *“inner lexicon”*
+=== “inner lexicon”
 
 #quote[
   更前沿的 vocabulary expansion 不只是看 tokenizer 频率，还开始研究模型内部是否已经形成了“词级表示”。
@@ -295,7 +299,7 @@ SuperBPE 就是这类方法。它指出，大多数 tokenizer 默认 token 应�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *AdaptiVocab*
+=== AdaptiVocab
 
 #quote[
   另一个很实际的方向是面向 focused domain 做词表适配。
@@ -309,7 +313,7 @@ AdaptiVocab 提出，在特定领域里，通用模型的完整能力和完整�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Vocabulary Pruning*
+=== Vocabulary Pruning
 
 Expansion 是加 token，pruning 是删 token。
 
@@ -333,7 +337,7 @@ Vocabulary pruning 的思路是：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *COMPACT*
+=== COMPACT
 
 #quote[
   更近期的 COMPACT 把 vocabulary pruning 和 FFN pruning 结合起来。它观察到不同规模模型的参数分布不同，小模型中 vocab 参数占比很高，大模型中 FFN 参数更重。因此，它提出同时剪掉 rare vocabulary 来缩小 embedding / LM Head，并用 common-token-weighted activations 来剪 FFN channel。论文在 Qwen、LLaMA、Gemma 等 0.5B 到 70B 模型上做实验，目标是同时减少参数、GPU memory 和 latency。
@@ -351,7 +355,7 @@ Vocabulary pruning 的思路是：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Tokenizer-free*
+== Tokenizer-free
 
 #quote[
   前面两条路线都默认 tokenizer 仍然存在。
@@ -375,7 +379,7 @@ Vocabulary pruning 的思路是：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *CANINE*
+=== CANINE
 
 CANINE 是 tokenizer-free encoder 的代表。它直接处理 character sequence，不依赖固定 subword vocabulary，并通过 downsampling 缩短序列，让后续 Transformer 能处理更长的字符输入。CANINE 在 TyDi QA 等多语言任务上表现出对 mBERT 的竞争力，并且参数更少。
 
@@ -385,7 +389,7 @@ CANINE 是 tokenizer-free encoder 的代表。它直接处理 character sequence
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *ByT5*
+=== ByT5
 
 ByT5 是 byte-level encoder-decoder 模型。它基于 T5/mT5 框架，直接处理 UTF-8 bytes，而不是 subword token。ByT5 的目标是走向 token-free future，并且在多语言任务和输入扰动鲁棒性上表现出优势。
 
@@ -397,7 +401,7 @@ Byte-level 的好处是覆盖任何文本，不需要 OOV，也不依赖 Unicode
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *Charformer*
+=== Charformer
 
 Charformer 走的是另一条路线：不是完全放弃 tokenization，而是把 tokenization 的一部分变成模型内部可学习的过程。
 
@@ -413,7 +417,7 @@ Charformer 走的是另一条路线：不是完全放弃 tokenization，而是�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *MEGABYTE*
+=== MEGABYTE
 
 MEGABYTE 面对的是 byte-level 序列过长的问题。
 
@@ -429,7 +433,7 @@ MEGABYTE 的目标是让 byte-level autoregressive modeling 能扩展到更长�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *BLT*
+=== BLT
 
 Byte Latent Transformer，简称 BLT，是目前非常值得关注的 tokenizer-free / byte-level 方向。
 
@@ -457,7 +461,7 @@ BLT 是：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *T-FREE*
+=== T-FREE
 
 #figure(caption: "T-Free")[
   #image("imgs/2.png", width: 40%)
@@ -474,7 +478,7 @@ T-FREE 和 BLT 不完全一样。BLT 更像是 byte-level dynamic patch architec
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *Tokenizer-free还没有成为主流？*
+== Tokenizer-free 还没有成为主流？
 
 #quote[
   看起来 tokenizer-free 很有吸引力：没有 OOV，没有词表偏置，更适合多语言和噪声文本，也更适合未来多模态统一。但它还没有取代主流 fixed tokenizer，原因也很现实。
@@ -482,7 +486,7 @@ T-FREE 和 BLT 不完全一样。BLT 更像是 byte-level dynamic patch architec
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *序列长度成本*
+=== 序列长度成本
 
 byte 或 character 序列比 subword 序列长很多。
 
@@ -492,7 +496,7 @@ byte 或 character 序列比 subword 序列长很多。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *训练系统不兼容*
+=== 训练系统不兼容
 
 现有 LLM 训练系统高度围绕 token sequence 优化。
 
@@ -502,7 +506,7 @@ Tokenizer-free 改变的不只是模型输入，还会改变整个训练和服�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *解码和可控性问题*
+=== 解码和可控性问题
 
 传统 token 是离散 vocabulary item，生成时比较容易做 top-k、top-p、bad words filter、grammar constraint、JSON constraint。
 
@@ -510,7 +514,7 @@ Tokenizer-free 改变的不只是模型输入，还会改变整个训练和服�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *迁移成本*
+=== 迁移成本
 
 现在有大量强大的 pretrained LLM 已经基于 fixed tokenizer 训练好。
 
@@ -520,7 +524,7 @@ Tokenizer-free 改变的不只是模型输入，还会改变整个训练和服�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *高效词表*
+== 高效词表
 
 - 评价 tokenizer 或 vocab adaptation常见指标包括：
   - fertility：一个词平均被切成几个 token；
@@ -542,7 +546,7 @@ Ali 等人的 *Tokenizer Choice For LLM Training* 也指出，fertility 和 pari
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 - 现在可以把 Vocab 系统整体串起来：
   - Tokenizer 决定模型读取文本的基本单位；
@@ -564,7 +568,7 @@ Ali 等人的 *Tokenizer Choice For LLM Training* 也指出，fertility 和 pari
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   第一部分Vocab到这里结束了，有些部分讲的不算很细，因为笔者对后面的几个组件的偏重要大一点，具体对相关组件有兴趣的请具体自己去看，笔者主要起到一个整理导览叙述的作用。下次再见。
@@ -572,7 +576,7 @@ Ali 等人的 *Tokenizer Choice For LLM Training* 也指出，fertility 和 pari
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *参考文献*
+== 参考文献
 
 + Grave et al., 2017. *Efficient Softmax Approximation for GPUs.*\
 Adaptive Softmax 的经典论文。

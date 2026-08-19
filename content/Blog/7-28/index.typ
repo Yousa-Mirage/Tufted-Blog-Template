@@ -2,20 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 
-\\\#show: template.with(
-  title: "检索工程实践｜大规模特定中医文献筛选及检索库搭建总结",
-  description: "检索工程实践｜大规模特定中医文献筛选及检索库搭建总结",
-  date: datetime(year: 2026, month: 7, day: 20),
-  category: "数学与算法",
+#show: template.with(
+  title: "工程实践｜大规模中医文献筛选与检索库搭建",
+  description: "总结大规模中医文献的分层筛选、MinerU 解析、元数据构建、正文过滤与 SQLite 检索服务。",
+  date: datetime(year: 2026, month: 7, day: 28),
+  category: "实践与工具",
   lang: "zh",
 )
-\\\
+= 工程实践｜大规模中医文献筛选与检索库搭建
 
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 7, day: 28),
+  tags: ("工程实践", "文献检索"),
+)
 
-
-= *检索工程实践｜大规模特定中医文献筛选及检索库搭建总结*
-
-\#2026-07-28 \#项目实践 \#总结 \#文献筛查
 
 #line(length: 100%, stroke: 0.6pt)
 
@@ -27,7 +27,7 @@
 #figure(caption: "网页前端展示")[
   #image("imgs/1.png", width: 40%)
 ]
-== *引言：解决什么问题？*
+== 引言：解决什么问题？
 
 #quote[
   基于项目的循证需求，需要得到特定主题的文献（寒热+表型），所以在开始前需要明确我们的问题：
@@ -52,7 +52,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *三层证据体系*
+== 三层证据体系
 
 #quote[
   根据调查以及前期总结，我们把文献按来源和证据用途分为三个层级,不同来源的层级包含的内容的置信度是不同的：
@@ -84,9 +84,9 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *第一阶段：筛选标准与追踪*
+== 第一阶段：筛选标准与追踪
 
-=== *通用流水线*
+=== 通用流水线
 
 #quote[
   每个来源大致按以下顺序进入查询体系：
@@ -106,7 +106,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *规则词和排除逻辑*
+=== 规则词和排除逻辑
 
 #quote[
   规则这里做了2个阶段的关键词匹配，不是简单搜索“寒热”两个字，同时在第二阶段还按语境进行了上下文精确筛选：
@@ -122,7 +122,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *补充： Aho-Corasick（pyahocorasick）*
+=== 补充：Aho-Corasick（pyahocorasick）
 
 #quote[
   Aho-Corasick（pyahocorasick）是一个“多关键词同时匹配”的快速字符串检索工具。它不是数据库，也不是语义模型，而是把大量关键词预先构造成自动机，然后对每篇文献只扫描一遍文本，就能同时找出所有命中的词。
@@ -150,7 +150,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *STRICT、BROAD 和 LLM 的关系*
+=== STRICT、BROAD 和 LLM 的关系
 
 - `KEEP_STRICT`：高精度候选，通常同时有寒热核心词、证候/表型词和中医/研究语境。
 - `KEEP_BROAD`：有明确相关线索但治疗性、症状性或标题歧义更强的候选，用于避免过早漏召回。
@@ -159,9 +159,9 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *第二阶段：利用MinerU 转可追踪结构*
+== 第二阶段：利用 MinerU 转可追踪结构
 
-=== *只保留 Markdown 不够*
+=== 只保留 Markdown 不够
 
 Markdown 适合阅读，但不适合精确定位。Markdown 不一定保留：
 
@@ -194,7 +194,7 @@ images/
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *screen、状态和断点*
+=== screen、状态和断点
 
 #quote[
   大批量 PDF 转换可能运行数小时，因此使用 screen 保持长任务。screen 只负责让进程在 SSH 断开后继续运行，真正的可恢复性来自：
@@ -211,7 +211,7 @@ screen 解决“任务如何活着”，状态文件解决“任务如何恢复�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *第三阶段：建立稳定的 Markdown 和 PDF 对应关系*
+== 第三阶段：建立稳定的 Markdown 和 PDF 对应关系
 
 raw MinerU 输出包含 GPU、batch 和内部目录名，不适合直接暴露给业务层。因此建立稳定的 normalized 目录：
 
@@ -236,7 +236,7 @@ normalized Markdown 通常是指向 raw Markdown 的符号链接：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *补充：长文件名问题*
+=== 补充：长文件名问题
 
 曾经有一篇长标题论文的 MinerU 日志显示 7/7 页处理成功，但批处理脚本报告 unresolved\_md=1。检查后发现：
 
@@ -255,9 +255,9 @@ _*这个问题说明：工具任务成功退出，不等于业务流水线已经
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *第四阶段：从 content\_list 建立 block 级元数据*
+== 第四阶段：从 content\_list 建立 block 级元数据
 
-=== *block 是？*
+=== block 是？
 
 MinerU 从页面识别出的一个结构单元就是 block，可能是：
 
@@ -308,7 +308,7 @@ bbox 是 PDF 页面坐标中的矩形，通常为 x0、y0、x1、y1。系统同�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *上下文如何生成？*
+=== 上下文如何生成？
 
 命中一个 block 时，系统在同一页取：
 
@@ -320,7 +320,7 @@ bbox 是 PDF 页面坐标中的矩形，通常为 x0、y0、x1、y1。系统同�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *term-hit*
+=== term-hit
 
 #quote[
   term-hit 是某个预定义术语在某个 block 中的命中记录，通常包含：
@@ -338,9 +338,9 @@ bbox 是 PDF 页面坐标中的矩形，通常为 x0、y0、x1、y1。系统同�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *第五阶段：正文分类，排除目录和参考文献污染*
+== 第五阶段：正文分类，排除目录和参考文献污染
 
-=== *正文过滤？*
+=== 正文过滤？
 
 不做正文分类时，下面内容会产生明显误判：
 
@@ -390,7 +390,7 @@ bbox 是 PDF 页面坐标中的矩形，通常为 x0、y0、x1、y1。系统同�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *第六阶段：把共现定义落实到同一个 block*
+== 第六阶段：把共现定义落实到同一个 block
 
 #quote[
   我们要实现多术语共现检查的时候，共现不能定义为“同一篇文章都出现过”。正确的定义是：
@@ -426,9 +426,9 @@ min(3, 5) = 3
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *第七阶段：构建 SQLite 查询服务*
+== 第七阶段：构建 SQLite 查询服务
 
-=== *SQLite*
+=== SQLite
 
 #quote[
   当前规模约为 2,244,174 个 blocks、24,713 篇文档。SQLite 的现实优势是：
@@ -443,7 +443,7 @@ min(3, 5) = 3
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *主库表*
+=== 主库表
 
 #table(
   columns: (1fr, 1fr),
@@ -454,7 +454,7 @@ min(3, 5) = 3
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *HTTP API 和网页端*
+=== HTTP API 和网页端
 
 服务是一个独立 HTTP server
 
@@ -471,7 +471,7 @@ min(3, 5) = 3
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *PDF 回溯*
+=== PDF 回溯
 
 每个命中 block 带有 page\_no、bbox、pdf\_url、preview\_url 和 preview\_info\_url。服务用 pdftoppm 渲染对应页面，再根据原始页面尺寸和预览图尺寸换算 bbox。
 
@@ -479,15 +479,15 @@ Markdown 是阅读视图，content\_list.json 才是 PDF 定位的主要事实�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *查询加速*
+== 查询加速
 
-=== *metadata term-hit*
+=== metadata term-hit
 
 预建术语优先查 hits 表，使用 term、term\_norm 和 doc 索引。这条路径适合稳定的寒热术语统计。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *SQLite FTS5 trigram*
+=== SQLite FTS5 trigram
 
 三字及以上未知词使用：
 
@@ -510,7 +510,7 @@ tokenize='trigram'
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== *字符级 FTS5 旁路索引*
+=== 字符级 FTS5 旁路索引
 
 FTS5 trigram 对少于三个字符的中文查询不适合。原 fallback 是：
 
@@ -564,7 +564,7 @@ CJK 连续段之间插入 break token，避免跨越标点、拉丁字母或其�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 + 先建立唯一文献清单，再做任何重处理。
 + 筛选阶段追求高召回，精确性留给后续内容判断。
@@ -574,7 +574,7 @@ CJK 连续段之间插入 break token，避免跨越标点、拉丁字母或其�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *笔者的话*
+== 笔者的话
 
 #quote[
   是一次做工程项目的经验总结，这是一次很有趣的实践，我花了几乎整整一个星期去做它，非常不错。但革命尚未成功，笔者仍需努力～💪

@@ -2,17 +2,20 @@
 
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
-  title: "Transformer｜反向传播 (Backpropagation)（2）：两个特殊模块：Softmax 与 RMSNorm",
-  description: "Transformer｜反向传播 (Backpropagation)（2）：两个特殊模块：Softmax 与 RMSNorm",
+  title: "Transformer｜反向传播（Backpropagation）（2）：两个特殊模块——Softmax 与 RMSNorm",
+  description: "推导 Softmax 与 RMSNorm 的反向传播，并解释归一化运算中的梯度耦合。",
   date: datetime(year: 2026, month: 5, day: 19),
-  category: "数学算法",
+  category: "数学与算法",
   lang: "zh",
 )
 
 
+= Transformer｜反向传播（Backpropagation）（2）：两个特殊模块——Softmax 与 RMSNorm
 
-
-= *Transformer｜反向传播 (Backpropagation)（2）：两个特殊模块：Softmax 与 RMSNorm*
+#tufted.post-meta(
+  date: datetime(year: 2026, month: 5, day: 19),
+  tags: ("Transformer", "反向传播"),
+)
 
 #tufted.margin-note[
   *阅读提醒*：上一篇我们推导了线性层的两个核心公式。但 Transformer 里不全是线性层——还有 Softmax 和 RMSNorm 这两个"非线性"模块。作为数据归一化的“主力”它们的共同特点是：*几乎没有可学习参数*（在经典Transformer中RMSNorm 有一个 γ，但主体运算没有权重矩阵），但是这两个模块都涉及到了对误差计算的耦合，学习了这一块对耦合的处理之后，再进入对Attention模块的耦合处理就会显得比较亲切了，祝食用愉快～😌
@@ -23,7 +26,7 @@
 ]
 #line(length: 100%, stroke: 0.6pt)
 
-== *导言：logits 到底在哪里？*
+== 导言：logits 到底在哪里？
 
 #quote[
   很多人会混淆 logits 和 Softmax 的位置关系。让我们把整个流程画清楚：
@@ -72,7 +75,7 @@ _*让我们把这两种情况都说清楚。*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *情况一：Softmax + 交叉熵*
+== 情况一：Softmax + 交叉熵
 
 这是输出层的情况。Softmax 和交叉熵总是成对出现。
 
@@ -109,7 +112,7 @@ $ Delta_"logits" = (partial L)/(partial "logits") = y_(p r e d) - y_(g t) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *情况二：Softmax 单独出现*
+== 情况二：Softmax 单独出现
 
 #figure(caption: "Softmax处理本质：归一化")[
   #image("imgs/s.png", width: 50%)
@@ -248,7 +251,7 @@ Attention 里（Softmax 单独出现）：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *RMSNorm 的反向传播*
+== RMSNorm 的反向传播
 
 === RMSNorm 出现在哪里？
 
@@ -423,7 +426,7 @@ $  Delta_x = 1/"rms" (Delta_hat(x) - hat(x) dot.op c), quad c = 1/d sum_j Delta_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== *小结*
+== 小结
 
 ```
                     Softmax                      RMSNorm
@@ -473,11 +476,11 @@ L（损失）
 Δ_x_in  → 传给上一个 Block
 ```
 
-== *笔者的话*
+== 笔者的话
 
 _*你会发现我们将要进入Block里面最重要的两个模块：FFN以及Attention，笔者接下来会以SwiGLU为代表的前馈网络以及Self-Attention作为推导背景来展开推导*_
 
-== *参考资料*
+== 参考资料
 
 - Laurent Bou´,_Deep learning for pedestrians: backpropagation in Transformers_
 - Stanford lecture,_cs336(2025-2026)_
