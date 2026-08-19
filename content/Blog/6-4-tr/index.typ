@@ -28,7 +28,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 导言
+== *导言*
 
 #quote[
   在介绍 Transformer 架构演进时，我们往往会很快进入 Attention、FFN、RoPE、MoE、RMSNorm 这些模块。但在所有这些模块之前，还有一个更基础的问题：
@@ -70,7 +70,7 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 为什么 Vocab 系统要拆成三部分讲？
+== *为什么 Vocab 系统要拆成三部分讲？*
 
 #quote[
   Vocab 系统看起来简单，但它牵涉的问题很多。如果一篇文章里同时讲 tokenizer、embedding、LM Head、tied embedding、adaptive softmax、tokenizer-free，很容易变成概念堆砌。
@@ -80,7 +80,7 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 第一部分：Tokenizer 与 Vocabulary Size
+=== *第一部分：Tokenizer 与 Vocabulary Size*
 
 第一篇，也就是本文，主要回答一个问题：
 
@@ -103,7 +103,7 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 第二部分：Embedding、LM Head 与 Tied Embedding
+=== *第二部分：Embedding、LM Head 与 Tied Embedding*
 
 #quote[
   当 tokenizer 已经把文本变成 token id 之后，模型仍然不能直接处理这些整数。它需要 input embedding 把 token id 变成向量。
@@ -134,7 +134,7 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 第三部分：高效词表、词表适配与 Tokenizer-free
+=== *第三部分：高效词表、词表适配与 Tokenizer-free*
 
 #quote[
   前两篇默认我们使用一个固定词表。但固定词表本身也有局限。
@@ -160,7 +160,7 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 三篇文章的逻辑顺序
+=== *三篇文章的逻辑顺序*
 
 这三部分的顺序，其实就是文本在模型中的自然流动顺序：
 
@@ -168,7 +168,7 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-== Tokenizer 不是简单预处理
+== *Tokenizer 不是简单预处理*
 
 #quote[
   很多人第一次接触 tokenizer 时，会把它理解成一个普通预处理步骤。好像只要把文本切成 token，再映射成 id，就完成了,对吧？💨
@@ -198,13 +198,13 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 从 word 到 subword：Tokenizer 的早期演进
+== *从 word 到 subword：Tokenizer 的早期演进*
 
 #quote[
   理解现代 tokenizer，最好从最朴素的方法开始。
 ]
 
-=== 1. Word-level tokenizer
+=== *1. Word-level tokenizer*
 
 最自然的想法是按词切分。
 
@@ -228,7 +228,7 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 2. Character-level tokenizer
+=== *2. Character-level tokenizer*
 
 另一个极端是按字符切分。
 
@@ -250,7 +250,7 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 3. Subword tokenizer
+=== *3. Subword tokenizer*
 
 于是，一个自然的折中方案出现了：subword tokenization。
 
@@ -280,7 +280,7 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-== BPE、WordPiece、SentencePiece：经典 tokenizer 方法如何变化？
+== *BPE、WordPiece、SentencePiece：经典 tokenizer 方法如何变化？*
 
 #quote[
   Subword tokenization 不是一个单一方法，而是一类方法。这里最经典的有 BPE、WordPiece、Unigram LM 和 SentencePiece。
@@ -292,7 +292,7 @@ Next Token
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== BPE：从字符开始，反复合并最高频组合
+=== *BPE：从字符开始，反复合并最高频组合*
 
 #quote[
   BPE，全称 Byte Pair Encoding，最初是一种数据压缩算法，后来被引入神经机器翻译，用来解决 rare words 和 open vocabulary 问题。
@@ -356,7 +356,7 @@ BPE 的优点是简单、稳定、工程实现成熟，也非常适合大规模�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== WordPiece：不只看频率，而是看“合并后是否更值得”
+=== *WordPiece：不只看频率，而是看“合并后是否更值得”*
 
 #quote[
   WordPiece 和 BPE 很相似，也是一种从小单位逐步构造子词词表的方法。它同样从字符或基础符号开始，然后不断合并成更大的 subword。
@@ -427,7 +427,7 @@ WordPiece 的优点是：相比纯频率合并，它更强调子词组合对语�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== Unigram LM：先准备大量候选，再删掉不重要的子词
+=== *Unigram LM：先准备大量候选，再删掉不重要的子词*
 
 Unigram LM 和 BPE、WordPiece 的思路明显不同。
 
@@ -477,7 +477,7 @@ Unigram LM 会给每个 subword 一个概率，并认为一句话的概率由它
   + 删除贡献较小的 subword；
   + 重复这个过程，直到词表大小满足要求。]
 
-==== 补充：Unigram LM 完整流程(选择性阅读)
+==== *补充：Unigram LM 完整流程(选择性阅读)*
 
 #tufted.margin-note[在此感谢提出疑问的读者，帮助我完善了blog内容]
 
@@ -604,7 +604,7 @@ Unigram LM 的优点是概率解释更自然，也更适合 subword sampling。�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== SentencePiece：让 tokenizer 直接处理 raw text
+=== *SentencePiece：让 tokenizer 直接处理 raw text*
 
 #quote[
   SentencePiece 容易和 Unigram LM 混在一起，但严格来说它们不是一回事。
@@ -660,7 +660,7 @@ SentencePiece 的优点包括：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 四种方法的关系
+=== *四种方法的关系*
 
 - 这几种方法可以按思路分成两类。
   - BPE 和 WordPiece 都是“从小到大”的方法。它们从字符或基础符号开始，通过不断合并构造更大的 subword。BPE 更强调频率，WordPiece 更强调合并后对语料建模的收益。
@@ -680,7 +680,7 @@ SentencePiece 的优点包括：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== Byte-level BPE：现代开放域 LLM 的实用选择
+== *Byte-level BPE：现代开放域 LLM 的实用选择*
 
 #quote[
   随着模型从传统 NLP 任务走向开放域大模型，输入文本变得越来越复杂。
@@ -706,7 +706,7 @@ Byte-level BPE 非常适合开放域 LLM，因为它对代码、符号、emoji�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 为什么现代 LLM 的词表越来越大？
+== *为什么现代 LLM 的词表越来越大？*
 
 #quote[
   让我们抽离历史的vocab的思考，关注几个现实状况：早期模型的词表通常在 30K 到 50K 左右。比如 BERT 大约 30K WordPiece，GPT-2 是 50,257 byte-level BPE，LLaMA 2 使用 32K SentencePiece。
@@ -751,7 +751,7 @@ Q：为什么会出现这个趋势？
 
 #line(length: 100%, stroke: 0.6pt)
 
-== Vocab Size 也许正在成为 Scaling Law 的一部分
+== *Vocab Size 也许正在成为 Scaling Law 的一部分*
 
 #quote[
   Vocab Size的逐渐变大的趋势也许也反映了它在大模型优化的部分占的比重也在增大，举个例子。过去我们讨论 scaling law，主要关注三个变量：模型参数量、训练数据量和计算量。
@@ -777,7 +777,7 @@ Tao 等人在 2024 年的 *Scaling Laws with Vocabulary: Larger Models Deserve L
 
 #line(length: 100%, stroke: 0.6pt)
 
-== Tokenizer Choice 会影响模型能力吗？
+== *Tokenizer Choice 会影响模型能力吗？*
 
 #quote[
   所以我们发现了vocab size的影响力确实很大，此时我们选择的分词方式也是跳脱出来成为一个无法避免的事情。一个自然的问题是：不同 tokenizer 的影响真的有那么大吗？
@@ -799,7 +799,7 @@ Ali 等人在 2024 年的 *Tokenizer Choice For LLM Training: Negligible or Cruc
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 从多语言和长上下文看 tokenizer 的真实影响
+== *从多语言和长上下文看 tokenizer 的真实影响*
 
 #quote[
   我们说vocab size和tokenizer chioces的影响不断变大，但是这个影响在什么样的现实场景中更加显著呢？可以发觉，Tokenizer 的影响在多语言和长上下文场景中尤其明显。
@@ -825,13 +825,13 @@ Ali 等人在 2024 年的 *Tokenizer Choice For LLM Training: Negligible or Cruc
 
 #line(length: 100%, stroke: 0.6pt)
 
-== Tokenizer 的未来会走向哪里？
+== *Tokenizer 的未来会走向哪里？*
 
 #quote[
   从目前趋势看，我认为 Vocab / Tokenizer 方向有几个值得关注的发展点。
 ]
 
-=== 1. Vocab size 会和模型规模共同设计
+=== *1. Vocab size 会和模型规模共同设计*
 
 未来不应该默认使用 32K、50K 或 100K 词表，而应该根据模型规模、训练数据、语言分布、代码比例和部署场景来选择 vocab size。
 
@@ -839,7 +839,7 @@ Ali 等人在 2024 年的 *Tokenizer Choice For LLM Training: Negligible or Cruc
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 2. 多语言 tokenizer 会越来越重要
+=== *2. 多语言 tokenizer 会越来越重要*
 
 只对英语高效的 tokenizer，在全球化 LLM 中会带来隐性不公平。未来 tokenizer 设计会越来越关注不同语言之间的压缩率、覆盖率和表示质量。
 
@@ -847,7 +847,7 @@ Ali 等人在 2024 年的 *Tokenizer Choice For LLM Training: Negligible or Cruc
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 3. 代码和结构化文本会改变 tokenizer 设计
+=== *3. 代码和结构化文本会改变 tokenizer 设计*
 
 现代 LLM 不只是聊天模型，还要写代码、读 JSON、调用工具、处理 Markdown、生成 SQL、理解 LaTeX。代码和结构化文本有大量符号、缩进、括号和命名模式，和普通自然语言很不一样。
 
@@ -855,7 +855,7 @@ Ali 等人在 2024 年的 *Tokenizer Choice For LLM Training: Negligible or Cruc
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 4. Fixed tokenizer 仍是主流，但不是终点
+=== *4. Fixed tokenizer 仍是主流，但不是终点*
 
 当前主流 LLM 仍然使用固定 subword tokenizer，因为它成熟、稳定、高效，和现有训练系统兼容。
 
@@ -869,7 +869,7 @@ Ali 等人在 2024 年的 *Tokenizer Choice For LLM Training: Negligible or Cruc
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 小结
+== *小结*
 
 总结到这里，我们可以给 tokenizer 一个更准确的定位：
 
@@ -894,7 +894,7 @@ Ali 等人在 2024 年的 *Tokenizer Choice For LLM Training: Negligible or Cruc
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 笔者的话
+== *笔者的话*
 
 #quote[
   第一篇，一个好的开头，vocab的梳理让人视野更加开阔了，呼呼～😊
@@ -902,7 +902,7 @@ Ali 等人在 2024 年的 *Tokenizer Choice For LLM Training: Negligible or Cruc
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 参考文献与延伸阅读
+== *参考文献与延伸阅读*
 
 + Sennrich, Rico, Barry Haddow, and Alexandra Birch. 2016. *Neural Machine Translation of Rare Words with Subword Units.*\
 BPE 引入神经机器翻译，用 subword 处理 rare words 和 open vocabulary。#link("https://www.semanticscholar.org/paper/Neural-Machine-Translation-of-Rare-Words-with-Units-Sennrich-Haddow/1518039b5001f1836565215eb047526b3ac7f462")[1]

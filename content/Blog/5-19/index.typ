@@ -26,7 +26,7 @@
 ]
 #line(length: 100%, stroke: 0.6pt)
 
-== 导言：logits 到底在哪里？
+== *导言：logits 到底在哪里？*
 
 #quote[
   很多人会混淆 logits 和 Softmax 的位置关系。让我们把整个流程画清楚：
@@ -63,7 +63,7 @@ logits（原始打分）→ Softmax（变成概率）→ 交叉熵（算损失�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 那 $Delta_"logits"$ 是什么？
+=== *那 $Delta_"logits"$ 是什么？*
 
 上一篇我们直接写了 $Delta_"logits" = y_(p r e d) - y_(g t)$。
 
@@ -75,12 +75,12 @@ _*让我们把这两种情况都说清楚。*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 情况一：Softmax + 交叉熵
+== *情况一：Softmax + 交叉熵*
 
 这是输出层的情况。Softmax 和交叉熵总是成对出现。
 
 
-=== 前向传播
+=== *前向传播*
 
 ```
 logits = [z₁, z₂, z₃]                    ← 比如 [2.5, 0.8, -0.3]
@@ -94,7 +94,7 @@ L = -Σⱼ y_gt_j · log(y_pred_j)           ← 交叉熵损失
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 为什么联合求导结果这么简洁？
+=== *为什么联合求导结果这么简洁？*
 
 #quote[
   如果你分开算，Softmax 的导数和交叉熵的导数都很复杂。但它们组合在一起时，大量的项互相抵消。
@@ -112,7 +112,7 @@ $ Delta_"logits" = (partial L)/(partial "logits") = y_(p r e d) - y_(g t) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 情况二：Softmax 单独出现
+== *情况二：Softmax 单独出现*
 
 #figure(caption: "Softmax处理本质：归一化")[
   #image("imgs/s.png", width: 50%)
@@ -136,7 +136,7 @@ output = P · V                ← Softmax 的输出参与后续计算
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 看看 Softmax 在做什么
+=== *看看 Softmax 在做什么*
 
 假设只有 3 个 token，看 $P$ 的第 $s$ 行（即位置 $s$ 对所有位置的注意力分布）：
 
@@ -156,7 +156,7 @@ output = P · V                ← Softmax 的输出参与后续计算
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 为什么 Softmax 的梯度比较复杂？
+=== *为什么 Softmax 的梯度比较复杂？*
 
 因为改变 $z_1$ 不只影响 $p_1$，还影响 $p_2$ 和 $p_3$。
 
@@ -171,7 +171,7 @@ z₁ 增大一点点：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 逐步推导
+=== *逐步推导*
 
 *$z_1$ 对 $p_1$ 的导数（自己对自己）：*
 
@@ -217,7 +217,7 @@ $ = p_1 [delta_1 - sum_j delta_j p_j] $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 整理成向量公式
+=== *整理成向量公式*
 
 对于 Softmax 的每一行：
 
@@ -237,7 +237,7 @@ $  Delta_z = p dot.circle(delta_p - c), quad c = sum_j delta_(p, j) dot.op p_j $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 和输出层的联合公式对比
+=== *和输出层的联合公式对比*
 
 ```
 输出层（Softmax + 交叉熵联合）：
@@ -251,9 +251,9 @@ Attention 里（Softmax 单独出现）：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== RMSNorm 的反向传播
+== *RMSNorm 的反向传播*
 
-=== RMSNorm 出现在哪里？
+=== *RMSNorm 出现在哪里？*
 
 在现代的Pre-Norm Transformer框架里，RMSNorm 出现在*每个子模块之前*：
 
@@ -281,7 +281,7 @@ x_out = x_mid + x_ffn        ← 残差相加
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== RMSNorm 在做什么？
+=== *RMSNorm 在做什么？*
 
 #figure(caption: "RMSNorm的形状")[
   #image("imgs/r.png", width: 50%)
@@ -301,7 +301,7 @@ $ "output"_j = gamma_j dot.op hat(x)_j $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 用例子来看看耦合问题
+=== *用例子来看看耦合问题*
 
 假设 $d = 3$，一个 token 的向量 $x = [x_1 , x_2 , x_3]$：
 
@@ -340,7 +340,7 @@ x₁ ──→ x̂₁ = x₁/rms  ──→ output₁     ← 直接影响（分
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 逐步推导
+=== *逐步推导*
 
 从上面传来误差 $Delta_"out" = [delta_1 , delta_2 , delta_3]$。
 
@@ -402,7 +402,7 @@ $ = 1/"rms" [Delta_(hat(x) , k) - (hat(x)_k)/d sum_(j = 1)^d Delta_(hat(x) , j) 
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 整理成向量公式
+=== *整理成向量公式*
 
 记 $c = 1/d sum_j Delta_(hat(x) , j) dot.op hat(x)_j$（一个标量）：
 
@@ -410,7 +410,7 @@ $  Delta_x = 1/"rms" (Delta_hat(x) - hat(x) dot.op c), quad c = 1/d sum_j Delta_
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 直觉理解
+=== *直觉理解*
 
 ```
 Δ_x̂          ← 直接传回来的误差
@@ -426,7 +426,7 @@ $  Delta_x = 1/"rms" (Delta_hat(x) - hat(x) dot.op c), quad c = 1/d sum_j Delta_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 小结
+== *小结*
 
 ```
                     Softmax                      RMSNorm
@@ -449,7 +449,7 @@ Token 之间        同一行内不同位置耦合            同一 token 内�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 整个输出层的完整反向传播路径
+=== *整个输出层的完整反向传播路径*
 
 现在把所有东西串起来，看看从损失 $L$ 到 Transformer Block 输出 $h$ 之间，完整的反向传播顺序：
 
@@ -476,11 +476,11 @@ L（损失）
 Δ_x_in  → 传给上一个 Block
 ```
 
-== 笔者的话
+== *笔者的话*
 
 _*你会发现我们将要进入Block里面最重要的两个模块：FFN以及Attention，笔者接下来会以SwiGLU为代表的前馈网络以及Self-Attention作为推导背景来展开推导*_
 
-== 参考资料
+== *参考资料*
 
 - Laurent Bou´,_Deep learning for pedestrians: backpropagation in Transformers_
 - Stanford lecture,_cs336(2025-2026)_

@@ -191,6 +191,12 @@ uv run build.py preview -p 12345
 
 本模板提供一个 `Update` GitHub Actions 工作流，用于从上游模板仓库（也就是本仓库）导入功能更新，具体内容请参考 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/更新项目)。
 
+## 📝 草稿文章
+
+暂不发布的文章可以保留在 `content/` 中，并将对应路由写入 [draft-posts.txt](draft-posts.txt)。草稿不会被编译或复制到 `_site/`，也不会进入 RSS 和 Sitemap。
+
+例如，当前 `Blog/7-28` 仅作为本地草稿保留。准备发布时，从 `draft-posts.txt` 删除这一行，并将文章重新加入 [Blog 目录](content/Blog/index.typ) 即可。
+
 ## 🔒 私密文章加密
 
 项目已支持在构建后使用 `staticrypt` 自动加密指定文章。当前配置采用“个人文件夹”模式：公开 Blog 页只保留一个私密入口，输入一次密码后会进入私密页；同一浏览器中的其他私密文章也会自动解锁一段时间。

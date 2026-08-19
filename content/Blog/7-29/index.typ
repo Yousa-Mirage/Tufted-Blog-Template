@@ -27,7 +27,7 @@
   #image("imgs/1.png", width: 40%)
 ]
 
-== 引言：基本定义
+== *引言：基本定义*
 
 *连续归一化流与速度场*
 
@@ -53,7 +53,7 @@ $ x_t = (1 - t) x_0 + t x_1 , wide x_0 ~ p_0 , thick x_1 ~ hat(p)_"data" . $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== Memorization
+== *Memorization*
 
 *流匹配的优化目标*
 
@@ -87,7 +87,7 @@ $ lambda_i (x, t) = op("softmax")_i (-(norm(t x^((i)) - x)^2)/(2(1 - t)^2)) . $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== Generation？
+== *Generation？*
 
 #quote[
   一篇论文的结果展示了当数据量大到一定程度之后就可以达到生成新图的能力了，这似乎与理论相悖，我们应该怎么看待这个conflict？
@@ -105,9 +105,9 @@ $ lambda_i (x, t) = op("softmax")_i (-(norm(t x^((i)) - x)^2)/(2(1 - t)^2)) . $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== Creativity
+== *Creativity*
 
-=== 平移等变性
+=== *平移等变性*
 
 *平移等变约束*
 
@@ -133,7 +133,7 @@ $ hat(u)_"Eq"^"*" (x, t) = sum_(i = 1)^n sum_(T in cal(T)^(2 D)) lambda_(i, T) (
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 局域性与维纳滤波
+== *局域性与维纳滤波*
 
 *局域感受野约束*
 
@@ -175,7 +175,7 @@ $ W_t = U op("diag")(((1 - t) - t lambda_i^2)/((1 - t)^2 + t^2 lambda_i^2)) U^to
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 思考问题
+== *思考问题*
 
 *架构与优化的交互*
 
@@ -191,13 +191,13 @@ $ W_t = U op("diag")(((1 - t) - t lambda_i^2)/((1 - t)^2 + t^2 lambda_i^2)) U^to
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 小结
+== *小结*
 
 流匹配在*无约束*时的最优解会整图照搬训练样本；我们引入卷积的*平移等变性*再叠加*局域性*，权重从整图标量变成逐像素向量，再用*维纳滤波*让掩码由数据协方差自适应生成，实证上，这套闭式解与真实小型网络高度吻合，反过来坐实了这套解释。剩下的开放问题，大多围绕架构、规模与条件引导这三股力量如何重新定义记忆与泛化的边界。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 笔者的话
+== *笔者的话*
 
 #quote[
   老早就说着想赶紧看完了，这下终于～，里面有些具体的数学部分我没看的特别细，主要是先理解了这里的过程，毕竟干什么活拿什么工具，这把工具现在用不太上，我先寄存着，但这也总比把工具放在商店好。买来了总归是自己的😌
@@ -205,6 +205,6 @@ $ W_t = U op("diag")(((1 - t) - t lambda_i^2)/((1 - t)^2 + t^2 lambda_i^2)) U^to
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 参考
+== *参考*
 
 - ICML2026 Flow Matching Shared Slides

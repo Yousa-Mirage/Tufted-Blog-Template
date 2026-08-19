@@ -23,7 +23,7 @@
 #tufted.margin-note[
   *阅读提示：* 这是笔者在Transformer学习外的拓展观察，这篇从原始的视角与发展的历史来讲述了扩散模型的基本情况，属于个人理解与科普整理，不需要什么基础就可以阅读。祝食用愉快～🐮
 ]
-== 导言
+== *导言*
 
 #quote[
   我们一直默认主流大语言模型采用的是 *自回归生成*：给定前文，一个 token 一个 token 地往后生成。这也是 GPT 类模型最经典的方式。
@@ -39,9 +39,9 @@
 ]
 #line(length: 100%, stroke: 0.6pt)
 
-== 两个范式：自回归和扩散
+== *两个范式：自回归和扩散*
 
-=== 自回归模型：从左到右生成
+=== *自回归模型：从左到右生成*
 
 自回归语言模型的目标是分解联合概率：
 
@@ -73,7 +73,7 @@ $ P(x_1 , x_2 , ..., x_T)
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 扩散模型：从噪声中反复去噪
+=== *扩散模型：从噪声中反复去噪*
 
 扩散模型的基本思路完全不同。
 
@@ -111,13 +111,13 @@ $ x_T -> x_(T - 1) -> ... -> x_0 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 扩散模型的发展
+== *扩散模型的发展*
 
 #quote[
   *扩散模型有一条比较清晰的发展路线。*
 ]
 
-=== 早期思想：扩散概率模型和 score matching
+=== *早期思想：扩散概率模型和 score matching*
 
 扩散模型的思想可以追溯到更早的扩散概率模型和 score-based generative modeling。
 
@@ -127,7 +127,7 @@ $ x_T -> x_(T - 1) -> ... -> x_0 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== DDPM：现代扩散模型的经典形式
+=== *DDPM：现代扩散模型的经典形式*
 
 2020 年 Ho、Jain 和 Abbeel 提出的 *Denoising Diffusion Probabilistic Models*，通常简称 DDPM，是现代扩散模型的关键节点。DDPM 把扩散模型训练简化成非常清晰的去噪目标：给模型一个带噪样本，让它预测加进去的噪声。
 
@@ -135,7 +135,7 @@ $ x_T -> x_(T - 1) -> ... -> x_0 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== DDIM：减少采样步数
+=== *DDIM：减少采样步数*
 
 DDPM 的一个问题是采样慢，因为它通常需要很多去噪步。
 
@@ -149,7 +149,7 @@ DDIM，也就是 *Denoising Diffusion Implicit Models*，提出了一种更快�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== Guided Diffusion：提升条件生成质量
+=== *Guided Diffusion：提升条件生成质量*
 
 随后，扩散模型开始大量用于条件生成。
 
@@ -161,7 +161,7 @@ Dhariwal 和 Nichol 的 *Diffusion Models Beat GANs on Image Synthesis* 通过�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== Latent Diffusion：在潜空间里扩散
+=== *Latent Diffusion：在潜空间里扩散*
 
 直接在像素空间做扩散非常贵。
 
@@ -171,7 +171,7 @@ Stable Diffusion 就是这个路线的代表。它让高分辨率图像生成的
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== DiT：把扩散模型的大脑换成 Transformer
+=== *DiT：把扩散模型的大脑换成 Transformer*
 
 传统图像扩散模型常用 U-Net 作为 denoising network。
 
@@ -181,11 +181,11 @@ DiT，也就是 *Diffusion Transformer*，提出用 Transformer 替代 U-Net，�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== DDPM 的核心
+== *DDPM 的核心*
 
 扩散模型有很多形式。这里先以最经典的 DDPM 为例。
 
-=== 前向加噪过程
+=== *前向加噪过程*
 
 给定真实样本 $x_0$，扩散模型定义一个逐步加噪过程：
 
@@ -219,7 +219,7 @@ $ macron(alpha)_t = product_(s = 1)^t (1 - beta_s) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 反向去噪过程
+=== *反向去噪过程*
 #figure(caption: "去噪")[
   #image("imgs/2.png", width: 40%)
 ]
@@ -256,7 +256,7 @@ $ L = EE_(x_0 , t, epsilon.alt) [bar.v.double epsilon.alt - epsilon.alt_theta (x
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 为什么它是“全局修正”？
+=== *为什么它是“全局修正”？*
 
 自回归模型生成一个 token 后，通常不会回头修改它。
 
@@ -274,11 +274,11 @@ $ L = EE_(x_0 , t, epsilon.alt) [bar.v.double epsilon.alt - epsilon.alt_theta (x
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 扩散模型怎么实现？
+== *扩散模型怎么实现？*
 
 从实现角度看，扩散模型主要有两个流程：训练和采样。
 
-=== 训练流程
+=== *训练流程*
 
 以连续数据为例，比如图像 latent、蛋白质坐标、分子构象。
 
@@ -298,7 +298,7 @@ $ L = EE_(x_0 , t, epsilon.alt) [bar.v.double epsilon.alt - epsilon.alt_theta (x
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 采样流程
+=== *采样流程*
 
 生成时则反过来：
 
@@ -316,7 +316,7 @@ $ L = EE_(x_0 , t, epsilon.alt) [bar.v.double epsilon.alt - epsilon.alt_theta (x
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 扩散模型和 Transformer 的关系：DiT 的意义
+== *扩散模型和 Transformer 的关系：DiT 的意义*
 
 #quote[
   很多人会问：扩散模型和 decoder-only Transformer 到底是什么关系？
@@ -324,7 +324,7 @@ $ L = EE_(x_0 , t, epsilon.alt) [bar.v.double epsilon.alt - epsilon.alt_theta (x
 
 这里要区分两个层面。
 
-=== Diffusion 是生成范式
+=== *Diffusion 是生成范式*
 
 扩散模型定义的是训练和生成方式：加噪、去噪、迭代生成。
 
@@ -341,7 +341,7 @@ $ L = EE_(x_0 , t, epsilon.alt) [bar.v.double epsilon.alt - epsilon.alt_theta (x
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== U-Net 到 DiT
+=== *U-Net 到 DiT*
 
 早期图像扩散模型常用 U-Net，因为 U-Net 擅长多尺度图像处理。
 
@@ -361,7 +361,7 @@ Sora 这类视频模型虽然具体细节不完全公开，但整体趋势很明
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 为什么 AI4S 喜欢扩散模型？
+== *为什么 AI4S 喜欢扩散模型？*
 
 #quote[
   扩散模型在 AI4S 中非常自然，尤其是蛋白质、分子、材料这类任务。
@@ -369,7 +369,7 @@ Sora 这类视频模型虽然具体细节不完全公开，但整体趋势很明
 
 原因是科学对象往往不是简单的离散序列，而是有强全局约束的连续结构。
 
-=== 蛋白质结构是全局对象
+=== *蛋白质结构是全局对象*
 
 蛋白质虽然有氨基酸序列，但它的功能来自 3D 折叠结构。
 
@@ -383,7 +383,7 @@ RFdiffusion 就是典型代表。它把扩散模型用于蛋白质结构和功�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 分子生成和材料设计也是连续约束问题
+=== *分子生成和材料设计也是连续约束问题*
 
 分子构象、原子坐标、键角、晶体结构都有连续几何约束。
 
@@ -393,7 +393,7 @@ RFdiffusion 就是典型代表。它把扩散模型用于蛋白质结构和功�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 多样性是科学设计的核心需求
+=== *多样性是科学设计的核心需求*
 
 药物设计、蛋白质设计、新材料发现通常不是只要一个答案，而是希望生成大量候选，再筛选最优。
 
@@ -403,7 +403,7 @@ RFdiffusion 就是典型代表。它把扩散模型用于蛋白质结构和功�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 扩散模型用于语言
+== *扩散模型用于语言*
 
 文本和图像、蛋白质坐标不同。
 
@@ -415,7 +415,7 @@ RFdiffusion 就是典型代表。它把扩散模型用于蛋白质结构和功�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== Masked Diffusion 的基本思路
+=== *Masked Diffusion 的基本思路*
 
 对于文本，前向过程不是加高斯噪声，而是逐渐把 token mask 掉。
 
@@ -449,7 +449,7 @@ RFdiffusion 就是典型代表。它把扩散模型用于蛋白质结构和功�
 
 这和自回归很不一样。
 
-=== LLaDA：大语言扩散模型
+=== *LLaDA：大语言扩散模型*
 
 LLaDA 是 2025 年出现的代表性大语言扩散模型之一。它采用 masked diffusion 方式进行预训练和指令微调。根据项目介绍，LLaDA 在预训练时会随机 mask token，训练模型从 masked sequence 中恢复原文本；采样时从高度 mask 状态逐步 unmask，并且可以灵活 remasking。
 
@@ -463,7 +463,7 @@ LLaDA 的意义在于，它把扩散式并行修正机制带入大语言模型�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 扩散语言模型的潜在优势
+=== *扩散语言模型的潜在优势*
 
 - 扩散语言模型可能有几个优势。
   - 第一，它可以并行预测多个位置，不必严格串行生成。
@@ -473,7 +473,7 @@ LLaDA 的意义在于，它把扩散式并行修正机制带入大语言模型�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 扩散语言模型的挑战
+=== *扩散语言模型的挑战*
 
 不过，扩散语言模型还不成熟。
 
@@ -495,9 +495,9 @@ LLaDA 的意义在于，它把扩散式并行修正机制带入大语言模型�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 扩散模型解决了哪些核心问题？
+== *扩散模型解决了哪些核心问题？*
 
-=== 全局一致性
+=== *全局一致性*
 
 扩散模型每一步都可以更新整个样本，因此更适合全局结构强的任务。
 
@@ -505,7 +505,7 @@ LLaDA 的意义在于，它把扩散式并行修正机制带入大语言模型�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 多样性
+=== *多样性*
 
 从不同噪声出发，可以生成不同样本。
 
@@ -513,7 +513,7 @@ LLaDA 的意义在于，它把扩散式并行修正机制带入大语言模型�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 连续数据建模
+=== *连续数据建模*
 
 扩散模型天然适合连续空间。
 
@@ -521,7 +521,7 @@ LLaDA 的意义在于，它把扩散式并行修正机制带入大语言模型�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 迭代修正
+=== *迭代修正*
 
 扩散模型不要求一步生成完美答案。
 
@@ -531,13 +531,13 @@ LLaDA 的意义在于，它把扩散式并行修正机制带入大语言模型�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 扩散模型的局限
+== *扩散模型的局限*
 
 #quote[
   扩散模型也不是银弹，对吧？
 ]
 
-=== 采样慢
+=== *采样慢*
 
 传统扩散模型需要多步去噪，比自回归单步 logits 预测更复杂。
 
@@ -545,7 +545,7 @@ LLaDA 的意义在于，它把扩散式并行修正机制带入大语言模型�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 训练和推理更复杂
+=== *训练和推理更复杂*
 
 扩散模型需要 noise schedule、time embedding、采样器、guidance、step schedule 等额外组件。
 
@@ -553,7 +553,7 @@ LLaDA 的意义在于，它把扩散式并行修正机制带入大语言模型�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 文本离散性带来困难
+=== *文本离散性带来困难*
 
 连续扩散很自然，但文本是离散 token。
 
@@ -561,7 +561,7 @@ Masked diffusion 是一种解决方案，但还需要处理长度、mask 策略�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 评估更复杂
+=== *评估更复杂*
 
 图像可以看 FID、人评，蛋白质可以看结构稳定性和实验验证，文本则要看连贯性、事实性、推理能力、对齐、安全性。
 
@@ -569,7 +569,7 @@ Masked diffusion 是一种解决方案，但还需要处理长度、mask 策略�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 小结
+== *小结*
 
 扩散模型的本质可以概括为一句话：
 
@@ -597,7 +597,7 @@ Masked diffusion 是一种解决方案，但还需要处理长度、mask 策略�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 笔者的话
+== *笔者的话*
 
 #quote[
   AR和Diffusion各有千秋，就像一个人的不同的功能组件，同时互相辅助吸取改进经验，往更加广大的模型范式前进。
@@ -605,7 +605,7 @@ Masked diffusion 是一种解决方案，但还需要处理长度、mask 策略�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 参考文献
+== *参考文献*
 
 + Ho, Jain, Abbeel, 2020. *Denoising Diffusion Probabilistic Models.*\
 DDPM 的经典论文，建立现代扩散模型主流训练框架。\

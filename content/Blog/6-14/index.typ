@@ -25,7 +25,7 @@
   *阅读提示：* 最近真是高产似母猪（不是），我很兴奋我也许将要有几个师弟师妹了。也许你会很疑惑为什么直接跳过了RoPE，笔者这里要解释一下，因为打算推导RoPE的原始论文，所以工作量有点大，简单清晰梳理出来更是有点头大，所以就先把介绍部分扯出来了，但是这样可以让人先形成一个比较清晰的认知，也是多多易善吧。其实潜台词是下次更新就要等有点年头了，笔者也要准备许多汇报和期末。不说伤心事了，让我们开始吧。祝食用愉快～💔
 ]
 
-== 导言
+== *导言*
 
 前两篇里，我们已经讲了两类基础位置编码。
 
@@ -68,13 +68,13 @@ Shaw et al.、Transformer-XL、T5 Relative Position Bias、DeBERTa 都在这个�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 认知主线
+== *认知主线*
 
 #quote[
   位置编码的发展，可以用一条非常清晰的逻辑线串起来。我们再简单回顾一下
 ]
 
-=== 1. 绝对位置阶段：让模型知道“我在哪里”
+=== *1. 绝对位置阶段：让模型知道“我在哪里”*
 
 原始 Transformer 的问题是 self-attention 本身没有顺序感。
 
@@ -84,7 +84,7 @@ Shaw et al.、Transformer-XL、T5 Relative Position Bias、DeBERTa 都在这个�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 2. 相对位置阶段：让 attention 知道“你离我多远”
+=== *2. 相对位置阶段：让 attention 知道“你离我多远”*
 
 Attention 本质上是 token pair 之间的关系。
 
@@ -98,7 +98,7 @@ Attention 本质上是 token pair 之间的关系。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 3. RoPE 阶段：用旋转把绝对位置和相对距离统一起来
+=== *3. RoPE 阶段：用旋转把绝对位置和相对距离统一起来*
 
 RoPE 的漂亮之处在于：它用绝对位置决定 Q/K 的旋转角度，但两个位置做 attention 点积时，结果自然依赖相对位置差。
 
@@ -112,7 +112,7 @@ RoPE 的漂亮之处在于：它用绝对位置决定 Q/K 的旋转角度，但�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 4. RoPE Scaling 阶段：把训练长度扩展到更长上下文
+=== *4. RoPE Scaling 阶段：把训练长度扩展到更长上下文*
 
 原始 RoPE 通常在某个训练上下文长度内工作良好，例如 2K、4K、8K。
 
@@ -128,7 +128,7 @@ RoPE 的漂亮之处在于：它用绝对位置决定 Q/K 的旋转角度，但�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 5. 后 RoPE 阶段：作为系统工程的一部分
+=== *5. 后 RoPE 阶段：作为系统工程的一部分*
 
 今天的长上下文能力，不是单靠位置编码就能解决的。
 
@@ -147,7 +147,7 @@ RoPE 的漂亮之处在于：它用绝对位置决定 Q/K 的旋转角度，但�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== RoPE 为什么成为现代 LLM 主流？
+== *RoPE 为什么成为现代 LLM 主流？*
 
 #quote[
   RoPE 最早由 RoFormer 提出。它的核心思想不是把位置向量加到 token embedding 上，而是在 attention 的 Q 和 K 上施加旋转。
@@ -177,7 +177,7 @@ $ (R_m q_m)^top (R_n k_n) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== RoPE 相比绝对位置编码的优势
+=== *RoPE 相比绝对位置编码的优势*
 
 绝对位置编码是：
 
@@ -191,7 +191,7 @@ RoPE 则是在 Q/K 里编码位置。它不直接改变 token embedding，而是
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== RoPE 相比传统 relative bias 的优势
+=== *RoPE 相比传统 relative bias 的优势*
 
 T5 Relative Bias 是给 attention logits 加一个距离 bias。
 
@@ -205,7 +205,7 @@ RoPE 则不是额外加一个标量偏置，而是改变 Q/K 的几何关系。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 原始 RoPE 不够长？
+== *原始 RoPE 不够长？*
 
 RoPE 的位置编码本质上是多频率旋转。
 
@@ -223,7 +223,7 @@ RoPE 的位置编码本质上是多频率旋转。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 高频维度的相位外推问题
+=== *高频维度的相位外推问题*
 
 高频维度变化很快，位置稍微增加就会产生较大相位变化。
 
@@ -233,7 +233,7 @@ RoPE 的位置编码本质上是多频率旋转。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 长距离注意力分布异常
+=== *长距离注意力分布异常*
 
 RoPE 影响的是 attention score。
 
@@ -248,7 +248,7 @@ RoPE 影响的是 attention score。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== Position Interpolation
+== *Position Interpolation*
 
 #quote[
   这之后于是诞生了许多Scaling的方法，我们一个一个来了解
@@ -274,7 +274,7 @@ $ m' = m/s $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 为什么 interpolation 比 extrapolation 稳定？
+=== *为什么 interpolation 比 extrapolation 稳定？*
 
 直接 extrapolation 会让模型看到训练中从未见过的位置相位。
 
@@ -288,7 +288,7 @@ Chen et al. 的 *Extending Context Window of Large Language Models via Positiona
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== Position Interpolation 的问题
+=== *Position Interpolation 的问题*
 
 Position Interpolation 的代价也很明显——它把所有距离都压缩了。
 
@@ -302,7 +302,7 @@ _*这推动了后面的频率分段 scaling。*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-== NTK-aware Scaling
+== *NTK-aware Scaling*
 
 #quote[
   NTK-aware Scaling 来自社区实践和后续分析。它的核心直觉是：RoPE 的不同频率维度承担不同职责，不应该统一缩放。
@@ -318,7 +318,7 @@ _*这推动了后面的频率分段 scaling。*_
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 改 base 的直觉
+=== *改 base 的直觉*
 
 RoPE 的频率通常类似：
 
@@ -336,7 +336,7 @@ $ omega_i = theta^(-2 i \/ d) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== Dynamic NTK Scaling
+=== *Dynamic NTK Scaling*
 
 Dynamic NTK Scaling 则进一步根据实际推理长度动态调整 scaling。
 
@@ -352,7 +352,7 @@ Dynamic NTK Scaling 则进一步根据实际推理长度动态调整 scaling。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== YaRN
+== *YaRN*
 
 #quote[
   YaRN 是 RoPE 长上下文扩展中非常经典的方法之一。
@@ -370,7 +370,7 @@ YaRN 的思想可以概括为：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 为什么需要分频段？
+=== *为什么需要分频段？*
 
 RoPE 的不同维度频率不同。高频维度看局部，低频维度看长程。
 
@@ -383,7 +383,7 @@ RoPE 的不同维度频率不同。高频维度看局部，低频维度看长程
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== NTK-by-parts 的直觉
+=== *NTK-by-parts 的直觉*
 
 YaRN 中常提到 NTK-by-parts。
 
@@ -398,7 +398,7 @@ YaRN 中常提到 NTK-by-parts。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== Attention scaling 为什么重要？
+=== *Attention scaling 为什么重要？*
 
 长上下文下，attention logits 的统计分布会改变。
 
@@ -412,7 +412,7 @@ YaRN 引入 attention scaling 或 temperature 调整，用来稳定长上下文�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== YaRN 的意义
+=== *YaRN 的意义*
 
 YaRN 的意义在于，它把社区里很多 RoPE scaling 经验系统化了。他的思想是：
 
@@ -424,7 +424,7 @@ YaRN 的意义在于，它把社区里很多 RoPE scaling 经验系统化了。�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== LongRoPE
+== *LongRoPE*
 
 #quote[
   LongRoPE 是进一步把 RoPE scaling 推到极长上下文的代表方法。
@@ -442,7 +442,7 @@ LongRoPE 的核心观点是：Position Interpolation 不应该只考虑一个统
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== LongRoPE 的三个关键点
+=== *LongRoPE 的三个关键点*
 
 LongRoPE 主要有三点创新。
 
@@ -460,7 +460,7 @@ LongRoPE 主要有三点创新。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== LongRoPE 说明了什么趋势？
+=== *LongRoPE 说明了什么趋势？*
 
 LongRoPE 说明，长上下文 RoPE scaling 已经从简单公式进入搜索和系统工程阶段。
 
@@ -478,7 +478,7 @@ LongRoPE 的关注在于：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== LLaMA 3.1 风格的 RoPE Scaling
+== *LLaMA 3.1 风格的 RoPE Scaling*
 
 #quote[
   我们来看一个具体的例子：
@@ -511,7 +511,7 @@ LLaMA 3.1 系列采用了面向长上下文的 RoPE scaling 配置。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== RoPE Scaling 方法的对比
+== *RoPE Scaling 方法的对比*
 
 #quote[
   可以把几种典型 RoPE scaling 方法放在一起看。
@@ -532,7 +532,7 @@ LLaMA 3.1 系列采用了面向长上下文的 RoPE scaling 配置。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== RoPE Scaling 不是长上下文的全部
+== *RoPE Scaling 不是长上下文的全部*
 
 #quote[
   这里必须强调一个重要观点：位置编码扩展，不等于模型真的拥有长上下文能力。
@@ -544,7 +544,7 @@ LLaMA 3.1 系列采用了面向长上下文的 RoPE scaling 配置。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 位置可表示
+=== *位置可表示*
 
 模型必须能为远位置生成合理的位置编码。
 
@@ -552,7 +552,7 @@ LLaMA 3.1 系列采用了面向长上下文的 RoPE scaling 配置。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== Attention 可计算
+=== *Attention 可计算*
 
 长序列 full attention 是 $O(n^2)$。
 
@@ -562,7 +562,7 @@ LLaMA 3.1 系列采用了面向长上下文的 RoPE scaling 配置。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== KV cache 可承受
+=== *KV cache 可承受*
 
 自回归推理时，KV cache 与序列长度线性增长。
 
@@ -572,7 +572,7 @@ LLaMA 3.1 系列采用了面向长上下文的 RoPE scaling 配置。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 数据中真的有长依赖
+=== *数据中真的有长依赖*
 
 如果训练数据都是短文本，模型即使位置编码支持长上下文，也不会学会使用远距离信息。
 
@@ -580,7 +580,7 @@ LLaMA 3.1 系列采用了面向长上下文的 RoPE scaling 配置。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 模型真的会用中间信息
+=== *模型真的会用中间信息*
 
 即使输入很长，模型也可能只关注开头和结尾。
 
@@ -590,13 +590,13 @@ LLaMA 3.1 系列采用了面向长上下文的 RoPE scaling 配置。
 
 #line(length: 100%, stroke: 0.6pt)
 
-== RoPE 之外的其他前沿范式
+== *RoPE 之外的其他前沿范式*
 
 #quote[
   虽然 RoPE 是现代 LLM 主流，但它不是唯一方向。这里简要介绍一些值得关注的替代或补充路线。
 ]
 
-=== ALiBi
+=== *ALiBi*
 
 ALiBi 不使用 position embedding，而是给 attention logits 加线性距离惩罚：
 
@@ -610,7 +610,7 @@ $ s c o r e_(i j) = q_i k_j^top - m_h | i - j | $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== xPos
+=== *xPos*
 
 xPos 可以看作 RoPE 的一个增强版本。它在旋转的基础上加入指数衰减，用来改善长距离 attention 的稳定性。
 
@@ -618,7 +618,7 @@ xPos 可以看作 RoPE 的一个增强版本。它在旋转的基础上加入指
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== KERPLE
+=== *KERPLE*
 
 KERPLE 把相对位置编码看成 kernelized positional difference。
 
@@ -628,7 +628,7 @@ KERPLE 把相对位置编码看成 kernelized positional difference。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== CoPE
+=== *CoPE*
 
 CoPE，也就是 Contextual Position Encoding，提出一个很有意思的问题：
 
@@ -653,7 +653,7 @@ CoPE 让位置增量由内容决定，即模型学会“哪些 token 应该被�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== NoPE
+=== *NoPE*
 
 有些研究发现，decoder-only Transformer 在某些设置下即使没有显式 positional encoding，也能表现出一定长度泛化能力。
 
@@ -663,13 +663,13 @@ NoPE 的现象提醒我们：causal mask、训练数据分布、attention patter
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 位置编码会走向哪里？
+== *位置编码会走向哪里？*
 
 #quote[
   从目前趋势看，位置编码未来大概率会沿着几条线发展。
 ]
 
-=== RoPE 仍会是短中期主流
+=== *RoPE 仍会是短中期主流*
 
 RoPE 已经深度进入现代 LLM 架构和推理系统。
 
@@ -679,7 +679,7 @@ RoPE 已经深度进入现代 LLM 架构和推理系统。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== Scaling 会越来越非均匀、数据驱动、模型相关
+=== *Scaling 会越来越非均匀、数据驱动、模型相关*
 
 早期 scaling 是一个全局 factor。
 
@@ -691,7 +691,7 @@ LongRoPE 已经走向维度/位置非均匀 scaling 和搜索。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 位置编码会和 attention 架构共同设计
+=== *位置编码会和 attention 架构共同设计*
 
 长上下文不是位置编码单独能解决的。
 
@@ -709,7 +709,7 @@ LongRoPE 已经走向维度/位置非均匀 scaling 和搜索。
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 动态位置和语义位置会变重要
+=== *动态位置和语义位置会变重要*
 
 传统位置是 token index。
 
@@ -733,7 +733,7 @@ CoPE 这类方法提示了一个方向：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 长上下文评测会推动位置机制进化
+=== *长上下文评测会推动位置机制进化*
 
 未来更重要的是：
 
@@ -751,7 +751,7 @@ CoPE 这类方法提示了一个方向：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 小结
+== *小结*
 
 从工程和研究角度看，RoPE 是当前最重要的核心方法。Position Interpolation、NTK Scaling、YaRN、LongRoPE、LLaMA3-style scaling 都是在围绕 RoPE 做长上下文扩展。
 
@@ -765,7 +765,7 @@ CoPE 这类方法提示了一个方向：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 笔者的话
+== *笔者的话*
 
 #quote[
   这里对整个位置编码的整体梳理就到这里结束了，但是为了深度理解，还是得深入到经典的论文本身去探索，所以笔者还是需要去对照RoPE的文章去推导理解一遍，因为工作量比较大，需要较多的时间，于是就放在这部分整体概览的后面来详细讲了，这将会花掉我许多时间，不过这很值得，毕竟这是一个相当重要的里程碑时刻。我相信有了一个整体的了解对之后我们具体的对RoPE以及YaRN和NTK Scaling的部分的具体展开就有了准备了吧。
@@ -773,7 +773,7 @@ CoPE 这类方法提示了一个方向：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 参考文献
+== *参考文献*
 
 + Su et al., 2021. *RoFormer: Enhanced Transformer with Rotary Position Embedding.*\
 RoPE 原始论文。\

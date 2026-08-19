@@ -22,7 +22,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 导言
+== *导言*
 
 #quote[
   先把问题摊开放在桌上。Attention 的缩放步骤是：
@@ -50,9 +50,9 @@ $ S_"scaled" = (Q dot.op K^T)/sqrt(d_k) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 问题：训练开始时，数值应该多大？
+== *问题：训练开始时，数值应该多大？*
 
-=== 为什么初始化很重要？
+=== *为什么初始化很重要？*
 
 #quote[
   训练开始之前，所有参数都是随机初始化的。这些随机值决定了第一次前向传播时，每一层的输出数值大小。
@@ -86,9 +86,9 @@ $ S_"scaled" = (Q dot.op K^T)/sqrt(d_k) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 方差分析
+== *方差分析*
 
-=== 单个线性层的方差传播
+=== *单个线性层的方差传播*
 
 考虑一个线性层 $y = x dot.op W$，其中：
 
@@ -124,7 +124,7 @@ $ "Var" (y_j) = n dot.op sigma_x^2 $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 初始化的解决方案：让 $sigma_W^2 = 1 \/ n$
+=== *初始化的解决方案：让 $sigma_W^2 = 1 \/ n$*
 
 #quote[
   如果我们让 $W$ 的每个元素从 $N(0, 1 \/ n)$ 中采样：
@@ -144,7 +144,7 @@ $ W_(i j) ~ N(0, 1/(n_"in")) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 更精细的版本
+=== *更精细的版本*
 
 Xavier 只考虑了前向传播。如果同时考虑反向传播中梯度的方差传播，最优的初始化是：
 
@@ -171,13 +171,13 @@ $ W_(i j) ~ N(0, 2/(n_"in")) $
 #figure(caption: "初始化方法汇总")[
   #image("imgs/2.png", width: 40%)
 ]
-== 回到点积的方差分析
+== *回到点积的方差分析*
 
 #quote[
   *现在我们用同样的方差分析方法，来看看 Attention 的打分 $S = Q dot.op K^T$ 会发生什么。*
 ]
 
-=== 点积的方差推导
+=== *点积的方差推导*
 
 $S [s] [t]$ 是 $Q [s]$ 和 $K [t]$ 的点积：
 
@@ -201,7 +201,7 @@ $ "Std" (S [s] [t]) = sqrt(d_k) $
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 这些数值进入 Softmax 会怎样？
+=== *这些数值进入 Softmax 会怎样？*
 
 Softmax 对数值的绝对大小非常敏感：
 
@@ -225,7 +225,7 @@ S 的标准差 ≈ 8 时（数值范围大概 [-20, 20]）：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 除以 $sqrt(d_k)$ 的效果
+=== *除以 $sqrt(d_k)$ 的效果*
 
 $ S_"scaled" = S/sqrt(d_k) $
 
@@ -243,9 +243,9 @@ Softmax 的输入始终在一个"舒适"的数值范围内，梯度可以正常�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 更深一层：$sqrt(d_k)$ 和初始化的关系
+== *更深一层：$sqrt(d_k)$ 和初始化的关系*
 
-=== 为什么前面假设 $Q$ 和 $K$ 的元素方差是 $1$？
+=== *为什么前面假设 $Q$ 和 $K$ 的元素方差是 $1$？*
 
 #quote[
   因为如果 $W_Q$ 和 $W_K$ 使用了合理的初始化（比如 Xavier），那么：
@@ -271,7 +271,7 @@ Xavier 初始化 W_K → K 的元素方差 ≈ 1
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 训练过程中，方差还是 $1$ 吗？
+=== *训练过程中，方差还是 $1$ 吗？*
 
 当然不是。训练开始后，$W_Q$ 和 $W_K$ 都在更新，$Q$ 和 $K$ 的元素方差会偏离 $1$。
 
@@ -300,13 +300,13 @@ Xavier 初始化 W_K → K 的元素方差 ≈ 1
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 缩放的其他方案
+== *缩放的其他方案*
 
 #quote[
   *$sqrt(d_k)$ 不是唯一的选择。来吧，让我们看看其他模型怎么做的：*
 ]
 
-=== 方案一：可学习的缩放因子（T5 模型）
+=== *方案一：可学习的缩放因子（T5 模型）*
 
 T5 模型不使用固定的 $sqrt(d_k)$，而是用一个可学习的标量：
 
@@ -326,7 +326,7 @@ $ (partial L)/(partial alpha) = sum_(s, t) Delta_(S \_ "scaled") [s] [t] dot.op 
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 方案二：把缩放吸收进 $W_Q$ 的初始化
+=== *方案二：把缩放吸收进 $W_Q$ 的初始化*
 
 不在计算时除以 $sqrt(d_k)$，而是在初始化 $W_Q$ 时就把缩放因子考虑进去：
 
@@ -341,7 +341,7 @@ $ W_Q ~ N(0, 1/(d_"model" dot.op sqrt(d_k))) quad "instead of" quad W_Q ~ N(0, 1
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 方案三：$sqrt(d_"model")$（某些变体）
+=== *方案三：$sqrt(d_"model")$（某些变体）*
 
 有些模型不除以 $sqrt(d_k)$（每个头的维度），而是除以 $sqrt(d_"model")$（完整的模型维度）：
 
@@ -355,7 +355,7 @@ $ sqrt(d_"model") = sqrt(n_"heads" dot.op d_k) = sqrt(n_"heads") dot.op sqrt(d_k
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 方案四：完全不缩放（QK-Norm）
+=== *方案四：完全不缩放（QK-Norm）*
 
 还有一种方法：不在点积之后缩放，而是对 $Q$ 和 $K$ 本身做归一化：
 
@@ -374,7 +374,7 @@ $ S = Q_"norm" dot.op K_"norm"^T $
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 共同思路
+== *共同思路*
 
 虽然具体方法不同，但它们都在解决同一个问题：
 
@@ -391,7 +391,7 @@ QK-Norm：           最鲁棒，但计算开销更大
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 缩放的反向传播
+== *缩放的反向传播*
 
 #quote[
   *不管用哪种缩放方案，反向传播的推导都很直接。我们以标准的 $sqrt(d_k)$ 为例完整走一遍。*
@@ -421,13 +421,13 @@ $ (partial L)/(partial alpha) = sum_(s, t) Delta_(S \_ "scaled") [s] [t] dot.op 
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 从缩放看 Transformer 设计的整体哲学
+== *从缩放看 Transformer 设计的整体哲学*
 
 #quote[
   $sqrt(d_k)$ 缩放只是 Transformer 中众多"稳定训练"设计的一个缩影。让我们把所有类似的设计列出来，看看它们的共同模式：
 ]
 
-=== 1. 前向传播中的数值稳定手段
+=== *1. 前向传播中的数值稳定手段*
 
 ```
 RMSNorm / LayerNorm：
@@ -453,7 +453,7 @@ RMSNorm / LayerNorm：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 2. 反向传播中的梯度稳定手段
+=== *2. 反向传播中的梯度稳定手段*
 
 ```
 Pre-Norm（而非 Post-Norm）：
@@ -475,7 +475,7 @@ SiLU（而非 ReLU）：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 共同模式
+=== *共同模式*
 
 ```
 所有这些设计都在做同一件事：
@@ -491,7 +491,7 @@ SiLU（而非 ReLU）：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 小结
+== *小结*
 
 #quote[
   朋友，现在我们可以给出一个比较完整的回答了。
@@ -515,7 +515,7 @@ $sqrt(d_k)$ 是一个*基于初始化假设推导出的、在量级上正确的�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 笔者的话
+== *笔者的话*
 
 #quote[
   一个小小的放缩因子居然有这么多可说的，真令人惊讶啊！在巨大的架构中，一个小小的设计细节都有可能决定了全局，何尝不是那“丢了一颗马钉”导致“亡了一个国家”的滑坡惨剧的再次上演。不过在这里，笔者实话说，我们的缩放因还是要子显得更加诚信与合理一些～
@@ -523,7 +523,7 @@ $sqrt(d_k)$ 是一个*基于初始化假设推导出的、在量级上正确的�
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 参考资料
+== *参考资料*
 
 - Laurent Bou´,_Deep learning for pedestrians: backpropagation in Transformers_
 - Stanford lecture,_cs336(2025-2026)_

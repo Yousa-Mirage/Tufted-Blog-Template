@@ -24,7 +24,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 导言：从 EHR 到 Deep Phenotyping 的范式转变
+== *导言：从 EHR 到 Deep Phenotyping 的范式转变*
 
 #quote[
   近年来，精准医学的数据源正在从传统的电子病历（EHR）向 Deep Phenotyping（深度表型分析）演进。这个变化背后的核心矛盾很明确：传统的 EHR 数据虽然包含了诊断记录，但往往碎片化且缺乏早期的风险信号；而深度表型数据（如生物标志物、基因组、长期生活方式记录）虽然信息丰富，但其高维、异构且缺乏自然顺序的特点，使得传统的机器学习方法难以有效建模。
@@ -45,7 +45,7 @@
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 核心架构解析
+== *核心架构解析*
 
 *论文试图解决什么问题？*
 
@@ -60,7 +60,7 @@ ukbFound 的核心挑战在于如何将高度非结构化的医疗数据（如�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 第一部分：层次化 Tokenization
+=== *第一部分：层次化 Tokenization*
 
 
 #quote[*原文*:
@@ -69,7 +69,7 @@ ukbFound 的核心挑战在于如何将高度非结构化的医疗数据（如�
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== Step 1: 数据分类
+==== *Step 1: 数据分类*
 
 原始数据分为三类：
 
@@ -82,7 +82,7 @@ ukbFound 的核心挑战在于如何将高度非结构化的医疗数据（如�
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== Step 2: 具体 Token 化过程
+==== *Step 2: 具体 Token 化过程*
 
 *例1：连续变量 — 身高*
 
@@ -140,7 +140,7 @@ emb_t(t_88) + emb_v(<pad>) → 模型学会处理缺失
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== Step 3: 词表大小的计算
+==== *Step 3: 词表大小的计算*
 
 ```
 Trait 词表 = |CT| + |MCT| + |MST|
@@ -156,7 +156,7 @@ Value 词表 = |QV| + |CV| + |SV|
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 第二部分：位置无关嵌入（Position-Free Input Embedding）
+=== *第二部分：位置无关嵌入（Position-Free Input Embedding）*
 
 #quote[*原文*：
   *Position-free input embedding module.* In the ukbFound framework, each trait is considered the smallest unit of information. We assign each trait t\_j a unique integer identifier id(t\_j). These ordered identifiers form the sequence of input tokens and offers great flexibility to input tokens' order. The input trait tokens of each individual l are hence represented by an order vector,
@@ -188,7 +188,7 @@ Value 词表 = |QV| + |CV| + |SV|
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== Step 1: 什么是“位置无关”？
+==== *Step 1: 什么是“位置无关”？*
 
 在传统 Transformer（如 BERT、GPT）中，输入序列是：
 
@@ -216,7 +216,7 @@ text
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== Step 2: 嵌入的维度
+==== *Step 2: 嵌入的维度*
 
 论文中 D = 256（见下文 Transformer 描述）。
 
@@ -237,7 +237,7 @@ h_47 = emb_t(t_47) + emb_v(3) ∈ R^256
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== Step 3: 三类特征的嵌入合并
+==== *Step 3: 三类特征的嵌入合并*
 
 假设个体 l 有：
 
@@ -256,7 +256,7 @@ h^(l) = [所有连续特征嵌入] + [所有单选特征嵌入] + [所有多选�
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== Step 4: 与位置编码的本质区别
+==== *Step 4: 与位置编码的本质区别*
 
 #table(
   columns: (1fr, 1fr, 1fr),
@@ -267,7 +267,7 @@ h^(l) = [所有连续特征嵌入] + [所有单选特征嵌入] + [所有多选�
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 第三部分：Transformer 编码器（Self-Attention 过程）
+=== *第三部分：Transformer 编码器（Self-Attention 过程）*
 
 #quote[*原文*：
   *Trait–value fusion and token-type distinction.* Trait and value tokens are embedded by two separate lookup tables (embₜ for traits and embᵥ for values). For each observed item, the final token representation is the element-wise sum of its trait embedding and the corresponding value embedding. This preserves token-type information while yielding a single contextual vector per item for the transformer encoder.
@@ -292,7 +292,7 @@ h^(l) = [所有连续特征嵌入] + [所有单选特征嵌入] + [所有多选�
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== Step 1: 整体架构配置
+==== *Step 1: 整体架构配置*
 
 #table(
   columns: (1fr, 1fr, 1fr),
@@ -303,7 +303,7 @@ h^(l) = [所有连续特征嵌入] + [所有单选特征嵌入] + [所有多选�
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== Step 2: CLS Token 的作用
+==== *Step 2: CLS Token 的作用*
 
 在每个个体的输入序列*最前面*，加入一个特殊的 `<CLS>` token：
 
@@ -320,7 +320,7 @@ h^(l) = [所有连续特征嵌入] + [所有单选特征嵌入] + [所有多选�
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== Step 3: 整个 Transformer 的流程（8 层）
+==== *Step 3: 整个 Transformer 的流程（8 层）*
 
 #quote[
   这里的架构内容和cs336中的Transformer体系差不多，就不展开讲了，简单展示一下架构情况，属于基础内容，就不过多赘述了
@@ -357,7 +357,7 @@ h^(l) = [所有连续特征嵌入] + [所有单选特征嵌入] + [所有多选�
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== Step 4: Self-Attention 在这个任务中的“生物学含义”
+==== *Step 4: Self-Attention 在这个任务中的“生物学含义”*
 
 在 ukbFound 中，Self-Attention 的核心作用是*捕获特征间的潜在关联*：
 
@@ -380,7 +380,7 @@ Self-Attention 让模型学会：
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 第四部分：预训练 — Masked Language Modeling
+=== *第四部分：预训练 — Masked Language Modeling*
 
 #quote[*原文*：
   *ukbFound pretraining.* The ukbFound model is configured with a maximum sequence length M = 3000, a masking ratio of 15%, a batch size of 100, a dropout rate of 0.15, and a learning rate of 0.0001. A masked language modeling (MLM) objective was applied using cross-entropy loss in training with 50 epochs.
@@ -396,7 +396,7 @@ Self-Attention 让模型学会：
   *Masked language modeling and stratified masking.* During pretraining we explicitly preserved the distinction between traits and values. Masked positions were sampled in a stratified manner across token types: within each sequence, the mask budget (15%) was split equally between trait tokens and value tokens whenever both were present (falling back to the available type if only one existed). To avoid over-emphasis on the smaller vocabulary, the MLM loss was computed on the union of masked positions but with token-type balancing, ensuring comparable learning signal from both vocabularies across minibatches.
 ]
 
-==== Step 1: MLM 的核心思想
+==== *Step 1: MLM 的核心思想*
 
 #quote[
   传统 BERT 的 MLM 是随机掩码一些 token，让模型根据上下文预测被掩码的内容。这里选用的是MLM的训练方法，也是一个需要介绍的内容。ukbFound 做了*两个关键改进*：
@@ -434,7 +434,7 @@ Self-Attention 让模型学会：
 
 #line(length: 100%, stroke: 0.6pt)
 
-==== Step 2: 训练配置
+==== *Step 2: 训练配置*
 
 #table(
   columns: (1fr, 1fr),
@@ -445,7 +445,7 @@ Self-Attention 让模型学会：
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 下游任务效果
+== *下游任务效果*
 
 #quote[
   预训练得到的 Embedding 仅仅是"半成品"，真正的价值体现在三大下游任务中,这里展示一下大概情况：
@@ -455,7 +455,7 @@ _*注意：以下是详细展开，对生物下游问题解决设计思路有兴
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 任务 1：疾病分层（Disease Stratification）
+=== *任务 1：疾病分层（Disease Stratification）*
 
 #figure(caption: "疾病分层（Disease Stratification）")[
   #image("imgs/3.png", width: 40%)
@@ -482,7 +482,7 @@ _*注意：以下是详细展开，对生物下游问题解决设计思路有兴
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 任务 2：多病共存网络（Multimorbidity Network Analysis）
+=== *任务 2：多病共存网络（Multimorbidity Network Analysis）*
 #figure(caption: "任务 2：多病共存网络（Multimorbidity Network Analysis）")[
   #image("imgs/4.png", width: 40%)
 ]
@@ -510,7 +510,7 @@ _*注意：以下是详细展开，对生物下游问题解决设计思路有兴
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 任务 3：疾病预测（Disease Prediction）
+=== *任务 3：疾病预测（Disease Prediction）*
 #figure(caption: "任务 3：疾病预测（Disease Prediction）")[
   #image("imgs/5.png", width: 40%)
 ]
@@ -544,7 +544,7 @@ _*注意：以下是详细展开，对生物下游问题解决设计思路有兴
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 代码是如何落实架构的
+== *代码是如何落实架构的*
 
 #quote[
   通过审查作者提供的 ukbFound 核心预处理代码，我们不仅验证了上述架构的落地，还发现了一些论文中未详细披露的*工程细节*。
@@ -553,7 +553,7 @@ _*注意：以下是详细展开，对生物下游问题解决设计思路有兴
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 1. 确定性词表构建 (`ValueVocab`)
+=== *1. 确定性词表构建 (`ValueVocab`)*
 
 ```Python
 # 代码片段：确定性排序
@@ -565,7 +565,7 @@ sorted_by_freq_tuples.sort(key=lambda x: x[1], reverse=True) # 频次降序
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 2. 双通道数据序列化 (`tokenize_batch`)
+=== *2. 双通道数据序列化 (`tokenize_batch`)*
 
 ```Python
 # 代码片段：返回分离的 Traits 和 Values
@@ -576,7 +576,7 @@ tokenized_data.append((traits, values, mod_types))
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 3. 预训练掩码策略：分层与强制 (`random_mask_value`) 🌟
+=== *3. 预训练掩码策略：分层与强制 (`random_mask_value`) 🌟*
 
 ```Python
 def random_mask_value(values, mask_ratio=0.15, ...):
@@ -618,7 +618,7 @@ def random_mask_value(..., force_mask_ranges=None):
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 4. 损失函数 (`masked_mse_loss` 等)
+=== *4. 损失函数 (`masked_mse_loss` 等)*
 
 笔者审查了来自loss.py脚本提供的 `masked_mse_loss` 和 `criterion_neg_log_bernoulli` 代码。*Loss 不是用于预训练 MLM 的，而是用于下游微调任务（Downstream Tasks）的。*
 
@@ -627,7 +627,7 @@ def random_mask_value(..., force_mask_ranges=None):
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 遗留问题
+=== *遗留问题*
 
 论文提到 _"mask budget (15%) was split equally between trait tokens and value tokens whenever both were present"_，说明代码外层会有一个循环，分别对两个数组应用相同的 15% 随机策略（Trait 侧可能没有疾病强制掩码，或强制掩码逻辑不同）。
 
@@ -637,13 +637,13 @@ def random_mask_value(..., force_mask_ranges=None):
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 针对该架构的一些细节问题
+== *针对该架构的一些细节问题*
 
 #quote[
   笔者在阅读的时候提到了一些问题，分享出来也许可以解决你的疑惑，大家可以选择性阅读，当然读了之后肯定对架构理解会更透彻：
 ]
 
-=== 1. 关于 Yes/No 的编码：是否需要特定设计？
+=== *1. 关于 Yes/No 的编码：是否需要特定设计？*
 
 #quote[
   *回答：不需要针对特定 Trait 设计 Value Token，是全局通用的。*
@@ -666,7 +666,7 @@ def random_mask_value(..., force_mask_ranges=None):
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 2. 关于初始化（Initialization）：复杂 Embedding 怎么保证训练？
+=== *2. 关于初始化（Initialization）：复杂 Embedding 怎么保证训练？*
 
 *回答：基于源码和原文，没有特殊的初始化，而是依赖标准的 Embedding Lookup 和 Transformer 默认初始化。*
 
@@ -681,7 +681,7 @@ def random_mask_value(..., force_mask_ranges=None):
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 3. 关于疾病条目的判断：范围是否过小？
+=== *3. 关于疾病条目的判断：范围是否过小？*
 
 *回答：范围确实受限于硬编码，但对于预训练任务是“够用”的。*
 
@@ -696,7 +696,7 @@ def random_mask_value(..., force_mask_ranges=None):
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 4. Masking 与 Embedding 融合的先后顺序
+=== *4. Masking 与 Embedding 融合的先后顺序*
 
 *回答：先 Mask ID，后 Embedding 相加。二者是解耦的，但输入层面是融合的。*
 
@@ -718,7 +718,7 @@ def random_mask_value(..., force_mask_ranges=None):
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 5. Masking 规则：是每个个体不一样吗？
+=== *5. Masking 规则：是每个个体不一样吗？*
 
 *回答：每个个体（每一行）都不一样，且每次看到都不一样（动态随机）。*
 
@@ -740,7 +740,7 @@ def random_mask_value(..., force_mask_ranges=None):
 
 #line(length: 100%, stroke: 0.6pt)
 
-=== 6.. CLS Token 的聚合原理
+=== *6.. CLS Token 的聚合原理*
 
 *回答：通过 Self-Attention 的“注意力权重”自动学习聚合。*
 
@@ -757,7 +757,7 @@ _"A special CLS token is prepended to each sequence, and its final-layer embeddi
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 架构设计：对 Transformer 的特定问题改造
+== *架构设计：对 Transformer 的特定问题改造*
 
 #quote[
   ukbFound 的成功，本质上是*通用架构 (Transformer) 与特定领域问题 (医疗表型) 深度适配*的结果。针对特定的问题做出适配性的改进，是让我们的model的适用开发范围更加广泛的方法。
@@ -775,7 +775,7 @@ _"A special CLS token is prepended to each sequence, and its final-layer embeddi
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 小结
+== *小结*
 
 #quote[
   这篇论文和对应的源码向我们展示了一种"Foundation Model + Downstream Discovery"的新范式（或者是一种新的领域交叉发论文的套路？）：
@@ -789,7 +789,7 @@ _"A special CLS token is prepended to each sequence, and its final-layer embeddi
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 笔者的话
+== *笔者的话*
 
 #quote[
   学习这篇论文花了我很多时间，这篇和之前的那篇Dephi可以做一个对比学习，同时也可以从这里看出学界对于这种交叉领域内容的偏好：虽然没有使用特别复杂的架构改进，但是可以做出一个相对来说自圆其说的结果来，使用的架构也不是最新的Transformer架构：比如这篇用的是LayerNorm，会增加模型训练负担，用的还是最原始那个配置，而且也没有测试SwiGLU类似的改进是不是可以使得Transformer可以学到更多内容，论文都是25年末发的顶刊，2篇nature，由此可见一斑，有时候探讨一个学科是否在时代风口上是一个好的倾向，甭管他是哪个风口。
@@ -798,7 +798,7 @@ _"A special CLS token is prepended to each sequence, and its final-layer embeddi
 
 #line(length: 100%, stroke: 0.6pt)
 
-== 参考资料
+== *参考资料*
 
 - 论文地址： #link("https://www.nature.com/articles/s41746-026-02736-w")[https://www.nature.com/articles/s41746-026-02736-w]
 - github地址：#link("https://github.com/qiyanghong2020/ukbFound")[https://github.com/qiyanghong2020/ukbFound]

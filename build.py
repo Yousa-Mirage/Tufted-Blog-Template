@@ -61,6 +61,7 @@ CONFIG_FILE = Path("config.typ")  # 全局配置文件
 BUILD_STATE_DIR = Path(".build-state")  # 本地构建状态目录
 PRIVATE_POST_PASSWORD_ENV = "BLOG_PRIVATE_PASSWORD"  # 私密文章密码环境变量
 PRIVATE_POSTS_CONFIG_FILE = Path("private-posts.txt")  # 私密文章列表
+DRAFT_POSTS_CONFIG_FILE = Path("draft-posts.txt")  # 不参与发布的草稿文章列表
 PRIVATE_POSTS_STATE_FILE = BUILD_STATE_DIR / "private-posts.json"
 PRIVATE_POST_SHARED_SALT = "86c2a948d5deacaf4d2df169802f2812"  # 私密页面共用 salt
 PRIVATE_POST_REMEMBER_DAYS = 30  # 自动记住密码的天数
@@ -354,6 +355,10 @@ def find_common_dependencies() -> list[Path]:
     if PRIVATE_POSTS_CONFIG_FILE.exists():
         common_deps.append(PRIVATE_POSTS_CONFIG_FILE)
 
+    # 草稿列表会影响哪些页面及资源参与发布。
+    if DRAFT_POSTS_CONFIG_FILE.exists():
+        common_deps.append(DRAFT_POSTS_CONFIG_FILE)
+
     # 可以在这里添加其他公共依赖
     # 例如：查找 content/_* 目录下的模板文件
     if CONTENT_DIR.exists():
@@ -433,6 +438,41 @@ def get_private_post_routes_set() -> set[str]:
     return set(get_private_post_routes())
 
 
+def get_draft_post_routes() -> tuple[str, ...]:
+    """
+    从配置文件读取不参与网站发布的草稿路由列表。
+
+    草稿源文件仍保留在 content/ 中，但不会编译、复制资源，也不会进入
+    sitemap 或 RSS。
+    """
+    if not DRAFT_POSTS_CONFIG_FILE.exists():
+        return ()
+
+    routes: list[str] = []
+    seen: set[str] = set()
+
+    try:
+        for raw_line in DRAFT_POSTS_CONFIG_FILE.read_text(encoding="utf-8").splitlines():
+            line = raw_line.split("#", 1)[0].strip()
+            if not line:
+                continue
+
+            route = normalize_site_route(line)
+            if route and route not in seen:
+                seen.add(route)
+                routes.append(route)
+    except Exception as e:
+        print(f"⚠️ 读取草稿文章列表失败: {e}")
+        return ()
+
+    return tuple(routes)
+
+
+def get_draft_post_routes_set() -> set[str]:
+    """获取草稿文章路由集合，便于快速查询。"""
+    return set(get_draft_post_routes())
+
+
 def get_private_post_source_path(route: str) -> Path:
     """
     根据站点路由推导对应的 Typst 源文件路径。
@@ -470,6 +510,29 @@ def is_path_in_private_route(path: Path) -> bool:
             return True
 
     return False
+
+
+def is_path_in_draft_route(path: Path) -> bool:
+    """判断 content/ 下的文件是否位于某个草稿路由内。"""
+    try:
+        relative_path = path.relative_to(CONTENT_DIR).as_posix().strip("/")
+    except ValueError:
+        return False
+
+    for route in get_draft_post_routes():
+        normalized_route = normalize_site_route(route)
+        if relative_path == normalized_route or relative_path.startswith(normalized_route + "/"):
+            return True
+
+    return False
+
+
+def remove_draft_outputs() -> None:
+    """删除增量构建中可能残留的草稿页面及资源。"""
+    for route in get_draft_post_routes():
+        output_dir = SITE_DIR / normalize_site_route(route)
+        if output_dir.exists():
+            shutil.rmtree(output_dir)
 
 
 def write_private_route_stub(route: str) -> None:
@@ -864,8 +927,13 @@ def build_html(force: bool = False) -> bool:
 
     typ_files = find_typ_files()
 
-    # 排除标记为 PDF 的文件
-    html_files = [f for f in typ_files if "pdf" not in f.stem.lower()]
+    # 排除标记为 PDF 的文件以及仅保留在本地的草稿。
+    html_files = [
+        f for f in typ_files
+        if "pdf" not in f.stem.lower() and not is_path_in_draft_route(f)
+    ]
+    # 增量构建时也要清理草稿曾经生成的旧页面。
+    remove_draft_outputs()
 
     private_password_available = has_private_post_password()
     if not private_password_available:
@@ -943,7 +1011,10 @@ def build_pdf(force: bool = False) -> bool:
     SITE_DIR.mkdir(parents=True, exist_ok=True)
 
     typ_files = find_typ_files()
-    pdf_files = [f for f in typ_files if "pdf" in f.stem.lower()]
+    pdf_files = [
+        f for f in typ_files
+        if "pdf" in f.stem.lower() and not is_path_in_draft_route(f)
+    ]
 
     if not pdf_files:
         return True
@@ -1025,6 +1096,9 @@ def copy_content_assets(force: bool = False) -> bool:
             # 跳过以下划线开头的路径
             relative_path = item.relative_to(CONTENT_DIR)
             if any(part.startswith("_") for part in relative_path.parts):
+                continue
+
+            if is_path_in_draft_route(item):
                 continue
 
             if not private_password_available and is_path_in_private_route(item):
@@ -1285,7 +1359,7 @@ def collect_posts(dirs: set[str], site_url: str) -> list[dict]:
                 continue
 
             route = normalize_site_route(f"{d}/{item.name}")
-            if route in get_private_post_routes_set():
+            if route in get_private_post_routes_set() or route in get_draft_post_routes_set():
                 continue
 
             index_html = item / "index.html"
@@ -1488,7 +1562,10 @@ def generate_sitemap(site_url: str) -> bool:
             url_path = rel_path
 
         normalized_route = normalize_site_route(url_path)
-        if normalized_route in get_private_post_routes_set():
+        if (
+            normalized_route in get_private_post_routes_set()
+            or normalized_route in get_draft_post_routes_set()
+        ):
             continue
 
         full_url = f"{site_url}/{url_path}"
@@ -1520,13 +1597,14 @@ def generate_robots_txt(site_url: str) -> bool:
     """
     Generate robots.txt pointing to the sitemap.
     """
-    private_disallow_lines = "\n".join(
-        f"Disallow: /{route}/" for route in get_private_post_routes()
+    hidden_routes = (*get_private_post_routes(), *get_draft_post_routes())
+    hidden_disallow_lines = "\n".join(
+        f"Disallow: /{route}/" for route in hidden_routes
     )
 
     robots_lines = ["User-agent: *", "Allow: /"]
-    if private_disallow_lines:
-        robots_lines.append(private_disallow_lines)
+    if hidden_disallow_lines:
+        robots_lines.append(hidden_disallow_lines)
     robots_lines.append("")
     robots_lines.append(f"Sitemap: {site_url}/sitemap.xml")
     robots_content = "\n".join(robots_lines) + "\n"

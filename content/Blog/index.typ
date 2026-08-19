@@ -189,11 +189,6 @@
 
 #series-block(title: "工程与工具", tone: "amber")[
   #tufted.blog-entry(
-    date: datetime(year: 2026, month: 7, day: 28),
-    path: "7-28",
-    title: "工程实践｜大规模中医文献筛选与检索库搭建",
-  )
-  #tufted.blog-entry(
     date: datetime(year: 2026, month: 6, day: 3),
     path: "6-3",
     title: "CS336（2025）｜Assignment 1：Transformer 架构测试实验",
