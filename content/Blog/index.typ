@@ -28,7 +28,11 @@
 = Blog
 
 #quote[
-  这里主要整理技术学习、论文阅读与项目实践。文章按主题归档，系列内按时间倒序排列；较私人的随笔与日常记录收在页面末尾的个人文件夹中。
+  If you enjoy my blog, feel free to bookmark the site:
+  *#link("https://shiyilee11.github.io/Tufted-Blog-Template/Blog/")[shiyilee11.github.io/Blog]*.
+  If you have any ideas or suggestions, don't hesitate to reach out via
+  *#link("mailto:1747819157@qq.com")[email]*.
+  I'd love to hear your feedback! 🙌
 ]
 
 // ==================== 技术学习 ====================
