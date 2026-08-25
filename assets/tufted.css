@@ -436,6 +436,15 @@ div[style*="border-inline-start"] p {
 	width: 100%;
 }
 
+/* Keep display math consistent with formulas in the main text column. */
+div[style*="border-inline-start"] > figure.math-block {
+	width: 100%;
+	max-width: 100%;
+	font-size: 1em;
+	margin: 1em auto;
+	text-align: center;
+}
+
 div[style*="border-inline-start"] .footnote-ref,
 div[style*="border-inline-start"] .marginnote,
 div[style*="border-inline-start"] .footnote-ref a {
