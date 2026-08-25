@@ -6,6 +6,9 @@
 
 Development updates will be recorded here.
 
+- Fix: Fixed the style of mathematical formulas in paragraph blocks (#43, @karuboniru)
+- Fix: Fixed the blog index width on mobile devices (#45, @karuboniru)
+
 ## v1.3.0
 
 - feat: support HTML MathML formula output with Typst 0.15 and later while keeping SVG formula styles compatible with older versions ([#40](https://github.com/Yousa-Mirage/Tufted-Blog-Template/issues/40))
