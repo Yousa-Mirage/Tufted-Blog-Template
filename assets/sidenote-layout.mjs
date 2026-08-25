@@ -1,6 +1,7 @@
 const DESKTOP_QUERY = "(min-width: 761px)";
 const GAP_REM = 0.4;
-const POSITION_EPSILON = 0.5;
+const POSITION_EPSILON = 0.01;
+const SIZE_EPSILON = 0.5;
 
 /**
  * Find globally balanced, non-overlapping sidenote positions.
@@ -147,7 +148,15 @@ function createController(section) {
 			return;
 		}
 
-		entry.placeholder = document.createComment(`sidenote-${sourceIndex}`);
+		if (entry.kind === "caption") {
+			entry.placeholder = document.createComment(`sidenote-${sourceIndex}`);
+		} else {
+			// Unlike the raised footnote glyph, this zero-sized inline box exposes
+			// the top of the line that originally placed the floating note.
+			entry.placeholder = document.createElement("span");
+			entry.placeholder.className = "sidenote-position-anchor";
+			entry.placeholder.setAttribute("aria-hidden", "true");
+		}
 		note.before(entry.placeholder);
 		entries.push(entry);
 	});
@@ -167,15 +176,13 @@ function createController(section) {
 }
 
 function getAnchorTop(entry, layerTop) {
-	const rectangle = entry.anchor.getBoundingClientRect();
-	let top = rectangle.top - layerTop;
-
-	if (entry.kind === "footnote") {
-		const relativeTop = Number.parseFloat(getComputedStyle(entry.anchor).top);
-		if (Number.isFinite(relativeTop)) top -= relativeTop;
-	}
-
-	return top;
+	const positionAnchor =
+		entry.kind === "caption" ? entry.anchor : entry.placeholder;
+	return (
+		positionAnchor.getBoundingClientRect().top -
+		layerTop +
+		entry.fallbackBlockStartMargin
+	);
 }
 
 function getGapPixels() {
@@ -231,7 +238,7 @@ function layoutController(controller) {
 	const requiredHeight = Math.ceil(
 		Math.max(naturalHeight, layerOffset + maxBottom + gap),
 	);
-	if (requiredHeight > naturalHeight + POSITION_EPSILON) {
+	if (requiredHeight > naturalHeight + SIZE_EPSILON) {
 		section.style.minBlockSize = `${requiredHeight}px`;
 	}
 }
@@ -253,7 +260,15 @@ function activateController(controller) {
 	if (controller.active) return;
 
 	controller.section.append(controller.layer);
-	controller.entries.forEach(({ note }) => controller.layer.append(note));
+	controller.entries.forEach((entry) => {
+		const blockStartMargin = Number.parseFloat(
+			getComputedStyle(entry.note).marginBlockStart,
+		);
+		entry.fallbackBlockStartMargin = Number.isFinite(blockStartMargin)
+			? blockStartMargin
+			: 0;
+		controller.layer.append(entry.note);
+	});
 	controller.section.classList.add("sidenotes-active");
 	controller.active = true;
 }

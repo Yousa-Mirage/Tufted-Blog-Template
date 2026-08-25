@@ -721,9 +721,22 @@ sup.footnote-ref {
 	pointer-events: none;
 }
 
+.sidenote-position-anchor {
+	display: none;
+}
+
 @media (min-width: 761px) {
 	sup.marginnote-ref {
 		display: none;
+	}
+
+	/* Expose the original inline formatting context's line-box top to JS. */
+	.sidenote-position-anchor {
+		display: inline-block;
+		inline-size: 0;
+		block-size: 0;
+		vertical-align: top;
+		pointer-events: none;
 	}
 
 	article > section.sidenotes-active {
