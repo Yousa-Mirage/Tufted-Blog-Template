@@ -441,8 +441,6 @@ div[style*="border-inline-start"] > figure.math-block {
 	width: 100%;
 	max-width: 100%;
 	font-size: 1em;
-	margin: 1em auto;
-	text-align: center;
 }
 
 div[style*="border-inline-start"] .footnote-ref,
