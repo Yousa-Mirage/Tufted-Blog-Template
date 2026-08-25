@@ -329,9 +329,12 @@ function init() {
 		}
 	};
 
-	const noteObserver = new ResizeObserver(scheduleLayout);
+	const noteObserver =
+		typeof ResizeObserver === "function"
+			? new ResizeObserver(scheduleLayout)
+			: null;
 	controllers.forEach((controller) => {
-		controller.entries.forEach(({ note }) => noteObserver.observe(note));
+		controller.entries.forEach(({ note }) => noteObserver?.observe(note));
 		controller.section.addEventListener("load", scheduleLayout, true);
 		controller.section.addEventListener("toggle", scheduleLayout, true);
 	});

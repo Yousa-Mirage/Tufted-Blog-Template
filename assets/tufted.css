@@ -724,12 +724,12 @@ sup.footnote-ref {
 		display: none;
 	}
 
-	article > section {
+	article > section.sidenotes-active {
 		position: relative;
 	}
 
 	/* Keep the margin column relative to the article, not nested content. */
-	article > section .marginnote {
+	article > section.sidenotes-active .marginnote {
 		display: block;
 		position: absolute;
 		float: none;
@@ -739,14 +739,14 @@ sup.footnote-ref {
 		box-sizing: border-box;
 	}
 
-	.sidenote-layer {
+	article > section.sidenotes-active .sidenote-layer {
 		position: absolute;
 		inset: 0;
 		z-index: 1;
 		pointer-events: none;
 	}
 
-	.sidenote-layer .marginnote {
+	article > section.sidenotes-active .sidenote-layer .marginnote {
 		pointer-events: auto;
 	}
 }
