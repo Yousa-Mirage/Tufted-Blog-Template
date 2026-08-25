@@ -6,6 +6,9 @@
 
 开发中的更新内容将在此记录。
 
+- 修复：修复了段落块中的数学公式样式 (#43, @karuboniru)
+- 修复：修复了移动端的博客索引宽度 (#45, @karuboniru)
+
 ## v1.3.0
 
 - 功能：支持 Typst 0.15 及之后版本的 HTML MathML 公式导出，并兼容旧版本的 SVG 公式样式（[#40](https://github.com/Yousa-Mirage/Tufted-Blog-Template/issues/40)）
