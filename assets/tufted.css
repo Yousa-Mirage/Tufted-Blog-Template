@@ -606,11 +606,6 @@ RESPONSIVE LAYOUT
 		margin-right: auto;
 	}
 
-	/* Blog index rows take full width on mobile */
-	.blog-entry {
-		width: 100%;
-	}
-
 	.article-byline {
 		width: 100%;
 	}
@@ -769,6 +764,13 @@ BLOG INDEX
 	color: var(--theme-footer, #777);
 	font-size: 1.2em;
 	white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+	/* Blog index rows take full width on mobile */
+	.blog-entry {
+		width: 100%;
+	}
 }
 
 /*******************************************************************************
