@@ -681,7 +681,7 @@ sup.footnote-ref {
 }
 
 .footnote-ref,
-.footnote-ref + .marginnote {
+.sidenote-footnote {
 	--highlight: transparent;
 	background-color: var(--highlight);
 	box-shadow: 0 0 0 5px var(--highlight);
@@ -703,9 +703,51 @@ sup.footnote-ref {
 	transition-delay: 0s;
 }
 
+.sidenote-footnote.is-sidenote-highlighted {
+	--highlight: var(--highlight-weak);
+	transition-delay: 0s;
+}
+
+.footnote-ref.is-sidenote-highlighted {
+	--highlight: var(--highlight-strong);
+	transition-delay: 0s;
+}
+
+.sidenote-anchor {
+	font: inherit;
+	line-height: inherit;
+	pointer-events: none;
+}
+
 @media (min-width: 761px) {
 	sup.marginnote-ref {
 		display: none;
+	}
+
+	article > section {
+		position: relative;
+	}
+
+	/* Keep the margin column relative to the article, not nested content. */
+	article > section .marginnote {
+		display: block;
+		position: absolute;
+		float: none;
+		inset-inline-start: 60.5%;
+		inline-size: 27.5%;
+		margin: 0;
+		box-sizing: border-box;
+	}
+
+	.sidenote-layer {
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		pointer-events: none;
+	}
+
+	.sidenote-layer .marginnote {
+		pointer-events: auto;
 	}
 }
 

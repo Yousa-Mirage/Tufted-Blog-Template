@@ -1,7 +1,15 @@
 // TODO: figures and figures with captions inside margin notes
 
 #let margin-note(content) = {
-  html.span(class: "marginnote", content)
+  html.elem(
+    "span",
+    attrs: (
+      class: "sidenote-anchor",
+      aria-hidden: "true",
+    ),
+    "\u{2060}",
+  )
+  html.span(class: "marginnote sidenote-manual", role: "note", content)
 }
 
 // TODO: implement <figure class="fullwidth">
