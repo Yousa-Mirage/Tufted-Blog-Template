@@ -461,6 +461,11 @@ table {
 	line-height: 1.2;
 }
 
+/* A table cell has its own float context; keep its notes below earlier floats. */
+table:has(.marginnote) {
+	clear: right;
+}
+
 /* Naked tables behave like the main text column */
 section > table {
 	width: auto;
@@ -705,24 +710,10 @@ sup.footnote-ref {
 	transition-delay: 0s;
 }
 
-.sidenote-footnote.is-sidenote-highlighted {
-	--highlight: var(--highlight-weak);
-	transition-delay: 0s;
-}
-
-.footnote-ref.is-sidenote-highlighted {
-	--highlight: var(--highlight-strong);
-	transition-delay: 0s;
-}
-
 .sidenote-anchor {
 	font: inherit;
 	line-height: inherit;
 	pointer-events: none;
-}
-
-.sidenote-position-anchor {
-	display: none;
 }
 
 @media (min-width: 761px) {
@@ -730,39 +721,14 @@ sup.footnote-ref {
 		display: none;
 	}
 
-	/* Expose the original inline formatting context's line-box top to JS. */
-	.sidenote-position-anchor {
-		display: inline-block;
-		inline-size: 0;
-		block-size: 0;
-		vertical-align: top;
-		pointer-events: none;
+	/* Keep fallback note geometry stable when notes are nested in lists or blocks. */
+	article > section {
+		container-type: inline-size;
 	}
 
-	article > section.sidenotes-active {
-		position: relative;
-	}
-
-	/* Keep the margin column relative to the article, not nested content. */
-	article > section.sidenotes-active .marginnote {
-		display: block;
-		position: absolute;
-		float: none;
-		inset-inline-start: 60.5%;
-		inline-size: 27.5%;
-		margin: 0;
-		box-sizing: border-box;
-	}
-
-	article > section.sidenotes-active .sidenote-layer {
-		position: absolute;
-		inset: 0;
-		z-index: 1;
-		pointer-events: none;
-	}
-
-	article > section.sidenotes-active .sidenote-layer .marginnote {
-		pointer-events: auto;
+	article > section .marginnote {
+		inline-size: 27.5cqi;
+		margin-inline-end: -33cqi;
 	}
 }
 
