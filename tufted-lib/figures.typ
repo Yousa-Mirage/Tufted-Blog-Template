@@ -3,7 +3,8 @@
 #let template-figures(content) = {
   // Redefine figure caption to use marginnote
   show figure.caption: it => html.span(
-    class: "marginnote",
+    class: "marginnote sidenote-caption",
+    role: "note",
     it.supplement + sym.space.nobreak + it.counter.display() + it.separator + it.body,
   )
 
