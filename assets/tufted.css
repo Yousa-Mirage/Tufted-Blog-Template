@@ -461,6 +461,11 @@ table {
 	line-height: 1.2;
 }
 
+/* A table cell has its own float context; keep its notes below earlier floats. */
+table:has(.marginnote) {
+	clear: right;
+}
+
 /* Naked tables behave like the main text column */
 section > table {
 	width: auto;
@@ -683,7 +688,7 @@ sup.footnote-ref {
 }
 
 .footnote-ref,
-.footnote-ref + .marginnote {
+.sidenote-footnote {
 	--highlight: transparent;
 	background-color: var(--highlight);
 	box-shadow: 0 0 0 5px var(--highlight);
@@ -705,9 +710,48 @@ sup.footnote-ref {
 	transition-delay: 0s;
 }
 
+.sidenote-anchor {
+	font: inherit;
+	line-height: inherit;
+	pointer-events: none;
+}
+
 @media (min-width: 761px) {
 	sup.marginnote-ref {
 		display: none;
+	}
+
+	/* Keep fallback note geometry stable when notes are nested in lists or blocks. */
+	article > section {
+		/* Fractions of the section width; JS reads the column start as well. */
+		--sidenote-content-width: 0.55;
+		--sidenote-column-start: 0.605;
+		--sidenote-column-width: 0.275;
+		container-type: inline-size;
+	}
+
+	article > section .marginnote {
+		inline-size: calc(100cqi * var(--sidenote-column-width));
+		margin-inline-end: calc(
+			100cqi *
+			(
+				var(--sidenote-content-width) -
+				var(--sidenote-column-start) -
+				var(--sidenote-column-width)
+			)
+		);
+	}
+
+	/* A nested float cannot avoid its parent's text. Keep nested notes in
+	   normal flow so their height is included in the outer side note. */
+	article > section .marginnote .marginnote {
+		display: block;
+		float: none;
+		clear: none;
+		position: static;
+		inline-size: auto;
+		min-inline-size: 0;
+		margin: 0.5em 0;
 	}
 }
 

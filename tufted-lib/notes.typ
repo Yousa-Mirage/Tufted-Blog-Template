@@ -15,12 +15,12 @@
 
       // Footnote content in the margin
       html.span(
-        class: "marginnote",
+        class: "marginnote sidenote-footnote",
         id: fn-id,
+        role: "note",
         html.sup(html.a(class: "footnote-ref-link", href: "#" + ref-id, number)) + [ ] + it.body,
       )
     }
   }
   content
 }
-
