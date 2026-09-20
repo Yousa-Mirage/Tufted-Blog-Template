@@ -741,6 +741,18 @@ sup.footnote-ref {
 			)
 		);
 	}
+
+	/* A nested float cannot avoid its parent's text. Keep nested notes in
+	   normal flow so their height is included in the outer side note. */
+	article > section .marginnote .marginnote {
+		display: block;
+		float: none;
+		clear: none;
+		position: static;
+		inline-size: auto;
+		min-inline-size: 0;
+		margin: 0.5em 0;
+	}
 }
 
 /* Fix code size in margin notes (including inside links) */

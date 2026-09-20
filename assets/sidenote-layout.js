@@ -2,17 +2,15 @@ const DESKTOP_QUERY = "(min-width: 761px)";
 const POSITION_EPSILON = 0.05;
 
 function createController(section) {
-	const notes = [...section.querySelectorAll(".marginnote")].map((note) => ({
-		note,
-		parentNote: note.parentElement.closest(".marginnote"),
-	}));
+	// Nested notes stay in their parent's normal flow; only move outer notes.
+	const notes = [...section.querySelectorAll(".marginnote")].filter(
+		(note) => !note.parentElement.closest(".marginnote"),
+	);
 	return notes.length > 0 ? { notes, section } : null;
 }
 
 function resetHorizontalOffsets(controller) {
-	controller.notes.forEach(({ note }) =>
-		note.style.removeProperty("translate"),
-	);
+	controller.notes.forEach((note) => note.style.removeProperty("translate"));
 }
 
 function measureController(controller) {
@@ -26,16 +24,11 @@ function measureController(controller) {
 		sectionRectangle.left + sectionRectangle.width * columnStart;
 	const measurements = [];
 
-	for (const { note, parentNote } of notes) {
+	for (const note of notes) {
 		if (note.getClientRects().length === 0) continue;
-		// Parent and child share the same final left edge. Align the child to
-		// its parent's unshifted edge; it inherits the parent's movement later.
-		const referenceLeft = parentNote
-			? parentNote.getBoundingClientRect().left
-			: targetLeft;
 		measurements.push({
 			note,
-			offset: referenceLeft - note.getBoundingClientRect().left,
+			offset: targetLeft - note.getBoundingClientRect().left,
 		});
 	}
 	return measurements;
@@ -92,7 +85,7 @@ function init() {
 			: null;
 	controllers.forEach((controller) => {
 		resizeObserver?.observe(controller.section);
-		controller.notes.forEach(({ note }) => resizeObserver?.observe(note));
+		controller.notes.forEach((note) => resizeObserver?.observe(note));
 		controller.section.addEventListener("load", scheduleLayout, true);
 		controller.section.addEventListener("toggle", scheduleLayout, true);
 	});
