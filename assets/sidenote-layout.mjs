@@ -1,37 +1,44 @@
 const DESKTOP_QUERY = "(min-width: 761px)";
-const SIDENOTE_INLINE_START = 0.605;
 const POSITION_EPSILON = 0.05;
 
 function createController(section) {
-	const notes = [...section.querySelectorAll(".marginnote")];
+	const notes = [...section.querySelectorAll(".marginnote")].map((note) => ({
+		note,
+		parentNote: note.parentElement.closest(".marginnote"),
+	}));
 	return notes.length > 0 ? { notes, section } : null;
 }
 
 function resetHorizontalOffsets(controller) {
-	controller.notes.forEach((note) => note.style.removeProperty("translate"));
+	controller.notes.forEach(({ note }) =>
+		note.style.removeProperty("translate"),
+	);
 }
 
-function layoutController(controller) {
+function measureController(controller) {
 	const { notes, section } = controller;
-
-	// Transforms do not affect layout, so clearing every previous translation
-	// exposes the CSS float position without changing any note's y coordinate.
-	resetHorizontalOffsets(controller);
-
+	const columnStart = Number.parseFloat(
+		getComputedStyle(section).getPropertyValue("--sidenote-column-start"),
+	);
+	if (!Number.isFinite(columnStart)) return [];
 	const sectionRectangle = section.getBoundingClientRect();
 	const targetLeft =
-		sectionRectangle.left + sectionRectangle.width * SIDENOTE_INLINE_START;
-	const measurements = notes.map((note) => ({
-		left: note.getBoundingClientRect().left,
-		note,
-	}));
+		sectionRectangle.left + sectionRectangle.width * columnStart;
+	const measurements = [];
 
-	measurements.forEach(({ left, note }) => {
-		const offset = targetLeft - left;
-		if (Math.abs(offset) > POSITION_EPSILON) {
-			note.style.translate = `${offset}px 0`;
-		}
-	});
+	for (const { note, parentNote } of notes) {
+		if (note.getClientRects().length === 0) continue;
+		// Parent and child share the same final left edge. Align the child to
+		// its parent's unshifted edge; it inherits the parent's movement later.
+		const referenceLeft = parentNote
+			? parentNote.getBoundingClientRect().left
+			: targetLeft;
+		measurements.push({
+			note,
+			offset: referenceLeft - note.getBoundingClientRect().left,
+		});
+	}
+	return measurements;
 }
 
 function init() {
@@ -44,7 +51,15 @@ function init() {
 	let layoutFrame = 0;
 	const layoutAll = () => {
 		layoutFrame = 0;
-		controllers.forEach(layoutController);
+		// Batch all writes, then all reads, then the final writes across sections.
+		// Translation does not change the CSS float layout or vertical positions.
+		controllers.forEach(resetHorizontalOffsets);
+		const measurements = controllers.flatMap(measureController);
+		for (const { note, offset } of measurements) {
+			if (Math.abs(offset) > POSITION_EPSILON) {
+				note.style.translate = `${offset}px 0`;
+			}
+		}
 	};
 	const scheduleLayout = () => {
 		if (!desktopQuery.matches || layoutFrame) return;
@@ -61,12 +76,23 @@ function init() {
 		}
 	};
 
-	const noteObserver =
+	// Only width changes affect this horizontal correction. In particular,
+	// expanding a tall note should not repeatedly remeasure every note.
+	const observedWidths = new WeakMap();
+	const resizeObserver =
 		typeof ResizeObserver === "function"
-			? new ResizeObserver(scheduleLayout)
+			? new ResizeObserver((entries) => {
+					for (const { target, contentRect } of entries) {
+						if (observedWidths.get(target) !== contentRect.width) {
+							observedWidths.set(target, contentRect.width);
+							scheduleLayout();
+						}
+					}
+				})
 			: null;
 	controllers.forEach((controller) => {
-		controller.notes.forEach((note) => noteObserver?.observe(note));
+		resizeObserver?.observe(controller.section);
+		controller.notes.forEach(({ note }) => resizeObserver?.observe(note));
 		controller.section.addEventListener("load", scheduleLayout, true);
 		controller.section.addEventListener("toggle", scheduleLayout, true);
 	});
@@ -74,19 +100,10 @@ function init() {
 	desktopQuery.addEventListener("change", syncMode);
 	window.addEventListener("resize", scheduleLayout, { passive: true });
 	window.addEventListener("pageshow", scheduleLayout);
-	window.visualViewport?.addEventListener("resize", scheduleLayout, {
-		passive: true,
-	});
-	document.fonts?.ready.then(scheduleLayout);
 	document.fonts?.addEventListener("loadingdone", scheduleLayout);
 
 	syncMode();
 }
 
-if (typeof document !== "undefined") {
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", init);
-	} else {
-		init();
-	}
-}
+// Module scripts run after the document has been parsed.
+init();
