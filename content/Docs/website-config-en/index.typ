@@ -100,6 +100,16 @@ If the RSS subscription function is enabled for articles in the `Blog/` director
 
 Once everything is configured correctly, the build script will automatically generate the RSS feed file `feed.xml`, which you can access through `https://example.com/feed.xml`.
 
+=== Margin Citations
+
+The `margin-citations` parameter defaults to `false`. When set to `true`, the full bibliography entry for each in-text citation is shown in the margin, only at the first citation of each source; on mobile the entries are collapsed and expand when the citation is tapped. This is meant for author-date styles such as APA, and the page needs to call `bibliography()`. Margin entries are copied from the bibliography list, so set the format with the `style` of `bibliography()` (in-text citations follow it by default); if only the `style` of `cite` is set, the bibliography list and margin entries still use the default format.
+
+```typst
+#let template = tufted.tufted-web.with(
+  margin-citations: true,
+)
+```
+
 === Custom Styles and Scripts
 
 See #link("../custom-styling-en/")[Custom Styling & Scripts].

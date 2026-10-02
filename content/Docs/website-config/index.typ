@@ -99,6 +99,16 @@ SEO (Search Engine Optimization，搜索引擎优化) 参数用于优化网站�
 一切配置正确后，构建脚本会自动生成 RSS 订阅源文件 `feed.xml`，你可以通过 `https://example.com/feed.xml` 访问该订阅源。
 ```
 
+=== 边栏参考文献
+
+`margin-citations` 参数默认为 `false`。设为 `true` 后，正文中每个引用对应的完整参考文献条目会显示在边栏中，同一来源只在第一次引用时显示；移动端默认折叠，点击引用展开。该功能适用于 APA 等 author-date 风格，页面中需要调用 `bibliography()`。边栏条目复制自文末的文献列表，因此建议通过 `bibliography()` 的 `style` 设置格式（正文引用默认跟随它）；若只设置 `cite` 的 `style`，文末列表和边栏条目仍会使用默认格式。
+
+```typst
+#let template = tufted.tufted-web.with(
+  margin-citations: true,
+)
+```
+
 === 自定义样式和脚本
 
 见 #link("../custom-styling/")[自定义样式与脚本]。

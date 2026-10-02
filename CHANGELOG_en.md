@@ -8,6 +8,7 @@ Development updates will be recorded here.
 
 - Fix: Fixed the style of mathematical formulas in paragraph blocks (#43, @karuboniru)
 - Fix: Fixed the blog index width on mobile devices (#45, @karuboniru)
+- Feature: Added the `margin-citations` parameter to show full entries of author-date citations (e.g. APA) in the margin (#24, @lukezed)
 
 ## v1.3.0
 

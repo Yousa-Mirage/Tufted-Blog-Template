@@ -9,6 +9,7 @@
   title: "Typst Example",
   description: "A Typst example document that showcases Typst features and how they render in this web template.",
   lang: "en",
+  margin-citations: true,
 )
 
 = Typst Example
@@ -162,7 +163,7 @@ You can use `tufted.margin-note()` to place arbitrary *unbroken* margin content 
 ```
 
 You can export references as a `.bib` file, then use `bibliography()` to load it into Typst. After that, you can cite entries with `@`, like this: @tufte1973relationship.\
-By default, the bibliography is displayed at the position where `bibliography()` is called. The template does not yet support automatically showing the bibliography in the margin, but you can cite it manually in a footnote. #footnote[Tufte, E. R. (1973). The Relationship between Seats and Votes in Two-Party Systems. _American Political Science Review, 67_(2), 540–554. https://doi.org/10.2307/1958782]
+By default, the bibliography is displayed at the position where `bibliography()` is called. With `margin-citations: true` in the template parameters, the full entry for each in-text citation is shown in the margin automatically (enabled on this page); on mobile, tap a citation to expand it. This is meant for author-date styles such as APA; note styles such as `chicago-notes` already put citations in footnotes and do not need it. You can also cite manually in a footnote. #footnote[Tufte, E. R. (1973). The Relationship between Seats and Votes in Two-Party Systems. _American Political Science Review, 67_(2), 540–554. https://doi.org/10.2307/1958782]
 
 #bibliography("../typst-example/papers.bib", title: none, style: "american-psychological-association")
 

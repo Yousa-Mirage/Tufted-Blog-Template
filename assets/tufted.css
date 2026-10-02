@@ -557,6 +557,11 @@ RESPONSIVE LAYOUT
 		display: block;
 	}
 
+	/* Margin citations collapse too; tapping the citation expands them */
+	.sidenote-cite:not(.is-expanded) {
+		display: none;
+	}
+
 	/* Limit image size inside expanded margin notes */
 	.marginnote img,
 	.marginnote svg {
