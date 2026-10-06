@@ -8,6 +8,7 @@
 #show: template.with(
   title: "Typst 功能速览与样例",
   description: "Typst 功能速览与样例文档，展示了 Typst 的功能以及在当前网页模板下的效果。",
+  margin-citations: true,
 )
 
 = Typst 功能速览与样例
@@ -161,7 +162,7 @@
 ```
 
 你可以将参考文献导出为 `.bib` 文件，使用 `bibliography()` 函数将其引用到 Typst中，然后就可以使用 `@` 引用它，就像这样@tufte1973relationship。\
-默认会将使用的参考文献显示在调用 `bibliography()` 函数的位置。模板暂时不支持自动将参考文献展示在边栏中，但你可以手动引用#footnote[Tufte, E. R. (1973). The Relationship between Seats and Votes in Two-Party Systems. _American Political Science Review, 67_(2), 540～554. https://doi.org/10.2307/1958782]。
+默认会将使用的参考文献显示在调用 `bibliography()` 函数的位置。在模板参数中设置 `margin-citations: true` 后，正文引用对应的完整条目会自动显示在边栏中（本页已开启），移动端点击引用即可展开。这适用于 APA 等 author-date 风格；`chicago-notes` 等 note 风格的引用本身就会生成脚注，无需开启。你也可以手动引用#footnote[Tufte, E. R. (1973). The Relationship between Seats and Votes in Two-Party Systems. _American Political Science Review, 67_(2), 540～554. https://doi.org/10.2307/1958782]。
 
 #bibliography("papers.bib", title: none, style: "american-psychological-association")
 
