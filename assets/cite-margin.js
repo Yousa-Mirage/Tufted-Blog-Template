@@ -46,11 +46,14 @@ if (bib) {
 			sep.splitText(1);
 			end = sep;
 		}
-		// Keep trailing punctuation with the citation, not stranded after an expanded note on mobile
+		// Keep trailing punctuation and closing delimiters before the margin notes.
 		const tail = end.nextSibling;
-		if (isText(tail) && /^[.,;:!?]/.test(tail.data)) {
-			tail.splitText(1);
-			end = tail;
+		if (isText(tail)) {
+			const trailing = tail.data.match(/^[.,;:!?…。，、；：！？)\]}）】〕〉》」』”’]+/u);
+			if (trailing) {
+				tail.splitText(trailing[0].length);
+				end = tail;
+			}
 		}
 
 		const added = [];
