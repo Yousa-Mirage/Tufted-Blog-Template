@@ -47,7 +47,7 @@
 
 ### 1. 安装 Typst
 
-> 如果你的系统已经安装 Typst CLI，可以跳过这一步。
+> 如果你的系统已经安装 Typst CLI，可以跳过这一步。建议使用 Typst 0.15 或更新版本，以启用原生 MathML 公式导出；旧版本使用 SVG 公式回退。
 
 [Typst](https://typst.app/) 是一个新兴的、现代化的标记语言排版系统，旨在成为 LaTeX 的现代化替代品，同时比 LaTeX 更简单易学、编译更快、使用更友好。本项目利用 Typst 实验性的 HTML 导出功能将 `.typ` 纯文本源文件编译为网页。
 
@@ -67,9 +67,9 @@
 
 ### 2. 安装 Python
 
-> 如果你的系统已经安装 Python >= 3.6，也可以跳过这一步。
+> 如果你的系统已经安装 Python >= 3.10，也可以跳过这一步。
 
-本项目使用一个 Python 脚本 `build.py` 来自动化构建流程。理论上只需要安装有 Python 就可以运行，不过为了避免各种 Python 环境问题，推荐使用 [**uv**](https://docs.astral.sh/uv/) 来运行脚本。uv 是一个速度极快的 Python 包和项目管理器，可以简化 Python 安装、环境依赖管理和脚本运行。
+本项目使用一个 Python 脚本 `build.py` 来自动化构建流程。构建脚本只使用 Python 标准库，需要 Python >= 3.10。为了简化 Python 环境配置，推荐使用 [**uv**](https://docs.astral.sh/uv/) 来运行脚本。uv 是一个速度极快的 Python 包和项目管理器，可以简化 Python 安装、环境依赖管理和脚本运行。
 
 你可以按照下面的说明安装 uv：
 
@@ -136,19 +136,21 @@ git clone https://github.com/Yousa-Mirage/Yousa-Mirage.github.io.git
 uv run build.py build
 ```
 
-如果你没有安装 uv，也可以直接使用 Python 运行脚本：
+如果你没有安装 uv，也可以直接使用 Python 运行脚本（先运行 `python --version`，确认该命令对应 Python >= 3.10）：
 
 ```bash
 python build.py build
 ```
 
-此命令会将 `content/` 下的 `.typ` 文件对应编译为 HTML 文件，并输出到 `_site/` 目录。`_site/` 目录就是你的网站在本地的样子。在你修改文件后，重新运行该命令即可**增量编译**。
+此命令会将 `content/` 下的 `.typ` 文件对应编译为 HTML 或 PDF 文件，并将静态资源复制到 `_site/` 目录。文件名中包含 `pdf`（不区分大小写）的文件只编译为 PDF，其余文件编译为 HTML。`_site/` 目录就是你的网站在本地的样子。在你修改文件后，重新运行该命令即可**增量编译**。
+
+如需清理旧产物并完整重建，可运行 `uv run build.py build --force`。配置 `website-url` 后，完整构建流程还会生成 `sitemap.xml` 和 `robots.txt`；配置 `feed-dir` 且有符合条件的文章时，还会生成 `feed.xml`。
 
 ### 3. 本地预览
 
 > HTTP 服务器会占用当前终端窗口，因此推荐在该路径下打开一个新的终端窗口运行预览命令。
 >
-> 💡 **快速工作流提示**：你可以在一个终端后台运行 `uv run build.py preview`，然后在另一个终端运行 `uv run build.py build` 来编译修改。网页会自动刷新，从而实现实时预览而不需要反复运行 `preview` 命令重启服务器。
+> 💡 **快速工作流提示**：先构建网站，再在一个终端运行 `uv run build.py preview`，然后在另一个终端运行 `uv run build.py build` 来编译修改。`preview` 只提供已生成文件的预览，不会监听或自动编译 `.typ` 源文件。使用 livereload 时，构建产物更新后网页会自动刷新；使用 Python 内置 HTTP 服务器时，需要手动刷新网页，无需重启服务器。
 
 你可以运行以下命令启动本地预览服务器：
 
@@ -162,7 +164,7 @@ python build.py preview
 <details>
 <summary>预览命令说明</summary>
 
-`preview` 会首先尝试运行 `uvx livereload _site`，这个命令使用 uv 运行了一个叫做 livereload 的工具，livereload 将 `_site/` 目录作为网站根目录，并在本地的 8000 端口启动 HTTP 实时服务器。如果你没有安装 uv，则会回退到使用 Python 内置的 HTTP 服务器：`python -m http.server 8000 --directory _site`。
+`preview` 会首先尝试运行 `uvx livereload _site -p 8000`，这个命令使用 uv 运行了一个叫做 livereload 的工具，livereload 将 `_site/` 目录作为网站根目录，并在本地的 8000 端口启动 HTTP 实时服务器。如果找不到 `uvx` 命令，则会回退到使用当前 Python 解释器运行内置的 HTTP 服务器，等价于：`python -m http.server 8000 --directory _site`。
 
 预览服务器默认使用 `8000` 端口，你可以使用 `-p/--port` 参数指定其他端口，例如：
 
@@ -170,11 +172,13 @@ python build.py preview
 uv run build.py preview -p 12345
 ```
 
+如需禁用自动打开浏览器，可添加 `--no-open` 参数。
+
 </details>
 
 浏览器应该会自动打开，或者你可以手动打开浏览器，访问 `http://localhost:8000` 来查看默认网页。我在默认网页（即`content/` 中的内容）中编写了更多文档说明和示例内容，你可以自行探索和修改。
 
-你看到的本地网站内容应该与 [示例网站](https://little-yousa-mirage.github.io/) 完全相同。
+默认模板的在线效果可参考 [示例网站](https://tufted-blog.pages.dev/)。
 
 你可以参考 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/Typst-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E8%B5%84%E6%96%99) 的内容和资料了解和学习 Typst。
 
@@ -183,8 +187,8 @@ uv run build.py preview -p 12345
 在了解网页结构和如何编写后，你就可以将 `content/` 中的内容替换为你自己的内容，从而搭建你自己的网站。
 
 1. **修改配置**：编辑 `config.typ` 设置网站标题和导航栏，还可以在 `assets/` 下放置一个 `favicon.ico` 文件作为你网站的标签页图标。
-2. **添加文章**：在 `content/` 下创建新的 `.typ` 文件，可以参考目前的 `content/` 获得示例。
-3. **生成 PDF**：如果文件名中包含 `PDF` (如 `CV-PDF.typ`)，构建脚本会自动将其编译为 PDF 文件，此时你可以在网页中添加链接指向该 PDF。
+2. **添加文章**：在 `content/` 下创建新的 `.typ` 文件，可以参考目前的 `content/` 获得示例。博客文章通常放在 `content/Blog/文章目录/index.typ`，并在 `content/Blog/index.typ` 中手动添加 `tufted.blog-entry()` 条目。
+3. **生成 PDF**：如果文件名中包含 `pdf`（不区分大小写，如 `CV-PDF.typ`），构建脚本会将其编译为 PDF，而不是 HTML。你可以在网页中添加链接指向该 PDF。
 4. **部署网站**：在你的 GitHub 仓库中**将 Pages 的 `Build and deployment > Source` 设置为 `GitHub Actions`**，然后将修改后的内容推送到 GitHub，GitHub Actions 会自动构建、部署、更新网站。具体内容可参考 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/GitHub-Pages-%E9%83%A8%E7%BD%B2%E7%BD%91%E7%AB%99)。
 
 ### 5. 项目更新
@@ -199,10 +203,16 @@ Tufted-Blog-Template/
 ├── _site/                 # 构建输出目录 (自动生成)
 ├── assets/                # 静态资源 (CSS、JS、字体、图标等)
 │   ├── tufted.css             # 主样式表
+│   ├── theme.css              # 浅色/深色主题样式
 │   ├── custom.css             # 自定义样式表（用户可编辑）
-│   ├── copy-code.js           # 代码块复制功能
-│   ├── line-numbers.js        # 代码行号显示
-│   └── format-headings.js     # 标题格式化
+│   ├── code-blocks.js         # 代码块复制与行号
+│   ├── format-headings.js     # 标题格式化
+│   ├── theme-toggle.js        # 主题切换
+│   ├── marginnote-toggle.js   # 移动端侧注展开与收起
+│   ├── sidenote-layout.js     # 桌面端侧注横向对齐
+│   ├── toc.js                 # 浮动目录
+│   ├── back-to-top.js         # 返回顶部
+│   └── math-copy.js           # 复制 MathML 公式
 ├── content/               # 网站内容源文件 (.typ)
 │   ├── index.typ               # 网站首页
 │   ├── Blog/                   # 博客页
@@ -212,6 +222,10 @@ Tufted-Blog-Template/
 ├── tufted-lib/            # Typst 样式库和功能模块
 │   ├── tufted.typ             # 主模板和配置
 │   ├── layout.typ             # 页面布局定义
+│   ├── metadata.typ           # SEO 元数据与 RSS 链接
+│   ├── byline.typ             # 文章作者、日期与额外信息
+│   ├── blog-entry.typ         # 博客索引条目
+│   ├── links.typ              # 链接行为
 │   ├── math.typ               # 数学公式处理
 │   ├── figures.typ            # 图片和图表处理
 │   ├── refs.typ               # 参考文献处理

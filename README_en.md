@@ -47,7 +47,7 @@ To enable version control, automated builds, and a better writing experience, it
 
 ### 1. Install Typst
 
-> If your system already has Typst CLI installed, you can skip this step.
+> If your system already has Typst CLI installed, you can skip this step. Typst 0.15 or newer is recommended for native MathML formula export; older versions use an SVG fallback.
 
 [Typst](https://typst.app/) is an emerging modern markup language typesetting system designed to be a modern alternative to LaTeX, while being simpler to learn, faster to compile, and more user-friendly. This project uses Typst's experimental HTML export feature to compile `.typ` plain text source files into web pages.
 
@@ -67,9 +67,9 @@ After installation, open a terminal and run `typst --version`. If it displays th
 
 ### 2. Install Python
 
-> If your system already has Python >= 3.6 installed, you can skip this step.
+> If your system already has Python >= 3.10 installed, you can skip this step.
 
-This project uses a Python script `build.py` to automate the build process. Theoretically, you only need to have Python installed to run it, but to avoid various Python environment issues, it's recommended to use [**uv**](https://docs.astral.sh/uv/) to run the script. uv is an extremely fast Python package and project manager that simplifies Python installation, dependency management, and script execution.
+This project uses a Python script `build.py` to automate the build process. The build script uses only the Python standard library and requires Python >= 3.10. To simplify Python environment setup, it's recommended to use [**uv**](https://docs.astral.sh/uv/) to run the script. uv is an extremely fast Python package and project manager that simplifies Python installation, dependency management, and script execution.
 
 You can install uv following the instructions below:
 
@@ -136,19 +136,21 @@ Navigate to your website project directory, open a terminal **in the current pat
 uv run build.py build
 ```
 
-If you don't have uv installed, you can run the script directly with Python:
+If you don't have uv installed, you can run the script directly with Python (first run `python --version` to confirm that this command uses Python >= 3.10):
 
 ```bash
 python build.py build
 ```
 
-This command will compile the `.typ` files in `content/` to HTML files and output them to the `_site/` directory. The `_site/` directory is what your website looks like locally. After modifying files, run this command again for **incremental compilation**.
+This command compiles the `.typ` files in `content/` to HTML or PDF and copies static resources to the `_site/` directory. Files whose names contain `pdf` (case-insensitive) are compiled only to PDF; all other files are compiled to HTML. The `_site/` directory is what your website looks like locally. After modifying files, run this command again for **incremental compilation**.
+
+To remove old output and rebuild everything, run `uv run build.py build --force`. When `website-url` is configured, the full build workflow also generates `sitemap.xml` and `robots.txt`; when `feed-dir` is configured and eligible articles exist, it also generates `feed.xml`.
 
 ### 3. Local Preview
 
 > The HTTP server will occupy the current terminal window, so it's recommended to open a new terminal window in that path to run the preview command.
 >
-> 💡 **Quick workflow tip**: You can run `uv run build.py preview` in one terminal and then run `uv run build.py build` in another terminal to compile your changes. The web page will automatically refresh, allowing for real-time preview without the need to repeatedly run the `preview` command to restart the server.
+> 💡 **Quick workflow tip**: Build the website first, then run `uv run build.py preview` in one terminal and `uv run build.py build` in another terminal to compile your changes. `preview` only serves generated files; it does not watch or automatically compile `.typ` source files. With livereload, the page refreshes automatically when build output changes; with Python's built-in HTTP server, refresh the page manually. Neither requires restarting the server.
 
 You can run the following command to start a local preview server:
 
@@ -162,7 +164,7 @@ python build.py preview
 <details>
 <summary>Preview Command Explanation</summary>
 
-`preview` will first try to run `uvx livereload _site`. This command uses uv to run a tool called livereload, which uses the `_site/` directory as the website root and starts an HTTP live server on local port 8000. If you don't have uv installed, it will fall back to using Python's built-in HTTP server: `python -m http.server 8000 --directory _site`.
+`preview` first tries to run `uvx livereload _site -p 8000`. This command uses uv to run a tool called livereload, which uses the `_site/` directory as the website root and starts an HTTP live server on local port 8000. If the `uvx` command is not found, it falls back to the built-in HTTP server using the current Python interpreter, equivalent to: `python -m http.server 8000 --directory _site`.
 
 The preview server uses port `8000` by default, but you can specify a different port using the `-p/--port` parameter, for example:
 
@@ -170,11 +172,13 @@ The preview server uses port `8000` by default, but you can specify a different 
 uv run build.py preview -p 12345
 ```
 
+Add `--no-open` to disable automatically opening the browser.
+
 </details>
 
 The browser should open automatically, or you can manually open a browser and visit `http://localhost:8000` to view the default web page. I've written more documentation and example content in the default web page (i.e., the content in `content/`), which you can explore and modify on your own.
 
-The local website content you see should be identical to the [Demo Website](https://little-yousa-mirage.github.io/).
+See the [Demo Website](https://tufted-blog.pages.dev/) for an online preview of the default template.
 
 You can refer to the content and resources on the [Wiki page](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/Typst-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E8%B5%84%E6%96%99) to learn about Typst.
 
@@ -183,9 +187,9 @@ You can refer to the content and resources on the [Wiki page](https://github.com
 After understanding the web page structure and how to write, you can replace the content in `content/` with your own content to build your own website.
 
 1. **Modify Configuration**: Edit `config.typ` to set the website title and navigation bar. You can also place a `favicon.ico` file in `assets/` as your website's tab icon.
-2. **Add Articles**: Create new `.typ` files in `content/`. You can refer to the current `content/` for examples.
-3. **Generate PDFs**: If the filename contains `PDF` (e.g., `CV-PDF.typ`), the build script will automatically compile it into a PDF file, and you can add links in the web page pointing to that PDF.
-4. **Deploy Website**: Configure Pages in your GitHub repository, push the modified content to GitHub, and GitHub Actions will automatically build, deploy, and update the website. For details, see the [Wiki page](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/GitHub-Pages-%E9%83%A8%E7%BD%B2%E7%BD%91%E7%AB%99).
+2. **Add Articles**: Create new `.typ` files in `content/`. You can refer to the current `content/` for examples. Blog articles typically live in `content/Blog/article-directory/index.typ`; manually add a `tufted.blog-entry()` entry to `content/Blog/index.typ` as well.
+3. **Generate PDFs**: If the filename contains `pdf` (case-insensitive, e.g., `CV-PDF.typ`), the build script compiles it to PDF instead of HTML. You can add links in the web page pointing to that PDF.
+4. **Deploy Website**: In your GitHub repository's Pages settings, **set `Build and deployment > Source` to `GitHub Actions`**, then push the modified content to GitHub. GitHub Actions will automatically build, deploy, and update the website. For details, see the [Wiki page](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/GitHub-Pages-%E9%83%A8%E7%BD%B2%E7%BD%91%E7%AB%99).
 
 ### 5. Project Updates
 
@@ -199,10 +203,16 @@ Tufted-Blog-Template/
 ├── _site/                 # Build output directory (auto-generated)
 ├── assets/                # Static resources (CSS, JS, fonts, icons, etc.)
 │   ├── tufted.css             # Main stylesheet
+│   ├── theme.css              # Light/dark theme styles
 │   ├── custom.css             # Custom stylesheet (user-editable)
-│   ├── copy-code.js           # Code block copy functionality
-│   ├── line-numbers.js        # Code line number display
-│   └── format-headings.js     # Heading formatting
+│   ├── code-blocks.js         # Code block copying and line numbers
+│   ├── format-headings.js     # Heading formatting
+│   ├── theme-toggle.js        # Theme switching
+│   ├── marginnote-toggle.js   # Mobile margin note toggles
+│   ├── sidenote-layout.js     # Desktop sidenote horizontal alignment
+│   ├── toc.js                 # Floating table of contents
+│   ├── back-to-top.js         # Back-to-top button
+│   └── math-copy.js           # MathML formula copying
 ├── content/               # Website content source files (.typ)
 │   ├── index.typ              # Website homepage
 │   ├── Blog/                  # Blog pages
@@ -212,6 +222,10 @@ Tufted-Blog-Template/
 ├── tufted-lib/            # Typst style library and feature modules
 │   ├── tufted.typ             # Main template and configuration
 │   ├── layout.typ             # Page layout definitions
+│   ├── metadata.typ           # SEO metadata and RSS links
+│   ├── byline.typ             # Article author, date, and extra information
+│   ├── blog-entry.typ         # Blog index entries
+│   ├── links.typ              # Link behavior
 │   ├── math.typ               # Mathematics formula handling
 │   ├── figures.typ            # Image and chart handling
 │   ├── refs.typ               # Reference and bibliography handling
