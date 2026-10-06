@@ -93,11 +93,11 @@ SEO (Search Engine Optimization，搜索引擎优化) 参数用于优化网站�
   website-title: "我的博客订阅",
   ...,
 )
+```
 
 如果针对 `Blog/` 目录下的文章开启了 RSS 订阅功能，那么该路径下的所有文章页面都必须填写 `title`、`description`、`date` 等元数据。
 
 一切配置正确后，构建脚本会自动生成 RSS 订阅源文件 `feed.xml`，你可以通过 `https://example.com/feed.xml` 访问该订阅源。
-```
 
 === 自定义样式和脚本
 
