@@ -49,7 +49,9 @@ if (bib) {
 		// Keep trailing punctuation and closing delimiters before the margin notes.
 		const tail = end.nextSibling;
 		if (isText(tail)) {
-			const trailing = tail.data.match(/^[.,;:!?…。，、；：！？)\]}）】〕〉》」』”’]+/u);
+			const trailing = tail.data.match(
+				/^[.,;:!?…。，、；：！？)\]}）】〕〉》」』”’]+/u,
+			);
 			if (trailing) {
 				tail.splitText(trailing[0].length);
 				end = tail;
