@@ -1,0 +1,88 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+name: JSON5
+file_extensions:
+  - json5
+scope: source.json5
+
+contexts:
+  # The prototype context is prepended to all contexts but those setting
+  # meta_include_prototype: false.
+  prototype:
+    - include: comments
+
+  main:
+    # The main context is the initial starting point of our syntax.
+    # Include other contexts from here (or specify them directly).
+    - include: key_name
+    - include: literal_name
+    - include: numbers
+    - include: strings
+
+  literal_name:
+    - match: '\b(true|false|null)\b'
+      scope: constant.language
+
+  numbers:
+    - match: '(?<![\w$])[+-]?(?:Infinity\b|NaN\b|0[xX][0-9a-fA-F]+\b|(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?)(?![\w$])'
+      scope: constant.numeric.json5
+
+  strings:
+    # Strings begin and end with quotes, and use backslashes as an escape
+    # character.
+    - match: '"'
+      scope: punctuation.definition.string.begin.json5
+      push: inside_double_string
+
+    - match: "'"
+      scope: punctuation.definition.string.begin.json5
+      push: inside_single_string
+
+  inside_double_string:
+    - meta_include_prototype: false
+    - meta_scope: string.quoted.double.json5
+    - match: '\\'
+      push: escaped_string_value
+    - match: '"'
+      scope: punctuation.definition.string.end.json5
+      pop: true
+
+  inside_single_string:
+    - meta_include_prototype: false
+    - meta_scope: string.quoted.single.json5
+    - match: '\\'
+      push: escaped_string_value
+    - match: "'"
+      scope: punctuation.definition.string.end.json5
+      pop: true
+
+  escaped_string_value:
+    - match: '(?:u[0-9a-fA-F]{4}|x[0-9a-fA-F]{2}|[^\r\n]|\r?\n)'
+      scope: constant.character.escape.json5
+      pop: true
+
+  comments:
+    # Comments begin with a '//' and finish at the end of the line.
+    - match: '//'
+      scope: punctuation.definition.comment.json5
+      push:
+        # This is an anonymous context push for brevity.
+        - meta_scope: comment.line.double-slash.json5
+        - match: $\n?
+          pop: true
+
+    # Multi-line comments begin with '/*' and finish with '*/'
+    - match: '/\*'
+      scope: punctuation.definition.comment.block
+      push: inside_comment_block
+
+  key_name:
+    - match: '[\p{L}_$][\p{L}\p{N}_$]*(?=\s*:)'
+      scope: variable.function
+
+  inside_comment_block:
+    - meta_include_prototype: false
+    - meta_scope: comment.block
+    - match: '\*/'
+      pop: true

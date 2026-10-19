@@ -9,6 +9,7 @@
 - 修复：修复了段落块中的数学公式样式 (#43, @karuboniru)
 - 修复：修复了移动端的博客索引宽度 (#45, @karuboniru)
 - 功能：新增 `margin-citations` 参数，将 APA 等 author-date 风格引用的完整条目显示在边栏中 (#24, @lukezed)
+- 功能：通过自定义 Sublime 语法定义为代码块新增 Justfile、Mermaid、JSON5 和 JSONC 语法高亮支持
 
 ## v1.3.0
 

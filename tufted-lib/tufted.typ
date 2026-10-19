@@ -53,6 +53,12 @@
   show: template-byline.with(author: author, date: date, extra-info: extra-info)
 
   set text(lang: lang)
+  set raw(syntaxes: (
+    "custom-syntaxes/Just.sublime-syntax",
+    "custom-syntaxes/Mermaid.sublime-syntax",
+    "custom-syntaxes/JSON5.sublime-syntax",
+    "custom-syntaxes/JSONC.sublime-syntax",
+  ))
 
   html.html(
     lang: lang,
@@ -137,7 +143,7 @@
                 )
               },
             )
-          }
+          },
         )
 
         // Main content

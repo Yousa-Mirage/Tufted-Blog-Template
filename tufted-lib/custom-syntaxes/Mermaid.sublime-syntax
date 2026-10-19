@@ -1,0 +1,216 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+name: Mermaid
+file_extensions:
+  - mermaid
+  - mmd
+scope: source.mermaid
+variables:
+  graph_link: (?:-?-(?:-|\>)|=?=(?:=|\>)|(?:\.-|-\.)-?\>?)
+  entity: \b[-\w]+\b
+  entity_from: \b{{entity}}\s?
+  entity_to: \s?{{entity}}\b
+  text: \b[-\w\s]+\b
+  # TODO: untested, test breaks, despite highlight working
+  text_and_symbols: \"[-!#$%\^&*+=?,./:'\\\w\s]+\"
+contexts:
+  prototype:
+    - include: line_comment
+
+  main:
+    - match: <
+      push:
+        - meta_scope: punctuation.definition.comment.mermaid.html
+        - match: $
+          pop: true
+
+    - include: quoted_string
+
+    - include: diagram
+
+    - include: graph
+
+  graph:
+    - match: ^\s*(class)\s+{{entity}}\s+
+      captures:
+        1: keyword.type.styling.graph.mermaid
+      push:
+        - meta_scope: meta.declaration.styling.graph.mermaid
+        - match: \b\w+\b
+          scope: support.name.styling.graph.mermaid
+        - match: $
+          pop: true
+
+    - match: ^\s*(classDef)\s+({{entity}})\s+
+      captures:
+        1: keyword.type.styling.graph.mermaid
+        2: entity.name.styling.graph.mermaid
+      push:
+        - meta_scope: meta.declaration.styling.graph.mermaid
+        - meta_content_scope: string.text.styling.graph.mermaid
+        - match: $
+          pop: true
+
+    - match: ^\s*(click)\s+{{entity}}\s+
+      captures:
+        1: keyword.type.interaction.graph.mermaid
+      push:
+        - meta_scope: meta.declaration.interaction.graph.mermaid
+        - match: \b\w+\b
+          scope: entity.name.callback.interaction.graph.mermaid
+        - include: quoted_string
+        - match: $
+          pop: true
+
+    - match: ^\s*(graph|flowchart)\s+
+      captures:
+        1: keyword.type.graph.mermaid
+      push:
+        - meta_scope: meta.declaration.graph.mermaid
+        - match: \b(T(B|D)|BT|LR|RL)\b
+          scope: constant.type.graph.mermaid
+        - match: $
+          pop: true
+
+    - match: ^\s*(subgraph)\s+({{text}})$
+      captures:
+        1: keyword.type.begin.sub.graph.mermaid
+        2: string.text.sub.graph.mermaid
+      push:
+        - meta_scope: meta.declaration.sub.graph.mermaid
+        - include: main
+        - match: ^\s*end\b
+          scope: keyword.type.end.sub.graph.mermaid
+          pop: true
+
+    - match: ^\s*{{entity_from}}({{graph_link}})
+      captures:
+        1: keyword.operator.link.graph.mermaid
+      push:
+        - meta_scope: meta.declaration.link.graph.mermaid
+        - match: (\|)({{text}}|{{text_and_symbols}})(\|)
+          captures:
+            1: keyword.operator.begin.text.link.graph.mermaid
+            2: string.text.link.graph.mermaid
+            3: keyword.operator.end.text.link.graph.mermaid
+        - match: \s?({{text}}|{{text_and_symbols}})\s?({{graph_link}})
+          captures:
+            1: string.text.link.graph.mermaid
+            2: keyword.operator.link.graph.mermaid
+        - match: '{{entity_to}}'
+          pop: true
+
+    - match: ^\s*({{entity}})(\[|\(+|\>|\{)
+      captures:
+        1: entity.name.node.graph.mermaid
+        2: keyword.operator.begin.node.graph.mermaid
+      push:
+        - meta_scope: meta.declaration.node.graph.mermaid
+        - meta_content_scope: string.text.node.graph.mermaid
+        - match: (\]|\)+|\})(\b|\s|$)
+          captures:
+            1: keyword.operator.end.node.graph.mermaid
+          pop: true
+
+  diagram:
+    - match: ^\s*(sequenceDiagram|stateDiagram(?:-v2)?|classDiagram|erDiagram|journey|gantt|pie|mindmap|timeline|gitGraph)\b
+      captures:
+        1: keyword.type.diagram.mermaid
+      push:
+        - meta_scope: meta.declaration.diagram.mermaid
+        - match: $
+          pop: true
+
+    - match: ^\s*(participant)\s+({{entity}})(?:\s+(as)\s+)?
+      captures:
+        1: keyword.type.actor.diagram.mermaid
+        2: entity.name.actor.diagram.mermaid
+        3: keyword.operator.alias.actor.diagram.mermaid
+      push:
+        - meta_scope: meta.declaration.actor.diagram.mermaid
+        - meta_content_scope: string.text.alias.actor.diagram.mermaid
+        - match: $
+          pop: true
+
+    - match: ^\s*((?:de)?activate)\s+{{entity}}
+      captures:
+        1: keyword.type.activation.diagram.mermaid
+      push:
+        - meta_scope: meta.declaration.activation.diagram.mermaid
+        - match: $
+          pop: true
+
+    - match: ^\s*(loop)\s+({{text}})$
+      captures:
+        1: keyword.type.begin.loop.diagram.mermaid
+        2: string.text.loop.diagram.mermaid
+      push:
+        - meta_scope: meta.declaration.loop.diagram.mermaid
+        - include: diagram
+        - match: ^\s*end\b
+          scope: keyword.type.end.loop.diagram.mermaid
+          pop: true
+
+    - match: ^\s*(alt)\s+({{text}})$
+      captures:
+        1: keyword.type.begin.alternative-path.diagram.mermaid
+        2: string.text.alternative-path.diagram.mermaid
+      push:
+        - meta_scope: meta.declaration.alternative-path.diagram.mermaid
+        - include: diagram
+        - match: ^\s*(else)(?:\s+({{text}}))$
+          captures:
+            1: keyword.operator.alternative-path.diagram.mermaid
+            2: string.text.alternative-path.diagram.mermaid
+        - match: ^\s*end\b
+          scope: keyword.type.end.alternative-path.diagram.mermaid
+          pop: true
+
+    - match: ^\s*(opt)\s+({{text}})$
+      captures:
+        1: keyword.type.begin.optional-path.diagram.mermaid
+        2: string.text.optional-path.diagram.mermaid
+      push:
+        - meta_scope: meta.declaration.optional-path.diagram.mermaid
+        - include: diagram
+        - match: ^\s*end\b
+          scope: keyword.type.end.optional-path.diagram.mermaid
+          pop: true
+
+    - match: ^\s*(Note)\s+((?:left|right)\sof|over)\s+{{entity}}(:)
+      captures:
+        1: keyword.type.note.diagram.mermaid
+        2: constant.type.note.diagram.mermaid
+        3: keyword.operator.note.diagram.mermaid
+      push:
+        - meta_scope: meta.declaration.note.diagram.mermaid
+        - meta_content_scope: string.text.note.diagram.mermaid
+        - match: $
+          pop: true
+
+    - match: ^\s*{{entity_from}}(-?-(?:\>|x)\>?[+-]?){{entity_to}}(:)
+      captures:
+        1: keyword.operator.message.diagram.mermaid
+        2: keyword.operator.message.diagram.mermaid
+      push:
+        - meta_scope: meta.declaration.message.diagram.mermaid
+        - meta_content_scope: string.text.message.diagram.mermaid
+        - match: $
+          pop: true
+
+  line_comment:
+    - match: '%%'
+      push:
+        - meta_scope: punctuation.definition.comment.mermaid
+        - match: $
+          pop: true
+
+  quoted_string:
+    - match: '"'
+      scope: punctuation.definition.string.begin.mermaid
+      push:
+        - meta_scope: string.quoted.double.mermaid
+        - match: '"'
+          scope: punctuation.definition.string.end.mermaid
+          pop: true
