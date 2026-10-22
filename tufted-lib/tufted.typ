@@ -51,6 +51,7 @@
   show: template-figures
   show: template-links
   show: template-byline.with(author: author, date: date, extra-info: extra-info)
+  show line: it => if target() == "html" { html.hr() } else { it }
 
   set text(lang: lang)
   set raw(syntaxes: (

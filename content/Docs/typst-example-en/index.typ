@@ -42,9 +42,9 @@ This is a new paragraph. You can add a line break by appending `\\` at the end o
 This is a new line.
 ```
 
-Currently, `#line()` does not support HTML export, but you can use `#html.hr()` to add a horizontal divider.
+This template renders `#line()` as a light gray HTML horizontal divider. You can also use `#html.hr()` directly. The length, angle, and stroke parameters of `line()` are not applied in HTML output.
 
-#html.hr()
+#line()
 
 To display special characters, escape them: \* \_ \# \$ \@
 

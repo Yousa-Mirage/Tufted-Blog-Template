@@ -218,6 +218,12 @@ figure > .math-block {
 TYPOGRAPHY
 *******************************************************************************/
 
+hr {
+	border: 0;
+	border-top: 1px solid var(--theme-table-border, #ccc);
+	margin: 1.5rem 0;
+}
+
 /* Paragraph alignment and spacing */
 p {
 	text-align: justify;
