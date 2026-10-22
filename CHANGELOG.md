@@ -10,6 +10,9 @@
 - 修复：修复了移动端的博客索引宽度 (#45, @karuboniru)
 - 功能：新增 `margin-citations` 参数，将 APA 等 author-date 风格引用的完整条目显示在边栏中 (#24, @lukezed)
 - 功能：通过自定义 Sublime 语法定义为代码块新增 Justfile、Mermaid、JSON5 和 JSONC 语法高亮支持
+- 修复：限制宽表格不超出正文栏，并在超宽时提供横向滚动
+- 修复：消除桌面端独立 `margin-note` 在正文中的占行，避免标题下方出现多余空行
+- 功能：将 `#line()` 渲染为 HTML 横向分隔线，PDF 保留原生行为
 
 ## v1.3.0
 
