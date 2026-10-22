@@ -63,10 +63,6 @@ section > svg {
 	position: relative;
 	left: 27.5%;
 	transform: translateX(-50%);
-}
-
-section > img,
-section > svg {
 	display: block;
 }
 
@@ -76,10 +72,6 @@ section > figure:not(.fullwidth) > svg {
 	max-width: 100%;
 	margin-left: auto;
 	margin-right: auto;
-}
-
-section > figure:not(.fullwidth) > img,
-section > figure:not(.fullwidth) > svg {
 	display: block;
 }
 
@@ -228,10 +220,10 @@ hr {
 p {
 	text-align: justify;
 	text-justify: inter-ideograph;
-	line-height: 2.2rem;
 }
 
-/* List spacing */
+/* Paragraph and list spacing */
+p,
 ul,
 ol,
 dl {
@@ -249,30 +241,33 @@ h5 {
 	color: #111;
 }
 
+h2,
+h3,
+h4,
+h5 {
+	line-height: 1.2;
+}
+
 h2 {
 	font-size: 2.3rem;
-	line-height: 1.2;
 	margin-top: 2rem;
 	margin-bottom: 1rem;
 }
 
 h3 {
 	font-size: 2rem;
-	line-height: 1.2;
 	margin-top: 1.5rem;
 	margin-bottom: 0.8rem;
 }
 
 h4 {
 	font-size: 1.75rem;
-	line-height: 1.2;
 	margin-top: 1.2rem;
 	margin-bottom: 0.5rem;
 }
 
 h5 {
 	font-size: 1.5rem;
-	line-height: 1.2;
 	margin-top: 1rem;
 	margin-bottom: 0.5rem;
 }
@@ -369,15 +364,11 @@ code {
 	border: 1px solid #e7e7e7;
 }
 
-/* Code blocks in lists */
+/* Code blocks in lists and figures */
 li pre,
 ul pre,
 ol pre,
-dl pre {
-	width: 100%;
-}
-
-/* Code blocks in figures */
+dl pre,
 figure pre {
 	width: 100%;
 }
@@ -540,13 +531,8 @@ table tbody tr:hover {
 	table td {
 		padding: 0.4em 0.6em;
 	}
-}
 
-/*******************************************************************************
-RESPONSIVE LAYOUT
-*******************************************************************************/
-
-@media (max-width: 760px) {
+	/* Responsive content layout */
 	.math-block {
 		width: 100%;
 	}
@@ -590,11 +576,6 @@ RESPONSIVE LAYOUT
 		max-height: 50vh;
 		margin: 0.4rem auto;
 		display: block;
-	}
-
-	sup.footnote-ref {
-		line-height: 1;
-		top: -0.2em;
 	}
 
 	sup.footnote-ref > a.footnote-ref-link {
