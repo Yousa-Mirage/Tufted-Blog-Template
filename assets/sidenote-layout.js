@@ -2,6 +2,24 @@ const DESKTOP_QUERY = "(min-width: 761px)";
 const POSITION_EPSILON = 0.05;
 
 function createController(section) {
+	// CSS cannot distinguish a note-only paragraph from one containing text.
+	// Ignore formatting whitespace, but retain paragraphs with real content.
+	for (const paragraph of section.querySelectorAll("p")) {
+		if (paragraph.closest(".marginnote")) continue;
+		const onlyNotes = [...paragraph.childNodes].every((node) => {
+			if (node.nodeType === Node.COMMENT_NODE) return true;
+			if (node.nodeType === Node.TEXT_NODE) return !node.textContent.trim();
+			return (
+				node.nodeType === Node.ELEMENT_NODE &&
+				node.matches(".sidenote-anchor, .marginnote")
+			);
+		});
+		paragraph.classList.toggle(
+			"sidenote-only",
+			onlyNotes && paragraph.querySelector(":scope > .marginnote") !== null,
+		);
+	}
+
 	// Nested notes stay in their parent's normal flow; only move outer notes.
 	const notes = [...section.querySelectorAll(".marginnote")].filter(
 		(note) => !note.parentElement.closest(".marginnote"),

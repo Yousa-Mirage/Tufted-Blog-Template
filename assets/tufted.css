@@ -737,6 +737,15 @@ sup.footnote-ref {
 }
 
 @media (min-width: 761px) {
+	/* Manual notes must not create an otherwise empty line in the text column. */
+	.sidenote-anchor {
+		display: none;
+	}
+
+	p.sidenote-only {
+		display: contents;
+	}
+
 	sup.marginnote-ref {
 		display: none;
 	}
