@@ -909,6 +909,10 @@ TABLE OF CONTENTS
 	outline: none;
 }
 
+.toc-sidebar a.is-active {
+	font-weight: bold;
+}
+
 .toc-toggle {
 	position: fixed;
 	top: 50%;
