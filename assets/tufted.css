@@ -921,22 +921,16 @@ TABLE OF CONTENTS
 	align-items: flex-end;
 	gap: 0.72rem;
 	overflow-y: auto;
-	border: 1px solid var(--theme-table-border, #ccc);
+	border: none;
 	border-radius: 1rem;
-	background: var(--theme-bg, #fffff8);
+	background: transparent;
 	color: var(--theme-copy-btn-text, #666);
 	cursor: pointer;
-	transition:
-		background-color 120ms ease,
-		color 120ms ease,
-		border-color 120ms ease;
+	transition: background-color 120ms ease;
 }
 
-.toc-toggle:hover,
-.toc-toggle:focus-visible,
-.toc-toggle.is-open {
-	border-color: var(--theme-copy-btn-text, #666);
-	outline: none;
+.toc-toggle:hover {
+	background: rgba(128, 128, 128, 0.1);
 }
 
 .toc-toggle:focus-visible {
@@ -949,6 +943,7 @@ TABLE OF CONTENTS
 	height: 2px;
 	flex: 0 0 auto;
 	background: currentColor;
+	opacity: 0.4;
 	transition:
 		width 120ms ease,
 		background-color 120ms ease;
@@ -960,4 +955,5 @@ TABLE OF CONTENTS
 
 .toc-toggle-line.is-active {
 	background: var(--theme-heading, #111);
+	opacity: 0.8;
 }
