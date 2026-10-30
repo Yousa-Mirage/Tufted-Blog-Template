@@ -30,34 +30,91 @@
 	}
 
 	function buildToc(headings) {
+		const label = getTocLabel();
 		const nav = document.createElement("nav");
 		nav.className = "toc-sidebar";
-		nav.setAttribute("aria-label", "文章目录");
+		nav.id = "toc-sidebar";
+		nav.setAttribute("aria-label", label);
 
 		const list = document.createElement("ol");
 		const usedIds = new Set();
+		const entriesById = new Map();
+		const toggle = document.createElement("button");
+		toggle.className = "toc-toggle";
+		toggle.type = "button";
+		toggle.setAttribute("aria-label", label);
+		toggle.setAttribute("aria-controls", nav.id);
 
 		headings.forEach((heading, index) => {
 			const id = ensureHeadingId(heading, index, usedIds);
 			const item = document.createElement("li");
 			const link = document.createElement("a");
+			const indicator = document.createElement("span");
 
 			item.classList.add(`toc-${heading.tagName.toLowerCase()}`);
-			if (index > 0) {
-				item.classList.add("toc-after-title");
-			}
 			link.href = `#${id}`;
 			link.textContent = heading.textContent.trim();
+			indicator.className = "toc-toggle-line";
+			indicator.setAttribute("aria-hidden", "true");
+			if (heading.tagName === "H3") {
+				indicator.classList.add("is-indented");
+			}
 
 			item.appendChild(link);
 			list.appendChild(item);
+			toggle.appendChild(indicator);
+			entriesById.set(id, [link, indicator]);
 		});
 
 		nav.appendChild(list);
-		return nav;
+		return { nav, toggle, entriesById };
 	}
 
-	function bindSmoothScroll(nav) {
+	function getTocLabel() {
+		const isChinese = document.documentElement.lang
+			?.toLowerCase()
+			.startsWith("zh");
+		return isChinese ? "文章目录" : "Table of Contents";
+	}
+
+	function bindToggle(toggle, nav) {
+		let isOpen = false;
+
+		function setOpen(open) {
+			isOpen = open;
+			nav.classList.toggle("is-open", open);
+			toggle.classList.toggle("is-open", open);
+			toggle.setAttribute("aria-expanded", String(open));
+			nav.setAttribute("aria-hidden", String(!open));
+			nav.inert = !open;
+		}
+		setOpen(false);
+
+		toggle.addEventListener("click", () => {
+			setOpen(!isOpen);
+		});
+
+		document.addEventListener("click", (event) => {
+			if (
+				isOpen &&
+				!toggle.contains(event.target) &&
+				!nav.contains(event.target)
+			) {
+				setOpen(false);
+			}
+		});
+
+		document.addEventListener("keydown", (event) => {
+			if (event.key === "Escape" && isOpen) {
+				setOpen(false);
+				toggle.focus();
+			}
+		});
+
+		return setOpen;
+	}
+
+	function bindSmoothScroll(nav, close) {
 		nav.addEventListener("click", (event) => {
 			const link = event.target.closest("a");
 			if (!link || !nav.contains(link)) {
@@ -72,20 +129,24 @@
 			event.preventDefault();
 			target.scrollIntoView({ behavior: "smooth", block: "start" });
 			history.replaceState(null, "", link.hash);
+			close(false);
 		});
 	}
 
-	function bindScrollSpy(nav, headings) {
-		const linksById = new Map(
-			Array.from(nav.querySelectorAll("a")).map((link) => [
-				link.hash.slice(1),
-				link,
-			]),
-		);
+	function bindScrollSpy(entriesById, headings) {
+		let activeId;
 
 		function setActive(id) {
-			nav.querySelector("a.is-active")?.classList.remove("is-active");
-			linksById.get(id)?.classList.add("is-active");
+			if (id === activeId) {
+				return;
+			}
+			for (const element of entriesById.get(activeId) ?? []) {
+				element.classList.remove("is-active");
+			}
+			for (const element of entriesById.get(id) ?? []) {
+				element.classList.add("is-active");
+			}
+			activeId = id;
 		}
 
 		setActive(headings[0].id);
@@ -123,10 +184,12 @@
 			return;
 		}
 
-		const nav = buildToc(headings);
+		const { nav, toggle, entriesById } = buildToc(headings);
 		document.body.insertBefore(nav, document.querySelector("article"));
-		bindSmoothScroll(nav);
-		bindScrollSpy(nav, headings);
+		document.body.insertBefore(toggle, nav);
+		const close = bindToggle(toggle, nav);
+		bindSmoothScroll(nav, close);
+		bindScrollSpy(entriesById, headings);
 	}
 
 	if (document.readyState === "loading") {
