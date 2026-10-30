@@ -30,16 +30,11 @@
 	}
 
 	function buildToc(headings) {
-		const { label, title: titleText } = getTocText();
+		const label = getTocLabel();
 		const nav = document.createElement("nav");
 		nav.className = "toc-sidebar";
 		nav.id = "toc-sidebar";
 		nav.setAttribute("aria-label", label);
-
-		const title = document.createElement("div");
-		title.className = "toc-title";
-		title.textContent = titleText;
-		nav.appendChild(title);
 
 		const list = document.createElement("ol");
 		const usedIds = new Set();
@@ -75,14 +70,11 @@
 		return { nav, toggle, entriesById };
 	}
 
-	function getTocText() {
+	function getTocLabel() {
 		const isChinese = document.documentElement.lang
 			?.toLowerCase()
 			.startsWith("zh");
-		return {
-			label: isChinese ? "文章目录" : "Table of Contents",
-			title: isChinese ? "目录" : "Contents",
-		};
+		return isChinese ? "文章目录" : "Table of Contents";
 	}
 
 	function bindToggle(toggle, nav) {

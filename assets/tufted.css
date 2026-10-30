@@ -875,15 +875,6 @@ TABLE OF CONTENTS
 	transform: translate(0, -50%);
 }
 
-.toc-title {
-	margin-bottom: 1rem;
-	color: var(--theme-copy-btn-text, #666);
-	font-size: 0.9rem;
-	font-weight: 600;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-}
-
 .toc-sidebar ol {
 	margin: 0;
 	padding: 0;
