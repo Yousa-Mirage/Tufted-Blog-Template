@@ -2,6 +2,10 @@
 
 [中文版本](CHANGELOG.md)
 
+## Develop
+
+Development updates will be recorded here.
+
 ## v1.4.0
 
 - Feature: Collapsed the table of contents into a left-side line indicator that expands on click, with active-section highlighting, narrow-screen support, and light/dark themes
