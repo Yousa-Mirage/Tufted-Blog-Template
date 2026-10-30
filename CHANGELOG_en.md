@@ -6,6 +6,7 @@
 
 Development updates will be recorded here.
 
+- Feature: Collapsed the table of contents into a left-side line indicator that expands on click, with active-section highlighting, narrow-screen support, and light/dark themes
 - Fix: Fixed the style of mathematical formulas in paragraph blocks (#43, @karuboniru)
 - Fix: Fixed the blog index width on mobile devices (#45, @karuboniru)
 - Feature: Added the `margin-citations` parameter to show full entries of author-date citations (e.g. APA) in the margin (#24, @lukezed)
