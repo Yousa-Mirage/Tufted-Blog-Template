@@ -848,13 +848,14 @@ TABLE OF CONTENTS
 	position: fixed;
 	display: block;
 	top: 50%;
-	left: 4.5rem;
+	left: 3.5rem;
 	z-index: 1001;
 	box-sizing: border-box;
-	width: min(26rem, calc(100vw - 6rem));
+	width: max-content;
+	max-width: min(26rem, calc(100vw - 4.5rem));
 	max-height: calc(100dvh - 2rem);
 	overflow-y: auto;
-	padding: 1.35rem 1.5rem;
+	padding: 0.85rem 1rem;
 	border: 1px solid var(--theme-table-border, #ccc);
 	border-radius: 1rem;
 	background: var(--theme-bg, #fffff8);
@@ -876,6 +877,7 @@ TABLE OF CONTENTS
 }
 
 .toc-sidebar ol {
+	width: auto;
 	margin: 0;
 	padding: 0;
 	list-style: none;
@@ -895,9 +897,8 @@ TABLE OF CONTENTS
 	font-size: 1.15rem;
 	line-height: 1.3;
 	text-decoration: none;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	white-space: normal;
+	overflow-wrap: anywhere;
 	transition: color 120ms ease;
 }
 
