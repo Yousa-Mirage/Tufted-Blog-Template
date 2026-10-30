@@ -7,13 +7,13 @@
 Development updates will be recorded here.
 
 - Feature: Collapsed the table of contents into a left-side line indicator that expands on click, with active-section highlighting, narrow-screen support, and light/dark themes
-- Fix: Fixed the style of mathematical formulas in paragraph blocks (#43, @karuboniru)
-- Fix: Fixed the blog index width on mobile devices (#45, @karuboniru)
+- Feature: Rendered `#line()` as an HTML horizontal divider , preserving native PDF behavior
 - Feature: Added the `margin-citations` parameter to show full entries of author-date citations (e.g. APA) in the margin (#24, @lukezed)
 - Feature: Added syntax highlighting for Justfile, Mermaid, JSON5, and JSONC code blocks through custom Sublime syntax definitions
+- Fix: Fixed the style of mathematical formulas in paragraph blocks (#43, @karuboniru)
+- Fix: Fixed the blog index width on mobile devices (#45, @karuboniru)
 - Fix: Constrained wide tables to the main column with horizontal scrolling when needed
 - Fix: Removed the space occupied by standalone `margin-note` elements in desktop body text, preventing extra blank lines below headings
-- Feature: Rendered `#line()` as an HTML horizontal divider , preserving native PDF behavior
 
 ## v1.3.0
 
