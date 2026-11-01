@@ -41,11 +41,13 @@ import subprocess
 import sys
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from html import escape
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Literal
+from urllib.parse import urljoin, urlsplit
 
 # ============================================================================
 # 配置
@@ -276,7 +278,11 @@ def find_typ_dependencies(typ_file: Path) -> set[Path]:
             # 规范化路径，只追踪 .typ 文件
             try:
                 dep_path = dep_path.resolve()
-                if dep_path.exists() and dep_path.suffix == ".typ" and is_dep_file(dep_path):
+                if (
+                    dep_path.exists()
+                    and dep_path.suffix == ".typ"
+                    and is_dep_file(dep_path)
+                ):
                     dependencies.add(dep_path)
             except Exception:
                 pass
@@ -316,7 +322,9 @@ def get_all_dependencies(typ_file: Path, visited: set[Path] | None = None) -> se
     return all_deps
 
 
-def needs_rebuild(source: Path, target: Path, extra_deps: list[Path] | None = None) -> bool:
+def needs_rebuild(
+    source: Path, target: Path, extra_deps: list[Path] | None = None
+) -> bool:
     """
     判断是否需要重新构建。
 
@@ -437,13 +445,17 @@ def run_typst_command(args: list[str]) -> bool:
         bool: 命令是否成功执行
     """
     try:
-        result = subprocess.run(["typst"] + args, capture_output=True, text=True, encoding="utf-8")
+        result = subprocess.run(
+            ["typst"] + args, capture_output=True, text=True, encoding="utf-8"
+        )
         if result.returncode != 0:
             print(f"  ❌ Typst 错误: {result.stderr.strip()}")
             return False
         return True
     except FileNotFoundError:
-        print("  ❌ 错误: 未找到 typst 命令。请确保已安装 Typst 并添加到 PATH 环境变量中。")
+        print(
+            "  ❌ 错误: 未找到 typst 命令。请确保已安装 Typst 并添加到 PATH 环境变量中。"
+        )
         print("  📝 安装说明: https://typst.app/open-source/#download")
         return False
     except Exception as e:
@@ -758,7 +770,14 @@ def preview(port: int = 8000, open_browser_flag: bool = True) -> bool:
     try:
         print("使用 Python 内置 http.server...")
         result = subprocess.run(
-            [sys.executable, "-m", "http.server", str(port), "--directory", str(SITE_DIR)],
+            [
+                sys.executable,
+                "-m",
+                "http.server",
+                str(port),
+                "--directory",
+                str(SITE_DIR),
+            ],
             check=False,
         )
         return result.returncode == 0
@@ -828,7 +847,9 @@ def get_feed_dirs() -> set[str]:
         match = re.search(r"feed-dir\s*:\s*\((.*?)\)", content, re.DOTALL)
         if match:
             return set(
-                c.strip("/") for c in re.findall(r'"([^"]*)"', match.group(1)) if c and c.strip("/")
+                c.strip("/")
+                for c in re.findall(r'"([^"]*)"', match.group(1))
+                if c and c.strip("/")
             )
     except Exception as e:
         print(f"⚠️ 解析 feed-dir 失败: {e}")
@@ -887,6 +908,203 @@ def extract_post_metadata(index_html: Path) -> tuple[str, str, str, datetime | N
     return title, description, link, date_obj
 
 
+@dataclass
+class FeedHTMLNode:
+    tag: str
+    attrs: list[tuple[str, str | None]] = field(default_factory=list)
+    children: list["FeedHTMLNode | str"] = field(default_factory=list)
+
+
+class FeedHTMLParser(HTMLParser):
+    """Parse compiler-generated, explicitly closed HTML without browser execution."""
+
+    VOID_TAGS = frozenset(
+        {
+            "area",
+            "base",
+            "br",
+            "col",
+            "embed",
+            "hr",
+            "img",
+            "input",
+            "link",
+            "meta",
+            "param",
+            "source",
+            "track",
+            "wbr",
+        }
+    )
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.root = FeedHTMLNode("")
+        self.stack = [self.root]
+
+    def handle_starttag(self, tag, attrs):
+        # Preserve SVG's case-sensitive element and attribute names.
+        source = self.get_starttag_text() or ""
+        match = re.match(r"<([^\s/>]+)", source)
+        original_tag = match.group(1) if match else tag
+        names = re.findall(r"([^\s=/>]+)\s*=", source)
+        spelling = {name.lower(): name for name in names}
+        node = FeedHTMLNode(
+            original_tag, [(spelling.get(name, name), value) for name, value in attrs]
+        )
+        self.stack[-1].children.append(node)
+        if tag not in self.VOID_TAGS:
+            self.stack.append(node)
+
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        if tag not in self.VOID_TAGS:
+            self.handle_endtag(tag)
+
+    def handle_endtag(self, tag):
+        for index in range(len(self.stack) - 1, 0, -1):
+            if self.stack[index].tag.lower() == tag:
+                del self.stack[index:]
+                break
+
+    def handle_data(self, data):
+        self.stack[-1].children.append(data)
+
+
+def extract_post_content(index_html: Path, article_url: str) -> str:
+    """Extract article HTML for readers without site CSS/JS; append margin notes.
+
+    Input is trusted Typst output, not arbitrary untrusted HTML. MathML and SVG
+    remain inline: rendering support depends on the reader. Fragment links point
+    back to the original article, avoiding ID collisions between feed entries.
+    """
+    parser = FeedHTMLParser()
+    parser.feed(index_html.read_text(encoding="utf-8"))
+    notes = []
+
+    def find_section(node):
+        if isinstance(node, str):
+            return None
+        if node.tag == "article":
+            return next(
+                (
+                    child
+                    for child in node.children
+                    if isinstance(child, FeedHTMLNode) and child.tag == "section"
+                ),
+                None,
+            )
+        return next(
+            (
+                found
+                for child in node.children
+                if (found := find_section(child)) is not None
+            ),
+            None,
+        )
+
+    def render(node, in_note=False, in_svg=False):
+        if isinstance(node, str):
+            return escape(node, quote=False)
+        in_svg = in_svg or node.tag == "svg"
+        attrs = dict(node.attrs)
+        classes = attrs.get("class", "").split()
+        if (
+            node.tag in {"script", "button", "iframe", "object", "embed"}
+            or (node.tag == "style" and not in_svg)
+            or "sidenote-anchor" in classes
+        ):
+            return ""
+        if (
+            "marginnote" in classes
+            and "sidenote-caption" not in classes
+            and not in_note
+        ):
+            number = len(notes) + 1
+            notes.append("")  # Reserve the number before rendering nested content.
+            is_footnote = "sidenote-footnote" in classes
+            label = "" if is_footnote else f"<strong>[*{number}]</strong> "
+            notes[number - 1] = f"<div>{label}{render(node, True)}</div>"
+            if is_footnote:
+                # Its existing numbered reference is already in the paragraph.
+                return ""
+            # Link to the original note on the website, as other fragment links do.
+            href = (
+                urljoin(article_url, "#" + attrs["id"])
+                if attrs.get("id")
+                else article_url
+            )
+            return f'<sup><a href="{escape(href, quote=True)}">[*{number}]</a></sup>'
+        tag = "figcaption" if "sidenote-caption" in classes else node.tag
+        output_attrs = []
+        for name, value in node.attrs:
+            if (
+                name.lower().startswith("on")
+                or (name == "class" and not in_svg)
+                or name
+                in {
+                    "hidden",
+                    "inert",
+                    "loading",
+                    "decoding",
+                    "srcset",
+                    "sizes",
+                }
+            ):
+                continue
+            if name == "style" and not in_svg:
+                # Preserve text emphasis and syntax colors, not website positioning.
+                value = ";".join(
+                    declaration
+                    for declaration in (value or "").split(";")
+                    if declaration.partition(":")[0].strip().lower()
+                    in {"color", "font-weight", "font-style", "text-decoration"}
+                )
+                if not value:
+                    continue
+            if name in {"href", "src", "poster", "xlink:href"} and value:
+                # SVG fragment references must remain local to the inline graphic.
+                if not (
+                    in_svg and name in {"href", "xlink:href"} and value.startswith("#")
+                ):
+                    value = urljoin(article_url, value)
+                embedded_image = name == "src" and value.startswith(
+                    (
+                        "data:image/png;",
+                        "data:image/jpeg;",
+                        "data:image/webp;",
+                        "data:image/gif;",
+                    )
+                )
+                if not embedded_image and urlsplit(value).scheme.lower() not in {
+                    "",
+                    "http",
+                    "https",
+                    "mailto",
+                    "tel",
+                }:
+                    continue
+            output_attrs.append(
+                name if value is None else f'{name}="{escape(value, quote=True)}"'
+            )
+        opening = (
+            "<" + tag + (" " + " ".join(output_attrs) if output_attrs else "") + ">"
+        )
+        if tag in parser.VOID_TAGS:
+            return opening
+        return (
+            opening
+            + "".join(render(child, in_note, in_svg) for child in node.children)
+            + f"</{tag}>"
+        )
+
+    section = find_section(parser.root)
+    if section is None:
+        return ""
+    body = "".join(render(child) for child in section.children)
+    return body + ("<hr>" + "".join(notes) if notes else "")
+
+
 def collect_posts(dirs: set[str], site_url: str) -> list[dict]:
     """
     从指定的目录中收集所有文章的元数据。
@@ -907,6 +1125,7 @@ def collect_posts(dirs: set[str], site_url: str) -> list[dict]:
             - dir (str): 文章所属分类（即目录名）
             - link (str): 文章的完整 URL
             - date (datetime): 文章日期对象（带时区）
+            - content (str): 适合订阅阅读的正文 HTML
     """
     posts = []
 
@@ -922,6 +1141,9 @@ def collect_posts(dirs: set[str], site_url: str) -> list[dict]:
                 continue
 
             title, description, link, date_obj = extract_post_metadata(index_html)
+            link = link or urljoin(
+                site_url.rstrip("/") + "/", item.relative_to(SITE_DIR).as_posix() + "/"
+            )
 
             if not date_obj:
                 print(f"⚠️ 无法确定文章 '{item.name}' 的日期，已跳过。")
@@ -934,6 +1156,7 @@ def collect_posts(dirs: set[str], site_url: str) -> list[dict]:
                     "dir": d,
                     "link": link,
                     "date": date_obj,
+                    "content": extract_post_content(index_html, link),
                 }
             )
 
@@ -946,7 +1169,7 @@ def build_rss_xml(posts: list[dict], config: dict) -> str:
 
     功能:
         使用 Python 标准库 xml.etree.ElementTree 根据文章数据和站点配置生成完整的 RSS Feed XML。
-        支持条件输出 description 标签（仅在有描述时输出）。
+        保留 description 摘要，并用 content:encoded 输出正文 HTML。
 
     参数:
         posts (list[dict]): 文章数据列表，每个字典应包含:
@@ -970,6 +1193,8 @@ def build_rss_xml(posts: list[dict], config: dict) -> str:
     # 注册 atom 命名空间前缀
     ATOM_NS = "http://www.w3.org/2005/Atom"
     ET.register_namespace("atom", ATOM_NS)
+    CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
+    ET.register_namespace("content", CONTENT_NS)
 
     # 创建 RSS 根元素（命名空间声明由 register_namespace 自动处理）
     rss = ET.Element("rss", version="2.0")
@@ -980,7 +1205,9 @@ def build_rss_xml(posts: list[dict], config: dict) -> str:
     ET.SubElement(channel, "link").text = config["site_url"]
     ET.SubElement(channel, "description").text = config["site_description"]
     ET.SubElement(channel, "language").text = config["lang"]
-    ET.SubElement(channel, "lastBuildDate").text = format_datetime(datetime.now(timezone.utc))
+    ET.SubElement(channel, "lastBuildDate").text = format_datetime(
+        datetime.now(timezone.utc)
+    )
 
     # 添加 atom:link 自链接
     atom_link = ET.SubElement(channel, f"{{{ATOM_NS}}}link")
@@ -1001,6 +1228,8 @@ def build_rss_xml(posts: list[dict], config: dict) -> str:
         # 仅在有描述时添加
         if des := post["description"]:
             ET.SubElement(item, "description").text = des
+        if content := post.get("content"):
+            ET.SubElement(item, f"{{{CONTENT_NS}}}encoded").text = content
 
     # 生成 XML 字符串
     ET.indent(rss, space="  ")
@@ -1229,7 +1458,9 @@ def create_parser() -> argparse.ArgumentParser:
 """,
     )
 
-    subparsers = parser.add_subparsers(dest="command", title="可用命令", metavar="<command>")
+    subparsers = parser.add_subparsers(
+        dest="command", title="可用命令", metavar="<command>"
+    )
 
     build_parser = subparsers.add_parser("build", help="完整构建 (HTML + PDF + 资源)")
     build_parser.add_argument("-f", "--force", action="store_true", help="强制完整重建")
@@ -1286,7 +1517,9 @@ if __name__ == "__main__":
         case "clean":
             success = clean()
         case "preview":
-            success = preview(getattr(args, "port", 8000), getattr(args, "open_browser", True))
+            success = preview(
+                getattr(args, "port", 8000), getattr(args, "open_browser", True)
+            )
         case _:
             print(f"❌ 未知命令: {args.command}")
             success = False
