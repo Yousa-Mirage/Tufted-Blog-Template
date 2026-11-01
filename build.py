@@ -936,11 +936,17 @@ class FeedHTMLParser(HTMLParser):
             "wbr",
         }
     )
+    OMIT_TAGS = frozenset({"script", "button", "iframe", "object", "embed"})
+    OMIT_ATTRS = frozenset(
+        {"hidden", "inert", "loading", "decoding", "srcset", "sizes"}
+    )
+    TEXT_STYLES = frozenset({"color", "font-weight", "font-style", "text-decoration"})
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.root = FeedHTMLNode("")
         self.stack = [self.root]
+        self.article_section = None
 
     def handle_starttag(self, tag, attrs):
         # Preserve SVG's case-sensitive element and attribute names.
@@ -953,6 +959,8 @@ class FeedHTMLParser(HTMLParser):
             original_tag, [(spelling.get(name, name), value) for name, value in attrs]
         )
         self.stack[-1].children.append(node)
+        if tag == "section" and self.stack[-1].tag == "article":
+            self.article_section = self.article_section or node
         if tag not in self.VOID_TAGS:
             self.stack.append(node)
 
@@ -982,27 +990,6 @@ def extract_post_content(index_html: Path, article_url: str) -> str:
     parser.feed(index_html.read_text(encoding="utf-8"))
     notes = []
 
-    def find_section(node):
-        if isinstance(node, str):
-            return None
-        if node.tag == "article":
-            return next(
-                (
-                    child
-                    for child in node.children
-                    if isinstance(child, FeedHTMLNode) and child.tag == "section"
-                ),
-                None,
-            )
-        return next(
-            (
-                found
-                for child in node.children
-                if (found := find_section(child)) is not None
-            ),
-            None,
-        )
-
     def render(node, in_note=False, in_svg=False):
         if isinstance(node, str):
             return escape(node, quote=False)
@@ -1010,9 +997,9 @@ def extract_post_content(index_html: Path, article_url: str) -> str:
         attrs = dict(node.attrs)
         classes = attrs.get("class", "").split()
         if (
-            node.tag in {"script", "button", "iframe", "object", "embed"}
+            node.tag in parser.OMIT_TAGS
             or (node.tag == "style" and not in_svg)
-            or "sidenote-anchor" in classes
+            or ("sidenote-anchor" in classes)
         ):
             return ""
         if (
@@ -1041,15 +1028,7 @@ def extract_post_content(index_html: Path, article_url: str) -> str:
             if (
                 name.lower().startswith("on")
                 or (name == "class" and not in_svg)
-                or name
-                in {
-                    "hidden",
-                    "inert",
-                    "loading",
-                    "decoding",
-                    "srcset",
-                    "sizes",
-                }
+                or name in parser.OMIT_ATTRS
             ):
                 continue
             if name == "style" and not in_svg:
@@ -1058,7 +1037,7 @@ def extract_post_content(index_html: Path, article_url: str) -> str:
                     declaration
                     for declaration in (value or "").split(";")
                     if declaration.partition(":")[0].strip().lower()
-                    in {"color", "font-weight", "font-style", "text-decoration"}
+                    in parser.TEXT_STYLES
                 )
                 if not value:
                     continue
@@ -1098,7 +1077,7 @@ def extract_post_content(index_html: Path, article_url: str) -> str:
             + f"</{tag}>"
         )
 
-    section = find_section(parser.root)
+    section = parser.article_section
     if section is None:
         return ""
     body = "".join(render(child) for child in section.children)
