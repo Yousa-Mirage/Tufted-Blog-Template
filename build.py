@@ -138,6 +138,7 @@ def get_typst_version() -> tuple[int, ...] | None:
             capture_output=True,
             text=True,
             encoding="utf-8",
+            check=False,
         )
     except (FileNotFoundError, OSError):
         return None
@@ -215,15 +216,12 @@ def is_dep_file(path: Path) -> bool:
             relative_to_content = resolved_path.relative_to(content_dir)
             # content/_* 目录下的文件视为依赖文件
             parts = relative_to_content.parts
-            if len(parts) > 0 and parts[0].startswith("_"):
-                return True
-            # content/ 下的其他文件不是依赖文件
-            return False
+            return bool(parts and parts[0].startswith("_"))
         except ValueError:
             # 不在 content/ 目录下，视为依赖文件（如 config.typ）
             return True
 
-    except Exception:
+    except (OSError, RuntimeError):
         return True
 
 
@@ -244,7 +242,8 @@ def find_typ_dependencies(typ_file: Path) -> set[Path]:
 
     try:
         content = typ_file.read_text(encoding="utf-8")
-    except Exception:
+    except (OSError, UnicodeError) as e:
+        print(f"⚠️ 无法读取依赖文件 {typ_file}: {e}")
         return dependencies
 
     # 获取文件所在目录，用于解析相对路径
@@ -276,10 +275,14 @@ def find_typ_dependencies(typ_file: Path) -> set[Path]:
             # 规范化路径，只追踪 .typ 文件
             try:
                 dep_path = dep_path.resolve()
-                if dep_path.exists() and dep_path.suffix == ".typ" and is_dep_file(dep_path):
+                if (
+                    dep_path.exists()
+                    and dep_path.suffix == ".typ"
+                    and is_dep_file(dep_path)
+                ):
                     dependencies.add(dep_path)
-            except Exception:
-                pass
+            except (OSError, RuntimeError) as e:
+                print(f"⚠️ 无法解析依赖路径 {dep_path}: {e}")
 
     return dependencies
 
@@ -316,7 +319,9 @@ def get_all_dependencies(typ_file: Path, visited: set[Path] | None = None) -> se
     return all_deps
 
 
-def needs_rebuild(source: Path, target: Path, extra_deps: list[Path] | None = None) -> bool:
+def needs_rebuild(
+    source: Path, target: Path, extra_deps: list[Path] | None = None
+) -> bool:
     """
     判断是否需要重新构建。
 
@@ -360,9 +365,12 @@ def needs_rebuild(source: Path, target: Path, extra_deps: list[Path] | None = No
     # 只检查同一目录，不递归子目录，避免过度重编译
     source_dir = source.parent
     for item in source_dir.iterdir():
-        if item.is_file() and item.suffix != ".typ":
-            if get_file_mtime(item) > target_mtime:
-                return True
+        if (
+            item.is_file()
+            and item.suffix != ".typ"
+            and get_file_mtime(item) > target_mtime
+        ):
+            return True
 
     return False
 
@@ -437,16 +445,24 @@ def run_typst_command(args: list[str]) -> bool:
         bool: 命令是否成功执行
     """
     try:
-        result = subprocess.run(["typst"] + args, capture_output=True, text=True, encoding="utf-8")
+        result = subprocess.run(
+            ["typst"] + args,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+        )
         if result.returncode != 0:
             print(f"  ❌ Typst 错误: {result.stderr.strip()}")
             return False
         return True
     except FileNotFoundError:
-        print("  ❌ 错误: 未找到 typst 命令。请确保已安装 Typst 并添加到 PATH 环境变量中。")
+        print(
+            "  ❌ 错误: 未找到 typst 命令。请确保已安装 Typst 并添加到 PATH 环境变量中。"
+        )
         print("  📝 安装说明: https://typst.app/open-source/#download")
         return False
-    except Exception as e:
+    except (OSError, UnicodeError) as e:
         print(f"  ❌ 执行 typst 命令时出错: {e}")
         return False
 
@@ -630,7 +646,7 @@ def copy_assets() -> bool:
             shutil.rmtree(target_dir)
         shutil.copytree(ASSETS_DIR, target_dir)
         return True
-    except Exception as e:
+    except OSError as e:
         print(f"  ❌ 复制静态资源失败: {e}")
         return False
 
@@ -667,10 +683,13 @@ def copy_content_assets(force: bool = False) -> bool:
             target_path = SITE_DIR / relative_path
 
             # 增量复制检查
-            if not force and target_path.exists():
-                if get_file_mtime(item) <= get_file_mtime(target_path):
-                    skip_count += 1
-                    continue
+            if (
+                not force
+                and target_path.exists()
+                and get_file_mtime(item) <= get_file_mtime(target_path)
+            ):
+                skip_count += 1
+                continue
 
             # 创建目标目录
             target_path.parent.mkdir(parents=True, exist_ok=True)
@@ -680,7 +699,7 @@ def copy_content_assets(force: bool = False) -> bool:
             copy_count += 1
 
         return True
-    except Exception as e:
+    except OSError as e:
         print(f"  ❌ 复制内容资源文件失败: {e}")
         return False
 
@@ -705,7 +724,7 @@ def clean() -> bool:
 
         print(f"  ✅ 已清理 {SITE_DIR}/ 目录。")
         return True
-    except Exception as e:
+    except OSError as e:
         print(f"  ❌ 清理失败: {e}")
         return False
 
@@ -758,14 +777,21 @@ def preview(port: int = 8000, open_browser_flag: bool = True) -> bool:
     try:
         print("使用 Python 内置 http.server...")
         result = subprocess.run(
-            [sys.executable, "-m", "http.server", str(port), "--directory", str(SITE_DIR)],
+            [
+                sys.executable,
+                "-m",
+                "http.server",
+                str(port),
+                "--directory",
+                str(SITE_DIR),
+            ],
             check=False,
         )
         return result.returncode == 0
     except KeyboardInterrupt:
         print("\n服务器已停止。")
         return True
-    except Exception as e:
+    except OSError as e:
         print(f"  ❌ 启动服务器失败: {e}")
         return False
 
@@ -827,10 +853,12 @@ def get_feed_dirs() -> set[str]:
 
         match = re.search(r"feed-dir\s*:\s*\((.*?)\)", content, re.DOTALL)
         if match:
-            return set(
-                c.strip("/") for c in re.findall(r'"([^"]*)"', match.group(1)) if c and c.strip("/")
-            )
-    except Exception as e:
+            return {
+                c.strip("/")
+                for c in re.findall(r'"([^"]*)"', match.group(1))
+                if c and c.strip("/")
+            }
+    except (OSError, UnicodeError) as e:
         print(f"⚠️ 解析 feed-dir 失败: {e}")
 
     return set()
@@ -871,8 +899,8 @@ def extract_post_metadata(index_html: Path) -> tuple[str, str, str, datetime | N
         try:
             date_obj = datetime.strptime(parser["date"].split("T")[0], "%Y-%m-%d")
             date_obj = date_obj.replace(tzinfo=timezone.utc)
-        except Exception:
-            pass
+        except ValueError as e:
+            print(f"⚠️ 文章 {index_html} 的日期无效，将尝试目录名日期: {e}")
 
     # 如果没找到日期，尝试从文件夹名提取 (YYYY-MM-DD)
     if not date_obj:
@@ -980,7 +1008,9 @@ def build_rss_xml(posts: list[dict], config: dict) -> str:
     ET.SubElement(channel, "link").text = config["site_url"]
     ET.SubElement(channel, "description").text = config["site_description"]
     ET.SubElement(channel, "language").text = config["lang"]
-    ET.SubElement(channel, "lastBuildDate").text = format_datetime(datetime.now(timezone.utc))
+    ET.SubElement(channel, "lastBuildDate").text = format_datetime(
+        datetime.now(timezone.utc)
+    )
 
     # 添加 atom:link 自链接
     atom_link = ET.SubElement(channel, f"{{{ATOM_NS}}}link")
@@ -1081,7 +1111,7 @@ def generate_rss(site_url: str) -> bool:
         print(f"   原因: feedgen 库报错 - {e}")
         print("   解决: 请检查 config.typ 中的必需配置字段（title 和 description）")
         return False
-    except Exception as e:
+    except OSError as e:
         print("❌ 错误: 生成 RSS 订阅源时出错")
         print(f"   异常: {type(e).__name__}: {e}")
         return False
@@ -1136,7 +1166,7 @@ def generate_sitemap(site_url: str) -> bool:
         sitemap_path.write_text(sitemap_content, encoding="utf-8")
         print(f"✅ Sitemap 构建完成: 包含 {len(urlset)} 个页面")
         return True
-    except Exception as e:
+    except (OSError, UnicodeError) as e:
         print(f"❌ Sitemap 构建失败: {e}")
         return False
 
@@ -1154,7 +1184,7 @@ Sitemap: {site_url}/sitemap.xml
     try:
         (SITE_DIR / "robots.txt").write_text(robots_content, encoding="utf-8")
         return True
-    except Exception as e:
+    except (OSError, UnicodeError) as e:
         print(f"❌ 生成 robots.txt 失败: {e}")
         return False
 
@@ -1229,7 +1259,9 @@ def create_parser() -> argparse.ArgumentParser:
 """,
     )
 
-    subparsers = parser.add_subparsers(dest="command", title="可用命令", metavar="<command>")
+    subparsers = parser.add_subparsers(
+        dest="command", title="可用命令", metavar="<command>"
+    )
 
     build_parser = subparsers.add_parser("build", help="完整构建 (HTML + PDF + 资源)")
     build_parser.add_argument("-f", "--force", action="store_true", help="强制完整重建")
@@ -1286,7 +1318,9 @@ if __name__ == "__main__":
         case "clean":
             success = clean()
         case "preview":
-            success = preview(getattr(args, "port", 8000), getattr(args, "open_browser", True))
+            success = preview(
+                getattr(args, "port", 8000), getattr(args, "open_browser", True)
+            )
         case _:
             print(f"❌ 未知命令: {args.command}")
             success = False
