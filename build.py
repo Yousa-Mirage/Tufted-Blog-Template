@@ -1094,9 +1094,27 @@ def extract_post_content(index_html: Path, article_url: str) -> str:
         )
         if tag in parser.VOID_TAGS:
             return opening
+        children = node.children
+        if tag == "figure":
+            children = []
+            for child in node.children:
+                if isinstance(child, FeedHTMLNode) and child.tag == "p":
+                    content = [
+                        part
+                        for part in child.children
+                        if not isinstance(part, str) or part.strip()
+                    ]
+                    if (
+                        len(content) == 1
+                        and isinstance(content[0], FeedHTMLNode)
+                        and "sidenote-caption"
+                        in dict(content[0].attrs).get("class", "").split()
+                    ):
+                        child = content[0]
+                children.append(child)
         return (
             opening
-            + "".join(render(child, in_note, in_svg) for child in node.children)
+            + "".join(render(child, in_note, in_svg) for child in children)
             + f"</{tag}>"
         )
 
@@ -1254,7 +1272,7 @@ def generate_rss(site_url: str) -> bool:
     返回:
         bool: 生成是否成功。在以下情况返回 True：
             - 成功生成 RSS 文件
-            - 未找到任何分类目录（跳过生成）
+            - 未配置分类目录（删除旧 Feed）
             - 未找到任何文章（生成空 Feed）
         仅在发生异常时返回 False。
     """
@@ -1262,26 +1280,22 @@ def generate_rss(site_url: str) -> bool:
     dirs = get_feed_dirs()
 
     if not dirs:
+        rss_file.unlink(missing_ok=True)
         print("⚠️ 跳过 RSS 订阅源生成: 未配置任何目录。")
         return True
 
     # 检查是否至少有一个目录存在
-    existing = {d for d in dirs if (SITE_DIR / d).exists()}
+    existing = {d for d in dirs if (SITE_DIR / d).is_dir()}
     missing = dirs - existing
 
     for d in missing:
         print(f"⚠️ 警告: 配置的目录 '{d}' 不存在。")
-
-    if not existing:
-        print("⚠️ 跳过 RSS 订阅源生成: 配置的目录都不存在。")
-        return True
 
     # 收集文章
     posts = collect_posts(existing, site_url)
 
     if not posts:
         print("⚠️ 未找到任何文章，RSS 订阅源为空。")
-        return True
 
     # 按日期降序排序
     posts = sorted(posts, key=lambda x: x["date"], reverse=True)
@@ -1422,6 +1436,8 @@ def build(force: bool = False) -> bool:
         results.append(generate_sitemap(site_url))
         results.append(generate_robots_txt(site_url))
         results.append(generate_rss(site_url))
+    else:
+        (SITE_DIR / "feed.xml").unlink(missing_ok=True)
 
     print("-" * 60)
     if all(results):
