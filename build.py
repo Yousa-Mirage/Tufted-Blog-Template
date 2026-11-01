@@ -989,10 +989,36 @@ def extract_post_content(index_html: Path, article_url: str) -> str:
     parser = FeedHTMLParser()
     parser.feed(index_html.read_text(encoding="utf-8"))
     notes = []
+    manual_note_number = 0
+
+    def standalone_manual_note(node):
+        if not isinstance(node, FeedHTMLNode) or node.tag != "p":
+            return None
+        note = None
+        for child in node.children:
+            if isinstance(child, str) and not child.strip():
+                continue
+            if not isinstance(child, FeedHTMLNode):
+                return None
+            classes = dict(child.attrs).get("class", "").split()
+            if "sidenote-anchor" in classes:
+                continue
+            if "sidenote-manual" in classes and note is None:
+                note = child
+                continue
+            return None
+        return note
 
     def render(node, in_note=False, in_svg=False):
+        nonlocal manual_note_number
         if isinstance(node, str):
             return escape(node, quote=False)
+        if note := standalone_manual_note(node):
+            return (
+                "<blockquote>"
+                + "".join(render(child, True) for child in note.children)
+                + "</blockquote>"
+            )
         in_svg = in_svg or node.tag == "svg"
         attrs = dict(node.attrs)
         classes = attrs.get("class", "").split()
@@ -1007,21 +1033,18 @@ def extract_post_content(index_html: Path, article_url: str) -> str:
             and "sidenote-caption" not in classes
             and not in_note
         ):
-            number = len(notes) + 1
-            notes.append("")  # Reserve the number before rendering nested content.
             is_footnote = "sidenote-footnote" in classes
-            label = "" if is_footnote else f"<strong>[*{number}]</strong> "
-            notes[number - 1] = f"<div>{label}{render(node, True)}</div>"
             if is_footnote:
+                notes.append(f"<div>{render(node, True)}</div>")
                 # Its existing numbered reference is already in the paragraph.
                 return ""
-            # Link to the original note on the website, as other fragment links do.
-            href = (
-                urljoin(article_url, "#" + attrs["id"])
-                if attrs.get("id")
-                else article_url
+            manual_note_number += 1
+            number = manual_note_number
+            notes.append(
+                f'<div id="rss-note-{number}"><strong>[*{number}]</strong> '
+                f"{render(node, True)}</div>"
             )
-            return f'<sup><a href="{escape(href, quote=True)}">[*{number}]</a></sup>'
+            return f'<sup><a href="#rss-note-{number}">[*{number}]</a></sup>'
         tag = "figcaption" if "sidenote-caption" in classes else node.tag
         output_attrs = []
         for name, value in node.attrs:
