@@ -23,6 +23,7 @@ biome.json
 # build outputs
 _site/
 target/
+tufted-lib/*.pdf
 
 # temp files
 *.tmp
