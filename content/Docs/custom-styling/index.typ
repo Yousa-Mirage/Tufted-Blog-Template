@@ -42,7 +42,7 @@ a {
 
 == 自定义 JS 脚本
 
-项目默认为每个页面加载了以下 JavaScript 脚本，这些脚本均位于 `assets/` 目录中：
+项目默认为每个页面加载了以下 JavaScript 脚本，这些脚本均位于 `assets/scripts/` 目录中：
 
 - `code-blocks.js` - 为代码块添加行号和复制按钮
 - `format-headings.js` - 优化标题格式
@@ -50,7 +50,7 @@ a {
 - `marginnote-toggle.js` - 控制侧边注的显示/隐藏（改善移动端体验）
 - `math-copy.js` - 点击复制公式的 MathML 源码
 
-这些脚本已在 `tufted-lib/tufted.typ` 中通过 `js-scripts` 参数自动加载。
+这些内置脚本由 `tufted-lib/tufted.typ` 自动加载。
 
 如果你想添加自己的 JavaScript 脚本，可以通过 `tufted-web` 的 `js-scripts` 参数来实现，该参数接受一个数组，用于指定自定义的 JavaScript 脚本路径。例如：
 

@@ -91,20 +91,20 @@
 
         // load JS scripts
         let base-js = (
-          "/assets/code-blocks.js",
-          "/assets/format-headings.js",
-          "/assets/theme-toggle.js",
-          "/assets/marginnote-toggle.js",
-          "/assets/toc.js",
-          "/assets/back-to-top.js",
-          "/assets/math-copy.js",
+          "/assets/scripts/code-blocks.js",
+          "/assets/scripts/format-headings.js",
+          "/assets/scripts/theme-toggle.js",
+          "/assets/scripts/marginnote-toggle.js",
+          "/assets/scripts/toc.js",
+          "/assets/scripts/back-to-top.js",
+          "/assets/scripts/math-copy.js",
         )
         for (js-src) in (base-js + js-scripts).dedup() {
           html.script(src: js-src)
         }
         // Must run before sidenote-layout.js so the new notes get laid out
-        if margin-citations { html.script(type: "module", src: "/assets/cite-margin.js") }
-        html.script(type: "module", src: "/assets/sidenote-layout.js")
+        if margin-citations { html.script(type: "module", src: "/assets/scripts/cite-margin.js") }
+        html.script(type: "module", src: "/assets/scripts/sidenote-layout.js")
       })
 
       // Body
