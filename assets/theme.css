@@ -34,6 +34,7 @@ CSS CUSTOM PROPERTIES (Theme Variables)
 	--theme-table-row-even: #fafafa;
 	--theme-table-row-hover: #f0f0f0;
 	--theme-math-filter: none;
+	--theme-icon: #555;
 	--theme-back-to-top: #555;
 	--theme-back-to-top-hover: #111;
 }
@@ -64,6 +65,7 @@ html:not([data-theme]) {
 	--theme-table-row-even: #2a2a2a;
 	--theme-table-row-hover: #383838;
 	--theme-math-filter: invert(1) hue-rotate(180deg);
+	--theme-icon: #bbb;
 	--theme-back-to-top: #bbb;
 	--theme-back-to-top-hover: #fff;
 }
@@ -94,6 +96,7 @@ html:not([data-theme]) {
 		--theme-table-row-even: #fafafa;
 		--theme-table-row-hover: #f0f0f0;
 		--theme-math-filter: none;
+		--theme-icon: #555;
 		--theme-back-to-top: #555;
 		--theme-back-to-top-hover: #111;
 	}
@@ -259,43 +262,14 @@ BACK TO TOP BUTTON
 }
 
 /*******************************************************************************
-THEME TOGGLE BUTTON (DeepWiki Style)
+THEME TOGGLE ICON
 *******************************************************************************/
 
 .theme-toggle-btn {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.4rem;
-	height: 2.4rem;
-	padding: 0;
-	background: transparent;
-	border: none;
-	border-radius: 0.375rem;
-	cursor: pointer;
-	margin-left: auto;
-	margin-right: 3em;
-	margin-top: 1.6em;
-	transition: background-color 0.15s ease;
-	color: #374151;
-	/* 浅色模式下月亮图标颜色 */
+	--nav-icon: url("/assets/icons/moon.svg");
 }
 
-.theme-toggle-btn:hover {
-	background: var(--highlight-weak, rgba(128, 128, 128, 0.2));
-}
-
-.theme-toggle-btn:focus-visible {
-	outline: 2px solid var(--highlight-strong, rgba(128, 128, 128, 0.4));
-	outline-offset: 2px;
-}
-
-.theme-toggle-btn svg {
-	width: 1.8rem;
-	height: 1.8rem;
-}
-
-/* 深色模式下太阳图标颜色 */
-.theme-toggle-btn.is-dark {
-	color: #d1d5db;
+html[data-theme="dark"] .theme-toggle-btn,
+html:not([data-theme]) .theme-toggle-btn {
+	--nav-icon: url("/assets/icons/sun.svg");
 }

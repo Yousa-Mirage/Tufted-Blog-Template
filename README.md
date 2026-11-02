@@ -75,15 +75,15 @@
 
 - Windows：打开终端，运行以下命令：
 
-    ```bash
-    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-    ```
+  ```bash
+  powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+  ```
 
 - macOS/Linux：打开终端，运行以下命令：
 
-    ```bash
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    ```
+  ```bash
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  ```
 
 - 或使用[官方文档](https://docs.astral.sh/uv/getting-started/installation)提到的其他方法。
 
@@ -94,7 +94,7 @@
 整个模板工作流程如下所示：
 
 ```plaintext
-使用本模板创建你的 GitHub 仓库 
+使用本模板创建你的 GitHub 仓库
   ↓
 将你的仓库克隆到本地
   ↓
@@ -205,15 +205,16 @@ Tufted-Blog-Template/
 │   ├── tufted.css             # 主样式表
 │   ├── theme.css              # 浅色/深色主题样式
 │   ├── custom.css             # 自定义样式表（用户可编辑）
-│   ├── code-blocks.js         # 代码块复制与行号
-│   ├── format-headings.js     # 标题格式化
-│   ├── theme-toggle.js        # 主题切换
-│   ├── marginnote-toggle.js   # 移动端侧注展开与收起
-│   ├── cite-margin.js         # 文献引用侧注
-│   ├── sidenote-layout.js     # 桌面端侧注布局
-│   ├── toc.js                 # 浮动目录
-│   ├── back-to-top.js         # 返回顶部
-│   └── math-copy.js           # 复制 MathML 公式
+│   └── scripts/              # 内置 JavaScript 脚本
+│       ├── code-blocks.js         # 代码块复制与行号
+│       ├── format-headings.js     # 标题格式化
+│       ├── theme-toggle.js        # 主题切换
+│       ├── marginnote-toggle.js   # 移动端侧注展开与收起
+│       ├── cite-margin.js         # 文献引用侧注
+│       ├── sidenote-layout.js     # 桌面端侧注布局
+│       ├── toc.js                 # 浮动目录
+│       ├── back-to-top.js         # 返回顶部
+│       └── math-copy.js           # 复制 MathML 公式
 ├── content/               # 网站内容源文件 (.typ)
 │   ├── index.typ               # 网站首页
 │   ├── Blog/                   # 博客页

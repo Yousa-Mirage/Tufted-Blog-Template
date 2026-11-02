@@ -75,15 +75,15 @@ You can install uv following the instructions below:
 
 - Windows: Open a terminal and run the following command:
 
-    ```bash
-    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-    ```
+  ```bash
+  powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+  ```
 
 - macOS/Linux: Open a terminal and run the following command:
 
-    ```bash
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    ```
+  ```bash
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  ```
 
 - Or use other methods mentioned in the [official documentation](https://docs.astral.sh/uv/getting-started/installation).
 
@@ -205,15 +205,16 @@ Tufted-Blog-Template/
 │   ├── tufted.css             # Main stylesheet
 │   ├── theme.css              # Light/dark theme styles
 │   ├── custom.css             # Custom stylesheet (user-editable)
-│   ├── code-blocks.js         # Code block copying and line numbers
-│   ├── format-headings.js     # Heading formatting
-│   ├── theme-toggle.js        # Theme switching
-│   ├── marginnote-toggle.js   # Mobile margin note toggles
-│   ├── cite-margin.js         # Bibliography entries in margin notes
-│   ├── sidenote-layout.js     # Desktop sidenote layout
-│   ├── toc.js                 # Floating table of contents
-│   ├── back-to-top.js         # Back-to-top button
-│   └── math-copy.js           # MathML formula copying
+│   └── scripts/              # Bundled JavaScript
+│       ├── code-blocks.js         # Code block copying and line numbers
+│       ├── format-headings.js     # Heading formatting
+│       ├── theme-toggle.js        # Theme switching
+│       ├── marginnote-toggle.js   # Mobile margin note toggles
+│       ├── cite-margin.js         # Bibliography entries in margin notes
+│       ├── sidenote-layout.js     # Desktop sidenote layout
+│       ├── toc.js                 # Floating table of contents
+│       ├── back-to-top.js         # Back-to-top button
+│       └── math-copy.js           # MathML formula copying
 ├── content/               # Website content source files (.typ)
 │   ├── index.typ              # Website homepage
 │   ├── Blog/                  # Blog pages

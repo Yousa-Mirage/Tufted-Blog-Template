@@ -43,7 +43,7 @@ a {
 
 == Custom JS Scripts
 
-By default, the project loads the following JavaScript files on every page. They are located in `assets/`:
+By default, the project loads the following JavaScript files on every page. They are located in `assets/scripts/`:
 
 - `code-blocks.js` - adds line numbers and a copy button to code blocks
 - `format-headings.js` - improves heading formatting
@@ -51,7 +51,7 @@ By default, the project loads the following JavaScript files on every page. They
 - `marginnote-toggle.js` - toggles margin notes (improves mobile experience)
 - `math-copy.js` - copies formula MathML source on click
 
-These scripts are automatically loaded in `tufted-lib/tufted.typ` via the `js-scripts` parameter.
+These bundled scripts are automatically loaded by `tufted-lib/tufted.typ`.
 
 If you want to add your own JavaScript file, you can use the `js-scripts` parameter of `tufted-web`. It accepts an array of script paths. For example:
 
