@@ -7,6 +7,10 @@
 Development updates will be recorded here.
 
 - Feature: Added full-text RSS content (#50)
+- Feature: Added an RSS subscription icon to the navigation bar when RSS is configured (#51)
+- Feature: Added the `header-icons` parameter and `tufted.icon-link()` function to support custom SVG icon links in the navigation bar
+- Refactor: Organized navigation icons and bundled scripts under `assets/icons/` and `assets/scripts/`, preserving custom script paths
+- Chore: Added VS Code project settings to use Tinymist's HTML target and disable automatic PDF export on save
 
 ## v1.4.0
 
