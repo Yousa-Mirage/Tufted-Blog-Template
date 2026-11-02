@@ -6,6 +6,8 @@
 
 Development updates will be recorded here.
 
+- Feature: Added full-text RSS content (#50)
+
 ## v1.4.0
 
 - Feature: Collapsed the table of contents into a left-side line indicator that expands on click, with active-section highlighting, narrow-screen support, and light/dark themes
