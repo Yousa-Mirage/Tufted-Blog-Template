@@ -306,16 +306,16 @@ NAVIGATION ICONS
 }
 
 .rss-link {
-	--nav-icon: url("/assets/rss.svg");
+	--nav-icon: url("/assets/icons/rss.svg");
 }
 
 .theme-toggle-btn {
-	--nav-icon: url("/assets/moon.svg");
+	--nav-icon: url("/assets/icons/moon.svg");
 }
 
 html[data-theme="dark"] .theme-toggle-btn,
 html:not([data-theme]) .theme-toggle-btn {
-	--nav-icon: url("/assets/sun.svg");
+	--nav-icon: url("/assets/icons/sun.svg");
 }
 
 @media (max-width: 760px) {
