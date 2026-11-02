@@ -297,6 +297,13 @@ NAVIGATION ICONS
 	outline-offset: 2px;
 }
 
+.rss-link::before {
+	content: "";
+	background-color: currentColor;
+	mask: url("/assets/rss.svg") center / contain no-repeat;
+}
+
+.rss-link::before,
 .nav-icon svg {
 	width: 1.8rem;
 	height: 1.8rem;

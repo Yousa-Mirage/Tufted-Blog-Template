@@ -138,25 +138,17 @@
               html.div(class: "site-nav-tools", {
                 if feed-dir != none and feed-dir.len() > 0 {
                   let label = if lang == "zh" { "订阅 RSS" } else { "Subscribe via RSS" }
-                  html.elem("a", attrs: (
-                    href: "/feed.xml",
-                    class: "nav-icon rss-link",
-                    type: "application/rss+xml",
-                    aria-label: label,
-                    title: label,
-                  ), html.elem("svg", attrs: (
-                    xmlns: "http://www.w3.org/2000/svg",
-                    viewBox: "0 0 24 24",
-                    fill: "none",
-                    stroke: "currentColor",
-                    stroke-width: "2",
-                    stroke-linecap: "round",
-                    aria-hidden: "true",
-                    focusable: "false",
-                  ), {
-                    html.elem("circle", attrs: (cx: "5", cy: "19", r: "1", fill: "currentColor"))
-                    html.elem("path", attrs: (d: "M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"))
-                  }))
+                  html.elem(
+                    "a",
+                    attrs: (
+                      href: "/feed.xml",
+                      class: "nav-icon rss-link",
+                      type: "application/rss+xml",
+                      aria-label: label,
+                      title: label,
+                    ),
+                    "",
+                  )
                 }
                 html.elem(
                   "button",
