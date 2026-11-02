@@ -1,5 +1,14 @@
 #import "layout.typ": margin-note
 
+/// Apply HTML-specific rendering for figures, captions, images, and tables.
+///
+/// Tables are wrapped in a scroll container, captions are moved into margin
+/// notes, and raster images receive lazy-loading attributes in HTML output.
+/// Other output targets retain Typst's original rendering.
+///
+/// - `content`: Document content to transform.
+///
+/// Returns the content with figure-related show rules applied.
 #let template-figures(content) = {
   // Constrain HTML tables to the text column and let wide tables scroll.
   show table: it => if target() == "html" {

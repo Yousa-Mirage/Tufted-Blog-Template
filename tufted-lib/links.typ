@@ -39,6 +39,15 @@
   )
 }
 
+/// Open external and non-HTML resource links in a new browser tab.
+///
+/// String destinations beginning with `http`, and resource destinations that
+/// are not HTML pages, receive `target="_blank"` and safe `rel` attributes.
+/// Internal links and non-string destinations keep their original rendering.
+///
+/// - `content`: Document content containing links.
+///
+/// Returns the content with the link show rule applied.
 #let template-links(content) = {
   // Open external links and non-web resources in a new tab
   show link: it => {

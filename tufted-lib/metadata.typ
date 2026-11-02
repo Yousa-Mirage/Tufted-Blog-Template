@@ -1,3 +1,17 @@
+/// Emit SEO, Open Graph, and Twitter Card metadata tags.
+///
+/// Relative image paths are made absolute when a site URL is provided. The page
+/// path determines whether Open Graph content is marked as a website or article.
+///
+/// - `title`: Page title.
+/// - `author`: Optional author name.
+/// - `description`: Optional page description.
+/// - `site-url`: Optional website root URL used to resolve relative image paths.
+/// - `canonical-url`: Optional canonical page URL.
+/// - `image-path`: Optional absolute or site-relative preview image URL.
+/// - `page-path`: Optional page path used to select the Open Graph type.
+///
+/// Returns the generated HTML metadata elements.
 #let seo-tags(
   title: "",
   author: none,
@@ -54,18 +68,22 @@
   }
 }
 
-/// Generate complete page metadata, including basic meta tags, SEO tags, and RSS feed links
+/// Generate page metadata, including basic tags, SEO tags, and RSS discovery.
 ///
-/// args：
-/// - title: page title
-/// - author: author name
-/// - description: page description
-/// - lang: website language
-/// - date: publication date (datetime or string)
-/// - website-title: website title (for RSS feed)
-/// - website-url: website URL (for SEO and RSS feed)
-/// - image-path: page image path (for Open Graph)
-/// - feed-dir: RSS feed directory configuration
+/// Emits the document title, viewport and generator tags, favicon, optional
+/// publication date, RSS alternate link, canonical URL, and social preview tags.
+///
+/// - `title`: Page title; falls back to `website-title`, then "Untitled Page".
+/// - `author`: Optional author name.
+/// - `description`: Optional page description.
+/// - `lang`: Document language.
+/// - `date`: Optional publication date as a `datetime` or string.
+/// - `website-title`: Optional site title used as a title fallback and RSS title.
+/// - `website-url`: Optional site root URL used for canonical and social URLs.
+/// - `image-path`: Optional absolute or site-relative social preview image path.
+/// - `feed-dir`: Non-empty RSS directory configuration enables feed discovery.
+///
+/// Returns the generated HTML metadata elements.
 #let metadata(
   title: "",
   author: none,

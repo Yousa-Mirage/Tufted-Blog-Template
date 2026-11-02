@@ -2,6 +2,13 @@
 ///
 /// The `date` argument may be either a `datetime` value or preformatted
 /// content. The `path` argument may include or omit a trailing slash.
+///
+/// - `date`: Date value or content shown in the date column.
+/// - `path`: Destination URL for the entry title; a trailing slash is added
+///   when missing.
+/// - `title`: Linked title content.
+///
+/// Returns an HTML blog-entry element with separate date and title columns.
 #let blog-entry(date: auto, path: str, title: str) = {
   let href = if path.ends-with("/") {
     path

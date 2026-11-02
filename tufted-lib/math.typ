@@ -1,3 +1,11 @@
+/// Configure equation numbering and semantic HTML rendering for mathematics.
+///
+/// Equations are numbered with parentheses. HTML output wraps inline and block
+/// equations in elements with the `math` role; other targets keep native output.
+///
+/// - `content`: Document content containing equations.
+///
+/// Returns the content with math-related show rules applied.
 #let template-math(content) = {
   set math.equation(numbering: "(1)")
 

@@ -10,8 +10,32 @@
 
 /// The main wrapper function of Tufted Blog Template.
 ///
-/// Used to generate a complete HTML page structure,
-/// including SEO metadata, CSS/JS resource loading, and header and footer layout.
+/// Builds the document shell, metadata, styles and scripts, navigation, article,
+/// and footer. The template also installs show rules for figures, notes,
+/// references, math, links, and article bylines.
+///
+/// - `header-links`: Dictionary mapping navigation URLs to visible labels.
+/// - `header-icons`: Icon-link content, typically created with `icon-link`.
+/// - `title`: Page title.
+/// - `author`: Author name shown in metadata and the article byline.
+/// - `description`: Page description used by metadata and social previews.
+/// - `lang`: Document language, also used to localize the RSS label.
+/// - `date`: Publication date used in metadata and the article byline.
+/// - `extra-info`: Additional article byline content.
+/// - `website-title`: Site title used in metadata and RSS titles.
+/// - `website-url`: Site root URL used to build canonical and social URLs.
+/// - `image-path`: Optional social preview image.
+/// - `feed-dir`: Non-empty RSS directory list enables the global RSS link and
+///   RSS discovery metadata.
+/// - `header-elements`: Custom content shown above the navigation.
+/// - `footer-elements`: Custom content shown in the site footer.
+/// - `css`: Additional stylesheet URLs appended after the bundled styles.
+/// - `js-scripts`: Additional script URLs, loaded after the bundled scripts.
+/// - `margin-citations`: Enable bibliography entries as margin notes.
+/// - `content`: Main page content.
+///
+/// Returns a complete HTML document for the HTML target and the input content
+/// with the template's show rules for other targets.
 #let tufted-web(
   header-links: (:),
   header-icons: (),

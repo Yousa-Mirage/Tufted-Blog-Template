@@ -1,3 +1,11 @@
+/// Customize heading and equation references while preserving other references.
+///
+/// Heading references are wrapped in quotation marks. Equation references use
+/// the equation's numbering and link to its location.
+///
+/// - `content`: Document content whose references should be transformed.
+///
+/// Returns the content with the reference show rule applied.
 #let template-refs(content) = {
   show ref: it => {
     // Aliases

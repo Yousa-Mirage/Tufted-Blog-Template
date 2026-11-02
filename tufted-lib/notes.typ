@@ -1,3 +1,12 @@
+/// Render footnotes as linked margin notes in HTML output.
+///
+/// Each HTML footnote gets a numbered reference in the text and a matching
+/// margin note with a link back to that reference. Other targets use Typst's
+/// native footnote rendering.
+///
+/// - `content`: Document content containing footnotes.
+///
+/// Returns the content with the footnote show rule applied.
 #let template-notes(content) = {
   show footnote: it => {
     if target() == "html" {
