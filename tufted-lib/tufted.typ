@@ -4,7 +4,7 @@
 #import "figures.typ": template-figures
 #import "blog-entry.typ": blog-entry
 #import "layout.typ": full-width, margin-note
-#import "links.typ": template-links, icon-link
+#import "links.typ": icon-link, template-links
 #import "metadata.typ": metadata
 #import "byline.typ": template-byline
 
