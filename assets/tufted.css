@@ -655,29 +655,37 @@ footer {
 
 header nav {
 	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem 1em;
+	margin-top: 1em;
+}
+
+.site-nav-links {
+	display: flex;
+	flex-wrap: wrap;
 	gap: 1em;
 }
 
-header nav > p {
+.site-nav-links > p {
 	display: flex;
 	gap: inherit;
 	margin: 0;
 	flex-wrap: wrap;
 }
 
-.site-nav a:any-link {
+.site-nav-links a:any-link {
 	text-decoration: none;
 	border-bottom: 0;
 	box-shadow: none;
 	font-size: 1.5rem;
 	padding: 0.2em 0.4em;
-	margin-top: 1em;
 	border-radius: var(--radius-sm);
 	transition: background-color 120ms ease;
 }
 
-.site-nav a:hover,
-.site-nav a:focus-visible {
+.site-nav-links a:hover,
+.site-nav-links a:focus-visible {
 	background: var(--highlight-weak);
 	outline: none;
 }
