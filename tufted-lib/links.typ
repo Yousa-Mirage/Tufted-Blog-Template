@@ -1,3 +1,44 @@
+/// Create an accessible link that displays a monochrome SVG as a theme-aware icon.
+///
+/// The icon is applied as a CSS mask, so its original SVG colors are ignored and
+/// the icon inherits the navigation foreground color. The resulting link uses
+/// the shared navigation icon styles and can be placed in `header-icons`.
+///
+/// - `url`: Destination of the link, such as an HTTPS URL or `mailto:` address.
+/// - `icon`: Site-root path or HTTPS URL of the SVG file.
+/// - `label`: Accessible name and hover tooltip for the link.
+///
+/// Returns an HTML anchor element with the `nav-icon custom-icon-link` classes.
+///
+/// ```typst
+/// tufted.icon-link(
+///   url: "https://github.com/yourname",
+///   icon: "/assets/icons/github.svg",
+///   label: "GitHub",
+/// )
+/// ```
+#let icon-link(url: none, icon: none, label: none) = {
+  assert(type(url) == str, message: "url must be a string")
+  assert(type(icon) == str, message: "icon must be a string")
+  assert(type(label) == str, message: "label must be a string")
+  assert(
+    icon.starts-with("/") or icon.starts-with("https://"),
+    message: "icon must be a site-root path or an https URL",
+  )
+
+  html.elem(
+    "a",
+    attrs: (
+      href: url,
+      class: "nav-icon custom-icon-link",
+      style: "--nav-icon: url(\"" + icon + "\")",
+      aria-label: label,
+      title: label,
+    ),
+    "",
+  )
+}
+
 #let template-links(content) = {
   // Open external links and non-web resources in a new tab
   show link: it => {

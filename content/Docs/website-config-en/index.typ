@@ -24,6 +24,7 @@ The `tufted` package currently provides these three functions:
 - `tufted-web` - main template used to create pages
 - `margin-note` - place content in the margin
 - `full-width` - place content in a full-width container
+- `icon-link` - create a link with a monochrome SVG icon
 
 See #link("../typst-example-en/")[Typst Example] for usage.
 
@@ -36,6 +37,27 @@ In `config.typ`, you can define your own template by changing the parameters of 
 The `tufted-web()` function contains metadata parameters such as `title`, `description`, and `author`. These parameters are used to generate the page metadata. When a page sets `date` or `extra-info`, the template also shows the author, date, and extra information below the first level-one heading.
 
 The `header-links` parameter defines the links and labels in the top navigation bar. It is a dictionary: keys are paths, and values are labels.
+
+Use `header-icons` to add icon links to the right side of the navigation. Create them with `tufted.icon-link`. The SVG is displayed as a CSS mask and follows the theme color, so use a monochrome icon.
+
+```typst
+#let template = tufted.tufted-web.with(
+  header-icons: (
+    tufted.icon-link(
+      url: "https://github.com/yourname",
+      icon: "/assets/icons/github.svg",
+      label: "GitHub",
+    ),
+    tufted.icon-link(
+      url: "mailto:you@example.com",
+      icon: "/assets/icons/mail.svg",
+      label: "Email",
+    ),
+  ),
+)
+```
+
+`icon` accepts a site-root path beginning with `/` or an HTTPS URL. `label` is used for both the tooltip and accessible name. Place custom SVG files in your own `assets/icons/` directory.
 
 The `lang` parameter defines the site language. It will be used to set the HTML `lang` attribute. The default is `zh` (Chinese). Different language settings may result in different fonts.
 

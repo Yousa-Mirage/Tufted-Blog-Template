@@ -4,7 +4,7 @@
 #import "figures.typ": template-figures
 #import "blog-entry.typ": blog-entry
 #import "layout.typ": full-width, margin-note
-#import "links.typ": template-links
+#import "links.typ": template-links, icon-link
 #import "metadata.typ": metadata
 #import "byline.typ": template-byline
 
@@ -14,6 +14,7 @@
 /// including SEO metadata, CSS/JS resource loading, and header and footer layout.
 #let tufted-web(
   header-links: (:),
+  header-icons: (),
 
   // Meta data
   title: "",
@@ -136,6 +137,11 @@
                 })
               }
               html.div(class: "site-nav-tools", {
+                // Custom header icons
+                for icon in header-icons {
+                  icon
+                }
+                // RSS feed icon
                 if feed-dir != none and feed-dir.len() > 0 {
                   let label = if lang == "zh" { "订阅 RSS" } else { "Subscribe via RSS" }
                   html.elem(
@@ -150,6 +156,7 @@
                     "",
                   )
                 }
+                // Toggle theme button
                 html.elem(
                   "button",
                   attrs: (

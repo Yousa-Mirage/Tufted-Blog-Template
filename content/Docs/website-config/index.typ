@@ -23,6 +23,7 @@
 - `tufted-web` - 主模板，用于创建网页
 - `margin-note` - 在边栏中放置内容
 - `full-width` - 将内容放在全宽容器中
+- `icon-link` - 创建带单色 SVG 图标的链接
 
 具体使用见 #link("../typst-example/")[Typst 功能速览与样例]。
 
@@ -35,6 +36,27 @@
 `tufted-web()` 函数包含 `title`、`description`、`author`、`date` 等元数据参数。这些参数会被用于生成页面的元数据。当页面设置了 `date` 或 `extra-info` 时，模板也会在第一个一级标题下方显示作者、日期和额外信息。
 
 `header-links` 参数用于定义顶部导航栏的链接和标签。它是一个字典，键是链接的路径，值是链接的标签。
+
+`header-icons` 参数用于在导航栏右侧添加图标链接。使用 `tufted.icon-link` 创建图标链接，SVG 通过 CSS 遮罩显示，因此会跟随主题颜色；图标应为单色 SVG。
+
+```typst
+#let template = tufted.tufted-web.with(
+  header-icons: (
+    tufted.icon-link(
+      url: "https://github.com/yourname",
+      icon: "/assets/icons/github.svg",
+      label: "GitHub",
+    ),
+    tufted.icon-link(
+      url: "mailto:you@example.com",
+      icon: "/assets/icons/mail.svg",
+      label: "邮箱",
+    ),
+  ),
+)
+```
+
+`icon` 接受以 `/` 开头的网站路径或 HTTPS URL。`label` 同时用作悬停提示和无障碍名称。用户自定义的 SVG 文件放在自己的 `assets/icons/` 中即可。
 
 `lang` 参数用于定义网站的语言，这将被用于设置 HTML 的 `lang` 属性，默认为 `zh` （中文）。不同的语言设置可能会导致字体的不同。
 
