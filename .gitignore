@@ -13,7 +13,9 @@ build/
 uv.lock
 
 # IDE
-.vscode/
+.vscode/*
+!.vscode/settings.json
+.zed/settings.json
 *.swp
 *.swo
 
