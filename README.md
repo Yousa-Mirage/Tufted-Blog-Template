@@ -209,7 +209,8 @@ Tufted-Blog-Template/
 │   ├── format-headings.js     # 标题格式化
 │   ├── theme-toggle.js        # 主题切换
 │   ├── marginnote-toggle.js   # 移动端侧注展开与收起
-│   ├── sidenote-layout.js     # 桌面端侧注横向对齐
+│   ├── cite-margin.js         # 文献引用侧注
+│   ├── sidenote-layout.js     # 桌面端侧注布局
 │   ├── toc.js                 # 浮动目录
 │   ├── back-to-top.js         # 返回顶部
 │   └── math-copy.js           # 复制 MathML 公式
@@ -220,6 +221,7 @@ Tufted-Blog-Template/
 │   ├── Docs/                   # 编写文档页
 │   └── .../                    # 可自行修改或添加其他页面
 ├── tufted-lib/            # Typst 样式库和功能模块
+│   ├── custom-syntaxes/       # Just、Mermaid、JSON5、JSONC 语法高亮
 │   ├── tufted.typ             # 主模板和配置
 │   ├── layout.typ             # 页面布局定义
 │   ├── metadata.typ           # SEO 元数据与 RSS 链接

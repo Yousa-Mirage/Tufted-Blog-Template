@@ -209,7 +209,8 @@ Tufted-Blog-Template/
 │   ├── format-headings.js     # Heading formatting
 │   ├── theme-toggle.js        # Theme switching
 │   ├── marginnote-toggle.js   # Mobile margin note toggles
-│   ├── sidenote-layout.js     # Desktop sidenote horizontal alignment
+│   ├── cite-margin.js         # Bibliography entries in margin notes
+│   ├── sidenote-layout.js     # Desktop sidenote layout
 │   ├── toc.js                 # Floating table of contents
 │   ├── back-to-top.js         # Back-to-top button
 │   └── math-copy.js           # MathML formula copying
@@ -220,6 +221,7 @@ Tufted-Blog-Template/
 │   ├── Docs/                  # Documentation pages
 │   └── .../                   # Add or modify other pages as needed
 ├── tufted-lib/            # Typst style library and feature modules
+│   ├── custom-syntaxes/       # Syntax highlighting for Just, Mermaid, JSON5, and JSONC
 │   ├── tufted.typ             # Main template and configuration
 │   ├── layout.typ             # Page layout definitions
 │   ├── metadata.typ           # SEO metadata and RSS links
