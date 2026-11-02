@@ -297,16 +297,25 @@ NAVIGATION ICONS
 	outline-offset: 2px;
 }
 
-.rss-link::before {
+.nav-icon::before {
 	content: "";
-	background-color: currentColor;
-	mask: url("/assets/rss.svg") center / contain no-repeat;
-}
-
-.rss-link::before,
-.nav-icon svg {
 	width: 1.8rem;
 	height: 1.8rem;
+	background-color: currentColor;
+	mask: var(--nav-icon) center / contain no-repeat;
+}
+
+.rss-link {
+	--nav-icon: url("/assets/rss.svg");
+}
+
+.theme-toggle-btn {
+	--nav-icon: url("/assets/moon.svg");
+}
+
+html[data-theme="dark"] .theme-toggle-btn,
+html:not([data-theme]) .theme-toggle-btn {
+	--nav-icon: url("/assets/sun.svg");
 }
 
 @media (max-width: 760px) {
