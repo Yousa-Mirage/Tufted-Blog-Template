@@ -192,4 +192,4 @@ SEO (Search Engine Optimization，搜索引擎优化) 参数用于优化网站�
 
 == 自定义网站图标
 
-只需将事先准备好的图标文件命名为 `favicon.ico` 并放入 `assets/` 目录中即可，构建时会自动加载。
+默认使用 `assets/favicon.ico`。也可以在 `config.typ` 中设置 `favicon: "/assets/my-icon.ico"`，将图标放在对应位置。图标必须是 `ico` 文件；使用以 `/` 开头的文件路径，确保子页面也能正确加载。

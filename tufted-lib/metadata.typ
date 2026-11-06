@@ -82,6 +82,7 @@
 /// - `website-url`: Optional site root URL used for canonical and social URLs.
 /// - `image-path`: Optional absolute or site-relative social preview image path.
 /// - `feed-dir`: Non-empty RSS directory configuration enables feed discovery.
+/// - `favicon`: ICO icon URL; defaults to `/assets/favicon.ico`.
 ///
 /// Returns the generated HTML metadata elements.
 #let metadata(
@@ -94,7 +95,11 @@
   website-url: none,
   image-path: none,
   feed-dir: (),
+  favicon: "/assets/favicon.ico",
 ) = {
+  assert(type(favicon) == str, message: "favicon must be an ICO URL string")
+  assert(favicon.starts-with("/"), message: "favicon must start with /")
+  assert(lower(favicon).ends-with(".ico"), message: "favicon must end with .ico")
   // Basic meta tags
   html.meta(charset: "utf-8")
   html.meta(name: "viewport", content: "width=device-width, initial-scale=1")
@@ -109,7 +114,7 @@
     "Untitled Page"
   }
   html.title(page-title)
-  html.link(rel: "icon", href: "/assets/favicon.ico")
+  html.link(rel: "icon", type: "image/x-icon", href: favicon)
 
   // Date
   if type(date) == datetime {

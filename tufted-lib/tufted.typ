@@ -24,6 +24,7 @@
 /// - `extra-info`: Additional article byline content.
 /// - `website-title`: Site title used in metadata and RSS titles.
 /// - `website-url`: Site root URL used to build canonical and social URLs.
+/// - `favicon`: ICO icon URL; defaults to `/assets/favicon.ico`.
 /// - `image-path`: Optional social preview image.
 /// - `feed-dir`: Non-empty RSS directory list enables the global RSS link and
 ///   RSS discovery metadata.
@@ -49,6 +50,7 @@
   extra-info: none,
   website-title: "",
   website-url: none,
+  favicon: "/assets/favicon.ico",
 
   // For SEO
   image-path: none,
@@ -101,6 +103,7 @@
           date: date,
           website-title: website-title,
           website-url: website-url,
+          favicon: favicon,
           image-path: image-path,
           feed-dir: feed-dir,
         )

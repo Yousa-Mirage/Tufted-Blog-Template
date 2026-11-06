@@ -193,4 +193,4 @@ You can modify the template at any level using `.with()`, and subpages will inhe
 
 == Custom Site Icon
 
-Simply name your icon file `favicon.ico` and put it in `assets/`. It will be loaded automatically during the build.
+The default icon is `assets/favicon.ico`. To use another file, set `favicon: "/assets/my-icon.ico"` in `config.typ` and place the icon at that location. The icon must be a `.ico` file; use a site-root path starting with `/` so nested pages load it correctly.

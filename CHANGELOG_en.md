@@ -7,6 +7,7 @@
 Development updates will be recorded here.
 
 - Feature: Added full-text RSS content (#50)
+- Feature: Added the `favicon` parameter for custom ICO tab icons, defaulting to `/assets/favicon.ico`
 - Feature: Added an RSS subscription icon to the navigation bar when RSS is configured (#51)
 - Feature: Added the `header-icons` parameter and `tufted.icon-link()` function to support custom SVG icon links in the navigation bar
 - Style: Improved native `quote` HTML output with left-aligned block quotes without quotation marks by default and a separate right-aligned attribution.

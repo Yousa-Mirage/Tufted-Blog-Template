@@ -17,6 +17,8 @@
   
   /// 网站的站点标题。会显示在浏览器标签页以及 SEO/社交分享卡片中。
   website-title: "Tufted Blog Template",
+  /// 浏览器标签页图标地址，必须以 .ico 结尾。必须使用以 / 开头的网站路径。
+  favicon: "/assets/favicon.ico",
   /// 网站作者。用于生成 <meta name="author"> 标签。（可选）
   author: "@Yousa-Mirage",
   /// 网站描述。用于 SEO 搜索引擎摘要和社交媒体分享预览。（可选）
