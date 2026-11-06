@@ -447,7 +447,7 @@ QUOTE BLOCKS
 blockquote.quote-block {
 	border-inline-start: 0.25em solid #c8c8c8;
 	padding: 0.1em 0 0.1em 1em;
-	color: var(--theme-text);
+	color: #646464;
 
 	& > .quote-attribution {
 		margin-top: 0.5em;
