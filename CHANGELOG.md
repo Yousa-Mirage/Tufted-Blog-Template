@@ -9,6 +9,7 @@
 - 功能：RSS 新增全文输出 (#50)
 - 功能：配置 RSS 后，在导航栏显示 RSS 订阅图标 (#51)
 - 功能：新增 `header-icons` 参数和 `tufted.icon-link()` 函数，支持在导航栏添加自定义 SVG 图标链接
+- 样式：优化原生 `#quote()` 的 HTML 输出样式，默认显示为左对齐的无引号引用块，署名单独右对齐
 - 重构：将导航图标和内置脚本分别整理到 `assets/icons/` 和 `assets/scripts/`，保留自定义脚本路径兼容性
 - 杂项：添加 VS Code 项目配置，将 Tinymist 目标设为 HTML，并关闭保存时自动导出 PDF
 
