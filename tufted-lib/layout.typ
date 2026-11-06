@@ -43,9 +43,11 @@
   show quote.where(block: true): it => if target() == "html" {
     html.elem("blockquote", attrs: (class: "quote-block"), {
       html.div(class: "quote-body", {
-        if it.quotes == true { smartquote() }
-        it.body
-        if it.quotes == true { smartquote() }
+        if it.quotes == true {
+          quote(block: false, quotes: true, it.body)
+        } else {
+          it.body
+        }
       })
       if it.attribution != none {
         html.div(class: "quote-attribution", it.attribution)
