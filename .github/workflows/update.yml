@@ -1,22 +1,39 @@
 name: Update
 
 on:
-  # manual trigger only
   workflow_dispatch:
+  schedule:
+    # Every other Monday at 00:00 UTC (08:00 Asia/Shanghai).
+    # Cron runs weekly; the cadence step below skips alternate weeks.
+    - cron: "0 0 * * 1"
 
 jobs:
   version_update:
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: write
       pull-requests: write
 
     steps:
+      - name: Check fortnightly cadence
+        id: cadence
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          days_since_start=$(( ($(date -u +%s) - $(date -u -d '2026-11-09' +%s)) / 86400 ))
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]] || (( days_since_start >= 0 && days_since_start % 14 == 0 )); then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout
+        if: steps.cadence.outputs.run == 'true'
         uses: actions/checkout@v4
 
       - name: actions-template-sync
+        if: steps.cadence.outputs.run == 'true'
         uses: AndreasAugustin/actions-template-sync@v2
         with:
           source_repo_path: Yousa-Mirage/Tufted-Blog-Template
