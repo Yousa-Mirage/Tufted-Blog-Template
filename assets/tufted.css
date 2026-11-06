@@ -410,7 +410,7 @@ pre:hover .copy-button {
 QUOTE BLOCKS
 *******************************************************************************/
 
-/* Quote blocks with left border */
+/* Native quotes and theorion blocks */
 :is(blockquote.quote-block, div[style*="border-inline-start"]) {
 	width: 55% !important;
 	font-size: 1.4rem;
@@ -420,35 +420,39 @@ QUOTE BLOCKS
 	margin: 1.5em 0;
 	padding-right: 0;
 	box-sizing: border-box;
+
+	& :is(blockquote.quote-block, div[style*="border-inline-start"]) {
+		width: 100% !important;
+		margin: 0.5em 0;
+	}
+
+	& p {
+		text-align: inherit;
+		font-size: 1.4rem;
+		margin: 0.5em 0;
+		width: 100%;
+	}
+
+	& .footnote-ref,
+	& .marginnote,
+	& .footnote-ref a {
+		color: #111;
+	}
+
+	@media (max-width: 760px) {
+		width: 100% !important;
+	}
 }
 
 blockquote.quote-block {
 	border-inline-start: 0.25em solid #c8c8c8;
 	padding: 0.1em 0 0.1em 1em;
 	color: var(--theme-text);
-}
 
-.quote-body {
-	text-align: left;
-}
-
-blockquote.quote-block > .quote-attribution {
-	margin-top: 0.5em;
-	text-align: right;
-}
-
-/* Nested quote blocks should take full width of parent */
-:is(blockquote.quote-block, div[style*="border-inline-start"])
-	:is(blockquote.quote-block, div[style*="border-inline-start"]) {
-	width: 100% !important;
-	margin: 0.5em 0;
-}
-
-:is(blockquote.quote-block, div[style*="border-inline-start"]) p {
-	text-align: inherit;
-	font-size: 1.4rem;
-	margin: 0.5em 0;
-	width: 100%;
+	& > .quote-attribution {
+		margin-top: 0.5em;
+		text-align: right;
+	}
 }
 
 /* Keep display math consistent with formulas in the main text column. */
@@ -458,12 +462,6 @@ blockquote.quote-block > .quote-attribution {
 	width: 100%;
 	max-width: 100%;
 	font-size: 1em;
-}
-
-:is(blockquote.quote-block, div[style*="border-inline-start"]) .footnote-ref,
-:is(blockquote.quote-block, div[style*="border-inline-start"]) .marginnote,
-:is(blockquote.quote-block, div[style*="border-inline-start"]) .footnote-ref a {
-	color: #111;
 }
 
 /*******************************************************************************
@@ -623,11 +621,6 @@ table tbody tr:hover {
 	/* Enable hyphenation on narrow screens */
 	p {
 		hyphens: auto;
-	}
-
-	/* Full-width quote blocks on mobile */
-	:is(blockquote.quote-block, div[style*="border-inline-start"]) {
-		width: 100% !important;
 	}
 
 	/* Full-width code blocks on mobile */
