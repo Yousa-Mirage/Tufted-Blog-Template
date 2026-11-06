@@ -411,38 +411,58 @@ QUOTE BLOCKS
 *******************************************************************************/
 
 /* Quote blocks with left border */
-div[style*="border-inline-start"] {
+:is(blockquote.quote-block, div[style*="border-inline-start"]) {
 	width: 55% !important;
 	font-size: 1.4rem;
 	line-height: 2.2rem;
 	clear: none;
+	text-align: left;
 	margin: 1.5em 0;
 	padding-right: 0;
 	box-sizing: border-box;
 }
 
+blockquote.quote-block {
+	border-inline-start: 0.25em solid #c8c8c8;
+	padding: 0.1em 0 0.1em 1em;
+	color: var(--theme-text);
+}
+
+.quote-body {
+	text-align: left;
+}
+
+blockquote.quote-block > .quote-attribution {
+	margin-top: 0.5em;
+	text-align: right;
+}
+
 /* Nested quote blocks should take full width of parent */
-div[style*="border-inline-start"] div[style*="border-inline-start"] {
+:is(blockquote.quote-block, div[style*="border-inline-start"])
+	:is(blockquote.quote-block, div[style*="border-inline-start"]) {
 	width: 100% !important;
 	margin: 0.5em 0;
 }
 
-div[style*="border-inline-start"] p {
+:is(blockquote.quote-block, div[style*="border-inline-start"]) p {
+	text-align: inherit;
 	font-size: 1.4rem;
 	margin: 0.5em 0;
 	width: 100%;
 }
 
 /* Keep display math consistent with formulas in the main text column. */
-div[style*="border-inline-start"] > figure.math-block {
+:is(blockquote.quote-block, div[style*="border-inline-start"])
+	> figure.math-block,
+.quote-body > figure.math-block {
 	width: 100%;
 	max-width: 100%;
 	font-size: 1em;
 }
 
-div[style*="border-inline-start"] .footnote-ref,
-div[style*="border-inline-start"] .marginnote,
-div[style*="border-inline-start"] .footnote-ref a {
+:is(blockquote.quote-block, div[style*="border-inline-start"]) .footnote-ref,
+:is(blockquote.quote-block, div[style*="border-inline-start"]) .marginnote,
+:is(blockquote.quote-block, div[style*="border-inline-start"]) .footnote-ref a {
 	color: #111;
 }
 
@@ -606,7 +626,7 @@ table tbody tr:hover {
 	}
 
 	/* Full-width quote blocks on mobile */
-	div[style*="border-inline-start"] {
+	:is(blockquote.quote-block, div[style*="border-inline-start"]) {
 		width: 100% !important;
 	}
 

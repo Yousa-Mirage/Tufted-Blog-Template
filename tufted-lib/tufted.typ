@@ -3,7 +3,7 @@
 #import "notes.typ": template-notes
 #import "figures.typ": template-figures
 #import "blog-entry.typ": blog-entry
-#import "layout.typ": full-width, margin-note
+#import "layout.typ": full-width, margin-note, template-quotes
 #import "links.typ": icon-link, template-links
 #import "metadata.typ": metadata
 #import "byline.typ": template-byline
@@ -74,6 +74,7 @@
   show: template-refs
   show: template-notes
   show: template-figures
+  show: template-quotes
   show: template-links
   show: template-byline.with(author: author, date: date, extra-info: extra-info)
   show line: it => if target() == "html" { html.hr() } else { it }

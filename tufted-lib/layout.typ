@@ -31,3 +31,37 @@
 #let full-width(content) = {
   html.div(class: "fullwidth", content)
 }
+
+/// Style block quotes for HTML, with an optional trailing attribution.
+///
+/// - `content`: Document content containing quotes.
+///
+/// HTML quotes are block-level by default. Automatic quotation marks are omitted
+/// for blocks; `quotes: true` adds language-aware marks around the body only.
+/// Explicit inline quotes and paged output retain native rendering.
+#let template-quotes(content) = {
+  show quote.where(block: true): it => if target() == "html" {
+    html.elem("blockquote", attrs: (class: "quote-block"), {
+      html.div(class: "quote-body", {
+        if it.quotes == true {
+          quote(block: false, quotes: true, it.body)
+        } else {
+          it.body
+        }
+      })
+      if it.attribution != none {
+        html.div(class: "quote-attribution", it.attribution)
+      }
+    })
+  } else {
+    it
+  }
+  context {
+    if target() == "html" {
+      set quote(block: true)
+      content
+    } else {
+      content
+    }
+  }
+}
