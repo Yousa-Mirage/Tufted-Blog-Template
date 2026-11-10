@@ -42,8 +42,10 @@ import subprocess
 import sys
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from hashlib import sha256
 from html import escape
 from html.parser import HTMLParser
 from pathlib import Path
@@ -535,7 +537,7 @@ def build_html(force: bool = False) -> bool:
 
     if not html_files:
         print("  ⚠️ 未找到任何 HTML 文件。")
-        return build_tags([])
+        return build_tags([], force=force)
 
     print("正在构建 HTML 文件...")
 
@@ -573,11 +575,12 @@ def build_html(force: bool = False) -> bool:
             "html",
             "--input",
             f"page-path={page_path}",
-            *(
-                ["--input", "tags-data=/target/tufted-tags/articles.json"]
-                if Path("target/tufted-tags/articles.json").exists()
-                else []
-            ),
+            *[
+                arg
+                for key, name in (("tags-data", "articles"), ("tag-scopes", "scopes"))
+                if Path(f"target/tufted-tags/{name}.json").exists()
+                for arg in ("--input", f"{key}=/target/tufted-tags/{name}.json")
+            ],
             str(typ_file),
             str(output_path),
         ]
@@ -591,40 +594,42 @@ def build_html(force: bool = False) -> bool:
     )
 
     print(f"✅ HTML 构建完成。{stats.format_summary()}")
-    return not stats.has_failures and build_tags(html_files)
+    return not stats.has_failures and build_tags(html_files, force=force)
 
 
-def build_tags(sources: list[Path]) -> bool:
-    """Supply raw article records; Typst owns grouping, ordering and page rendering."""
+def build_tags(sources: list[Path], force: bool = False) -> bool:
+    """Let Typst group tags; rebuild pages only when their rendered data changes."""
     cache = Path("target/tufted-tags")
     cache.mkdir(parents=True, exist_ok=True)
     manifest_path = cache / "pages.json"
+
+    def save_data(path: Path, data: object) -> Path:
+        text = json.dumps(data, ensure_ascii=False, sort_keys=True)
+        if not path.exists() or path.read_text(encoding="utf-8") != text:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+        return path
+
     try:
         previous = (
             json.loads(manifest_path.read_text()) if manifest_path.exists() else []
         )
         posts = []
+        articles = []
         indexes = []
         source_outputs = {get_file_output_path(source, "html") for source in sources}
         for source in sources:
             output = get_file_output_path(source, "html")
             meta = parse_html_metadata(output)
+            tags = json.loads(meta.get("article-tags") or "[]")
+            scope = meta.get("tag-index", "")
+            if not tags and not scope:
+                continue
             relative = output.relative_to(SITE_DIR).as_posix()
             url = "/" + (
                 relative.removesuffix("index.html")
                 if output.name == "index.html"
                 else relative
-            )
-            scope = meta.get("tag-index", "")
-            posts.append(
-                {
-                    "title": meta.get("title", ""),
-                    "url": quote(url, safe="/"),
-                    "path": url,
-                    "date": meta.get("date", ""),
-                    "tags": json.loads(meta.get("article-tags", "[]")),
-                    "index": scope,
-                }
             )
             if scope:
                 if (
@@ -635,23 +640,29 @@ def build_tags(sources: list[Path]) -> bool:
                     or "//" in scope
                 ):
                     raise ValueError(f"Invalid tag-index directory: {scope}")
-                indexes.append((source, scope, url))
-        scopes = [scope for _, scope, _ in indexes]
+                indexes.append((source, output, scope, url))
+            else:
+                articles.append((source, output))
+                posts.append(
+                    {
+                        "title": meta.get("title", ""),
+                        "url": quote(url, safe="/"),
+                        "path": url,
+                        "date": meta.get("date", ""),
+                        "tags": tags,
+                    }
+                )
+        scopes = sorted(scope for _, _, scope, _ in indexes)
         if len(scopes) != len(set(scopes)):
             raise ValueError("Each tag-index directory must have only one index page")
-        catalogue = cache / "articles.json"
-        catalogue_text = json.dumps(posts, ensure_ascii=False)
-        if (
-            not catalogue.exists()
-            or catalogue.read_text(encoding="utf-8") != catalogue_text
-        ):
-            catalogue.write_text(catalogue_text, encoding="utf-8")
+        catalogue = save_data(
+            cache / "articles.json", sorted(posts, key=lambda post: post["path"])
+        )
+        scope_file = save_data(cache / "scopes.json", scopes)
         dependencies = [
-            catalogue,
-            Path("tufted-lib/tags.typ"),
-            Path("tufted-lib/tufted.typ"),
+            *find_common_dependencies(),
+            *Path("tufted-lib").rglob("*.typ"),
             Path(__file__),
-            CONFIG_FILE,
         ]
         base = [
             "--root",
@@ -662,41 +673,59 @@ def build_tags(sources: list[Path]) -> bool:
             "html",
             "--input",
             "tags-data=/" + catalogue.as_posix(),
+            "--input",
+            "tag-scopes=/" + scope_file.as_posix(),
         ]
-        # Refresh tagged articles and indexes after catalogue changes.
-        for source, post in zip(sources, posts):
-            output = get_file_output_path(source, "html")
-            if (post["tags"] or post["index"]) and needs_rebuild(
-                source, output, dependencies
+        jobs = []
+
+        def schedule(
+            source: Path,
+            output: Path,
+            deps: list[Path],
+            inputs: tuple[str, ...] = (),
+            *,
+            force_page: bool = False,
+        ) -> None:
+            if not force_page and not needs_rebuild(
+                source, output, dependencies + deps
             ):
-                relative = source.relative_to(CONTENT_DIR)
-                page_path = (
-                    relative.parent.as_posix()
-                    if source.name == "index.typ"
-                    else relative.with_suffix("").as_posix()
-                )
-                if page_path == ".":
-                    page_path = ""
-                if not run_typst_command(
-                    [
-                        "compile",
-                        *base,
-                        "--input",
-                        "page-path=" + page_path,
-                        str(source),
-                        str(output),
-                    ]
-                ):
-                    return False
+                return
+            page_path = output.relative_to(SITE_DIR).as_posix()
+            page_path = (
+                page_path.removesuffix("index.html")
+                if output.name == "index.html"
+                else page_path.removesuffix(".html")
+            )
+            output.parent.mkdir(parents=True, exist_ok=True)
+            jobs.append(
+                [
+                    "compile",
+                    *base,
+                    "--input",
+                    "page-path=" + page_path.rstrip("/"),
+                    *[arg for value in inputs for arg in ("--input", value)],
+                    str(source),
+                    str(output),
+                ]
+            )
+
+        def page_data(output: Path, data: object) -> Path:
+            key = sha256(output.as_posix().encode()).hexdigest()
+            return save_data(cache / "pages" / (key + ".json"), data)
+
+        # Article links depend only on available index scopes, never other articles.
+        # Forced article compilation already happened in build_html.
+        for source, output in articles:
+            schedule(source, output, [scope_file])
         planned = []
-        for source, scope, index_url in indexes:
+        for source, output, scope, index_url in indexes:
             result = subprocess.run(
                 [
                     "typst",
                     "query",
                     *base,
                     "--input",
-                    "tag-scope=" + scope,
+                    "tag-query-scope=" + scope,
                     "tufted-lib/tags.typ",
                     "<tag-plan>",
                     "--field",
@@ -711,7 +740,10 @@ def build_tags(sources: list[Path]) -> bool:
             if result.returncode:
                 raise ValueError(result.stderr.strip())
             groups = json.loads(result.stdout)
-            pages = []
+            navigation = [
+                (group["name"], group["url"], len(group["posts"])) for group in groups
+            ]
+            schedule(source, output, [page_data(output, navigation), scope_file])
             for group in groups:
                 destination = (
                     SITE_DIR / scope.strip("/") / "tags" / group["id"] / "index.html"
@@ -723,35 +755,27 @@ def build_tags(sources: list[Path]) -> bool:
                         f"Tag archive would overwrite an existing page: {destination}"
                     )
                 planned.append(destination.as_posix())
-                pages.append((group, destination))
-            # Record ownership before compilation, including partially completed builds.
-            manifest_path.write_text(
-                json.dumps(sorted(set(previous + planned))), encoding="utf-8"
-            )
-            for group, destination in pages:
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                if needs_rebuild(
-                    source, destination, dependencies
-                ) and not run_typst_command(
-                    [
-                        "compile",
-                        *base,
-                        "--input",
+                # Every archive displays its own posts and the shared tag counts.
+                state = page_data(destination, (group, navigation))
+                schedule(
+                    source,
+                    destination,
+                    [state],
+                    (
                         "active-tag=" + group["id"],
-                        "--input",
                         "tag-scope=" + scope,
-                        "--input",
-                        "page-path=" + scope.strip("/") + "/tags/" + group["id"],
-                        "--input",
                         "tag-index-url=" + quote(index_url, safe="/"),
-                        str(source),
-                        str(destination),
-                    ]
-                ):
-                    return False
+                    ),
+                    force_page=force,
+                )
+        # Preserve ownership across partial failures; publish the final list only on success.
+        save_data(manifest_path, sorted(set(previous + planned)))
+        with ThreadPoolExecutor(max_workers=min(8, os.cpu_count() or 1)) as executor:
+            results = list(executor.map(run_typst_command, jobs))
+        if not all(results):
+            return False
         for old in previous:
             path = Path(old)
-            # Only remove files previously generated here, never current source pages.
             if (
                 old not in planned
                 and path not in source_outputs
@@ -759,9 +783,18 @@ def build_tags(sources: list[Path]) -> bool:
                 and ".." not in path.parts
             ):
                 path.unlink(missing_ok=True)
-        manifest_path.write_text(json.dumps(planned), encoding="utf-8")
+                # Remove only empty parents, stopping before the site's root.
+                parent = path.parent
+                while (
+                    parent != SITE_DIR and parent.exists() and not any(parent.iterdir())
+                ):
+                    parent.rmdir()
+                    parent = parent.parent
+        save_data(manifest_path, planned)
         if indexes or previous:
-            print(f"✅ 标签聚合完成: {len(indexes)} 个索引，{len(planned)} 个标签页")
+            print(
+                f"✅ 标签聚合完成: {len(indexes)} 个索引，{len(planned)} 个标签页，编译: {len(jobs)}"
+            )
         return True
     except (OSError, ValueError, UnicodeError) as error:
         print(f"❌ 标签聚合失败: {error}")

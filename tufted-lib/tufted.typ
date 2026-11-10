@@ -86,12 +86,12 @@
   if active != none and tag-index != none and tag-index == sys.inputs.at("tag-scope", default: none) {
     let group = groups.find(group => group.id == active)
     assert(group != none, message: "Unknown active tag: " + active)
+    content = tag-page(group, sys.inputs.at("tag-index-url"), index-title: title, lang: lang)
     title = group.name
     description = ""
     date = none
     extra-info = none
     tags = ()
-    content = tag-page(group, sys.inputs.at("tag-index-url"), lang: lang)
   }
   // Apply styling
   show: template-math
@@ -101,10 +101,11 @@
   show: template-quotes
   show: template-links
   show: template-byline.with(author: author, date: date, extra-info: extra-info,
-    tags-content: if tags.len() > 0 { article-tags(tags, tag-catalogue()) } else { [] })
+    tags-content: if tags.len() > 0 { article-tags(tags) } else { [] })
   show line: it => if target() == "html" { html.hr() } else { it }
 
-  set text(lang: lang)
+  // HTML accepts BCP 47 tags; Typst text expects the base language code.
+  set text(lang: lang.split("-").first())
   set raw(syntaxes: (
     "custom-syntaxes/Just.sublime-syntax",
     "custom-syntaxes/Mermaid.sublime-syntax",
@@ -117,8 +118,10 @@
     {
       // Head
       html.head({
-        html.meta(name: "article-tags", content: json.encode(tags))
-        if tag-index != none { html.meta(name: "tag-index", content: tag-index) }
+        if active == none {
+          if tags.len() > 0 { html.meta(name: "article-tags", content: json.encode(tags)) }
+          if tag-index != none { html.meta(name: "tag-index", content: tag-index) }
+        }
         // All metadata
         metadata(
           title: title,
