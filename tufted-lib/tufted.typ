@@ -1,3 +1,4 @@
+#import "tags.typ": normalize-tags, tag-catalogue, tag-groups, tag-navigation
 #import "math.typ": template-math
 #import "refs.typ": template-refs
 #import "notes.typ": template-notes
@@ -15,6 +16,8 @@
 /// references, math, links, and article bylines.
 ///
 /// - `header-links`: Dictionary mapping navigation URLs to visible labels.
+/// - `tags`: Article tag strings, normalized and exported for the catalogue.
+/// - `tag-index`: Site-root directory whose tags appear in this page's sidebar.
 /// - `header-icons`: Icon-link content, typically created with `icon-link`.
 /// - `title`: Page title.
 /// - `author`: Author name shown in metadata and the article byline.
@@ -40,6 +43,8 @@
 #let tufted-web(
   header-links: (:),
   header-icons: (),
+  tags: (),
+  tag-index: none,
 
   // Meta data
   title: "",
@@ -71,6 +76,12 @@
 
   content,
 ) = {
+  let tags = normalize-tags(tags)
+  if tag-index != none {
+    assert(type(tag-index) == str and tag-index.starts-with("/") and tag-index.ends-with("/"),
+      message: "tag-index must be a site-root directory, e.g. /Blog/")
+  }
+  let groups = if tag-index == none { () } else { tag-groups(tag-catalogue(), tag-index) }
   // Apply styling
   show: template-math
   show: template-refs
@@ -94,6 +105,8 @@
     {
       // Head
       html.head({
+        html.meta(name: "article-tags", content: json.encode(tags))
+        if tag-index != none { html.meta(name: "tag-index", content: tag-index) }
         // All metadata
         metadata(
           title: title,
@@ -202,7 +215,10 @@
 
         // Main content
         html.article(
-          html.section(content),
+          html.section({
+            tag-navigation(groups, lang: lang, active: sys.inputs.at("active-tag", default: none))
+            content
+          }),
         )
 
         // Custom footer elements
