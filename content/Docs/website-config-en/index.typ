@@ -100,15 +100,10 @@ Enable aggregation on the blog index, such as `content/Blog/index.typ`:
 )
 ```
 
-Run `uv run build.py build`. The index displays tags and article counts in its right sidebar, moving above the article list on mobile. Tags below article titles link to archives, which list articles by descending date and highlight the active tag. Existing manually written blog lists remain usable.
+Run `uv run build.py build`. The index displays tags and article counts in its right sidebar, moving above the article list on mobile.
 
 - `tags` is an array of strings. Leading/trailing whitespace, empty labels, and duplicates are removed. Labels are case-sensitive.
-- `tag-index` is a site-root directory beginning and ending with `/`. It collects tagged articles beneath that directory independently of RSS. Enable each directory on only one index page; aggregation indexes are excluded from article lists.
-- Use `datetime` or `YYYY-MM-DD` strings for dates. Undated articles appear last.
-- Archives are generated under the directory's `tags/` path. Stable encoded URLs support Unicode, punctuation, and long labels. Renaming a tag changes its URL; obsolete archives are removed on the next build.
-- The index must export or import `template`, as the default template does. Archives reuse it; page-specific overrides in the index's `#show: template.with(...)` are not all inherited.
-- The article catalogue is stored in the ignored `target/tufted-tags/` directory. Source files in `content/` are not rewritten. Do not place manual pages at generated tag paths.
-- Use `build.py` to generate archives. Compiling a single document in an editor or with Typst displays tag text but does not scan other articles or generate archives.
+- `tag-index` is a site-root directory beginning and ending with `/`. It collects tagged articles beneath that directory.
 
 === SEO Parameters
 
