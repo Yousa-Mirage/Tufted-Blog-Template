@@ -635,8 +635,8 @@ def build_tags(sources: list[Path]) -> bool:
                     or "//" in scope
                 ):
                     raise ValueError(f"Invalid tag-index directory: {scope}")
-                indexes.append((source, output, scope, url, meta.get("lang", "zh")))
-        scopes = [item[2] for item in indexes]
+                indexes.append((source, scope, url))
+        scopes = [scope for _, scope, _ in indexes]
         if len(scopes) != len(set(scopes)):
             raise ValueError("Each tag-index directory must have only one index page")
         catalogue = cache / "articles.json"
@@ -649,8 +649,7 @@ def build_tags(sources: list[Path]) -> bool:
         dependencies = [
             catalogue,
             Path("tufted-lib/tags.typ"),
-            Path("tufted-lib/tag-plan.typ"),
-            Path("tufted-lib/tag-page.typ"),
+            Path("tufted-lib/tufted.typ"),
             Path(__file__),
             CONFIG_FILE,
         ]
@@ -664,13 +663,11 @@ def build_tags(sources: list[Path]) -> bool:
             "--input",
             "tags-data=/" + catalogue.as_posix(),
         ]
-        # Refresh article label links when the catalogue or index configuration changes.
+        # Refresh tagged articles and indexes after catalogue changes.
         for source, post in zip(sources, posts):
             output = get_file_output_path(source, "html")
-            if (
-                post["tags"]
-                and not post["index"]
-                and needs_rebuild(source, output, dependencies)
+            if (post["tags"] or post["index"]) and needs_rebuild(
+                source, output, dependencies
             ):
                 relative = source.relative_to(CONTENT_DIR)
                 page_path = (
@@ -678,6 +675,8 @@ def build_tags(sources: list[Path]) -> bool:
                     if source.name == "index.typ"
                     else relative.with_suffix("").as_posix()
                 )
+                if page_path == ".":
+                    page_path = ""
                 if not run_typst_command(
                     [
                         "compile",
@@ -690,7 +689,7 @@ def build_tags(sources: list[Path]) -> bool:
                 ):
                     return False
         planned = []
-        for source, output, scope, index_url, lang in indexes:
+        for source, scope, index_url in indexes:
             result = subprocess.run(
                 [
                     "typst",
@@ -698,7 +697,7 @@ def build_tags(sources: list[Path]) -> bool:
                     *base,
                     "--input",
                     "tag-scope=" + scope,
-                    "tufted-lib/tag-plan.typ",
+                    "tufted-lib/tags.typ",
                     "<tag-plan>",
                     "--field",
                     "value",
@@ -712,10 +711,8 @@ def build_tags(sources: list[Path]) -> bool:
             if result.returncode:
                 raise ValueError(result.stderr.strip())
             groups = json.loads(result.stdout)
+            pages = []
             for group in groups:
-                # The scope is validated; IDs come from Typst's UTF-8 hex encoding.
-                if not re.fullmatch(r"t-[0-9a-f]+(?:/[0-9a-f]+)*", group["id"]):
-                    raise ValueError("Invalid generated tag identifier")
                 destination = (
                     SITE_DIR / scope.strip("/") / "tags" / group["id"] / "index.html"
                 )
@@ -726,34 +723,13 @@ def build_tags(sources: list[Path]) -> bool:
                         f"Tag archive would overwrite an existing page: {destination}"
                     )
                 planned.append(destination.as_posix())
-            # Refresh the original index, including manually maintained content.
-            page_path = (
-                source.relative_to(CONTENT_DIR)
-                .with_suffix("")
-                .as_posix()
-                .removesuffix("/index")
+                pages.append((group, destination))
+            # Record ownership before compilation, including partially completed builds.
+            manifest_path.write_text(
+                json.dumps(sorted(set(previous + planned))), encoding="utf-8"
             )
-            if page_path == "index":
-                page_path = ""
-            if needs_rebuild(source, output, dependencies) and not run_typst_command(
-                [
-                    "compile",
-                    *base,
-                    "--input",
-                    "page-path=" + page_path,
-                    str(source),
-                    str(output),
-                ]
-            ):
-                return False
-            for group in groups:
-                destination = (
-                    SITE_DIR / scope.strip("/") / "tags" / group["id"] / "index.html"
-                )
+            for group, destination in pages:
                 destination.parent.mkdir(parents=True, exist_ok=True)
-                manifest_path.write_text(
-                    json.dumps(sorted(set(previous + planned))), encoding="utf-8"
-                )
                 if needs_rebuild(
                     source, destination, dependencies
                 ) and not run_typst_command(
@@ -761,18 +737,14 @@ def build_tags(sources: list[Path]) -> bool:
                         "compile",
                         *base,
                         "--input",
-                        "tag-scope=" + scope,
-                        "--input",
                         "active-tag=" + group["id"],
+                        "--input",
+                        "tag-scope=" + scope,
                         "--input",
                         "page-path=" + scope.strip("/") + "/tags/" + group["id"],
                         "--input",
-                        "tag-template=/" + source.as_posix(),
-                        "--input",
                         "tag-index-url=" + quote(index_url, safe="/"),
-                        "--input",
-                        "tag-lang=" + lang,
-                        "tufted-lib/tag-page.typ",
+                        str(source),
                         str(destination),
                     ]
                 ):
