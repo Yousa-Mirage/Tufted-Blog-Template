@@ -79,6 +79,32 @@ The `lang` parameter defines the site language. It will be used to set the HTML 
 )
 ```
 
+=== Article Tags and Archives
+
+Add `tags` to an article's template parameters:
+
+```typst
+#show: template.with(
+  title: "Normal Distribution",
+  date: datetime(year: 2025, month: 10, day: 30),
+  tags: ("Mathematics", "Statistics"),
+)
+```
+
+Enable aggregation on the blog index, such as `content/Blog/index.typ`:
+
+```typst
+#show: template.with(
+  title: "Blog",
+  tag-index: "/Blog/",
+)
+```
+
+Run `uv run build.py build`. The index displays tags and article counts in its right sidebar, moving above the article list on mobile.
+
+- `tags` is an array of strings. Leading/trailing whitespace, empty labels, and duplicates are removed. Labels are case-sensitive.
+- `tag-index` is a site-root directory beginning and ending with `/`. It collects tagged articles beneath that directory.
+
 === SEO Parameters
 
 SEO (Search Engine Optimization) parameters help improve your site's visibility in search engines. The template provides the following optional parameters:

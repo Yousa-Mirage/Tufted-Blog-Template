@@ -34,6 +34,7 @@ Tufted Blog Template 构建脚本
 """
 
 import argparse
+import json
 import os
 import re
 import shutil
@@ -41,13 +42,15 @@ import subprocess
 import sys
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from hashlib import sha256
 from html import escape
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Literal
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import quote, urljoin, urlsplit
 
 # ============================================================================
 # 配置
@@ -112,7 +115,7 @@ class HTMLMetadataParser(HTMLParser):
                 self._in_title = True
             case "meta":
                 name = attrs_dict.get("name", "")
-                if name in {"description", "date"}:
+                if name in {"description", "date", "article-tags", "tag-index"}:
                     self.metadata[name] = attrs_dict.get("content", "")
             case "link":
                 if attrs_dict.get("rel") == "canonical":
@@ -534,7 +537,7 @@ def build_html(force: bool = False) -> bool:
 
     if not html_files:
         print("  ⚠️ 未找到任何 HTML 文件。")
-        return True
+        return build_tags([], force=force)
 
     print("正在构建 HTML 文件...")
 
@@ -572,6 +575,12 @@ def build_html(force: bool = False) -> bool:
             "html",
             "--input",
             f"page-path={page_path}",
+            *[
+                arg
+                for key, name in (("tags-data", "articles"), ("tag-scopes", "scopes"))
+                if Path(f"target/tufted-tags/{name}.json").exists()
+                for arg in ("--input", f"{key}=/target/tufted-tags/{name}.json")
+            ],
             str(typ_file),
             str(output_path),
         ]
@@ -585,7 +594,211 @@ def build_html(force: bool = False) -> bool:
     )
 
     print(f"✅ HTML 构建完成。{stats.format_summary()}")
-    return not stats.has_failures
+    return not stats.has_failures and build_tags(html_files, force=force)
+
+
+def build_tags(sources: list[Path], force: bool = False) -> bool:
+    """Let Typst group tags; rebuild pages only when their rendered data changes."""
+    cache = Path("target/tufted-tags")
+    cache.mkdir(parents=True, exist_ok=True)
+    manifest_path = cache / "pages.json"
+
+    def save_data(path: Path, data: object) -> Path:
+        text = json.dumps(data, ensure_ascii=False, sort_keys=True)
+        if not path.exists() or path.read_text(encoding="utf-8") != text:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+        return path
+
+    try:
+        previous = (
+            json.loads(manifest_path.read_text()) if manifest_path.exists() else []
+        )
+        posts = []
+        articles = []
+        indexes = []
+        source_outputs = {get_file_output_path(source, "html") for source in sources}
+        for source in sources:
+            output = get_file_output_path(source, "html")
+            meta = parse_html_metadata(output)
+            tags = json.loads(meta.get("article-tags") or "[]")
+            scope = meta.get("tag-index", "")
+            if not tags and not scope:
+                continue
+            relative = output.relative_to(SITE_DIR).as_posix()
+            url = "/" + (
+                relative.removesuffix("index.html")
+                if output.name == "index.html"
+                else relative
+            )
+            if scope:
+                if (
+                    not scope.startswith("/")
+                    or not scope.endswith("/")
+                    or any(part in {".", ".."} for part in scope.split("/"))
+                    or "\\" in scope
+                    or "//" in scope
+                ):
+                    raise ValueError(f"Invalid tag-index directory: {scope}")
+                indexes.append((source, output, scope, url))
+            else:
+                articles.append((source, output))
+                posts.append(
+                    {
+                        "title": meta.get("title", ""),
+                        "url": quote(url, safe="/"),
+                        "path": url,
+                        "date": meta.get("date", ""),
+                        "tags": tags,
+                    }
+                )
+        scopes = sorted(scope for _, _, scope, _ in indexes)
+        if len(scopes) != len(set(scopes)):
+            raise ValueError("Each tag-index directory must have only one index page")
+        catalogue = save_data(
+            cache / "articles.json", sorted(posts, key=lambda post: post["path"])
+        )
+        scope_file = save_data(cache / "scopes.json", scopes)
+        dependencies = [
+            *find_common_dependencies(),
+            *Path("tufted-lib").rglob("*.typ"),
+            Path(__file__),
+        ]
+        base = [
+            "--root",
+            ".",
+            "--font-path",
+            str(ASSETS_DIR),
+            "--features",
+            "html",
+            "--input",
+            "tags-data=/" + catalogue.as_posix(),
+            "--input",
+            "tag-scopes=/" + scope_file.as_posix(),
+        ]
+        jobs = []
+
+        def schedule(
+            source: Path,
+            output: Path,
+            deps: list[Path],
+            inputs: tuple[str, ...] = (),
+            *,
+            force_page: bool = False,
+        ) -> None:
+            if not force_page and not needs_rebuild(
+                source, output, dependencies + deps
+            ):
+                return
+            page_path = output.relative_to(SITE_DIR).as_posix()
+            page_path = (
+                page_path.removesuffix("index.html")
+                if output.name == "index.html"
+                else page_path.removesuffix(".html")
+            )
+            output.parent.mkdir(parents=True, exist_ok=True)
+            jobs.append(
+                [
+                    "compile",
+                    *base,
+                    "--input",
+                    "page-path=" + page_path.rstrip("/"),
+                    *[arg for value in inputs for arg in ("--input", value)],
+                    str(source),
+                    str(output),
+                ]
+            )
+
+        def page_data(output: Path, data: object) -> Path:
+            key = sha256(output.as_posix().encode()).hexdigest()
+            return save_data(cache / "pages" / (key + ".json"), data)
+
+        # Article links depend only on available index scopes, never other articles.
+        # Forced article compilation already happened in build_html.
+        for source, output in articles:
+            schedule(source, output, [scope_file])
+        planned = []
+        for source, output, scope, index_url in indexes:
+            result = subprocess.run(
+                [
+                    "typst",
+                    "query",
+                    *base,
+                    "--input",
+                    "tag-query-scope=" + scope,
+                    "tufted-lib/tags.typ",
+                    "<tag-plan>",
+                    "--field",
+                    "value",
+                    "--one",
+                ],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                check=False,
+            )
+            if result.returncode:
+                raise ValueError(result.stderr.strip())
+            groups = json.loads(result.stdout)
+            navigation = [
+                (group["name"], group["url"], len(group["posts"])) for group in groups
+            ]
+            schedule(source, output, [page_data(output, navigation), scope_file])
+            for group in groups:
+                destination = (
+                    SITE_DIR / scope.strip("/") / "tags" / group["id"] / "index.html"
+                )
+                if destination in source_outputs or (
+                    destination.exists() and destination.as_posix() not in previous
+                ):
+                    raise ValueError(
+                        f"Tag archive would overwrite an existing page: {destination}"
+                    )
+                planned.append(destination.as_posix())
+                # Every archive displays its own posts and the shared tag counts.
+                state = page_data(destination, (group, navigation))
+                schedule(
+                    source,
+                    destination,
+                    [state],
+                    (
+                        "active-tag=" + group["id"],
+                        "tag-scope=" + scope,
+                        "tag-index-url=" + quote(index_url, safe="/"),
+                    ),
+                    force_page=force,
+                )
+        # Preserve ownership across partial failures; publish the final list only on success.
+        save_data(manifest_path, sorted(set(previous + planned)))
+        with ThreadPoolExecutor(max_workers=min(8, os.cpu_count() or 1)) as executor:
+            results = list(executor.map(run_typst_command, jobs))
+        if not all(results):
+            return False
+        for old in previous:
+            path = Path(old)
+            if (
+                old not in planned
+                and path not in source_outputs
+                and path.is_relative_to(SITE_DIR)
+                and ".." not in path.parts
+            ):
+                path.unlink(missing_ok=True)
+                # Remove only empty parents, stopping before the site's root.
+                parent = path.parent
+                while (
+                    parent != SITE_DIR and parent.exists() and not any(parent.iterdir())
+                ):
+                    parent.rmdir()
+                    parent = parent.parent
+        save_data(manifest_path, planned)
+        if indexes or previous:
+            print(
+                f"✅ 标签聚合完成: {len(indexes)} 个索引，{len(planned)} 个标签页，编译: {len(jobs)}"
+            )
+        return True
+    except (OSError, ValueError, UnicodeError) as error:
+        print(f"❌ 标签聚合失败: {error}")
+        return False
 
 
 def build_pdf(force: bool = False) -> bool:

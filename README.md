@@ -224,6 +224,7 @@ Tufted-Blog-Template/
 ├── tufted-lib/            # Typst 样式库和功能模块
 │   ├── custom-syntaxes/       # Just、Mermaid、JSON5、JSONC 语法高亮
 │   ├── tufted.typ             # 主模板和配置
+│   ├── tags.typ               # 标签收集、导航与聚合页
 │   ├── layout.typ             # 页面布局定义
 │   ├── metadata.typ           # SEO 元数据与 RSS 链接
 │   ├── byline.typ             # 文章作者、日期与额外信息
