@@ -1053,6 +1053,10 @@ TABLE OF CONTENTS
 TAG NAVIGATION
 *******************************************************************************/
 
+section:has(> .tag-sidebar) {
+	display: flow-root;
+}
+
 .tag-sidebar {
 	float: right;
 	width: 30%;
@@ -1175,6 +1179,7 @@ TAG NAVIGATION
 }
 
 /* Long archive names and article titles must wrap inside the text column. */
+.tag-sidebar ~ h1,
 .tag-sidebar ~ h2 {
 	width: 55%;
 	overflow-wrap: anywhere;
@@ -1186,6 +1191,7 @@ TAG NAVIGATION
 }
 
 @media (max-width: 760px) {
+	.tag-sidebar ~ h1,
 	.tag-sidebar ~ h2 {
 		width: 100%;
 	}
