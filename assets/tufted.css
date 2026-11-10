@@ -1074,8 +1074,8 @@ TAG NAVIGATION
 
 .tag-sidebar ul {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem;
+	flex-direction: column;
+	gap: 0.25rem;
 	width: 100%;
 	padding: 0;
 	margin: 0;
@@ -1093,13 +1093,22 @@ TAG NAVIGATION
 .article-tags .tag-link {
 	display: flex;
 	align-items: baseline;
-	gap: 0.6em;
-	padding: 0.3em 0.65em;
-	border: 1px solid var(--theme-table-border);
 	border-radius: var(--radius-sm);
 	text-decoration: none;
 	box-shadow: none;
 	transition: background-color 120ms ease;
+}
+
+.tag-sidebar .tag-link {
+	gap: 0.25em;
+	width: fit-content;
+	max-width: 100%;
+	padding: 0.15em 0;
+}
+
+.article-tags .tag-link {
+	padding: 0.3em 0.65em;
+	border: 1px solid var(--theme-table-border);
 }
 
 .tag-link > span:first-child {
@@ -1163,4 +1172,21 @@ TAG NAVIGATION
 	gap: 0.4rem;
 	margin-top: 0.6rem;
 	font-size: 0.85em;
+}
+
+/* Long archive names and article titles must wrap inside the text column. */
+.tag-sidebar ~ h2 {
+	width: 55%;
+	overflow-wrap: anywhere;
+}
+
+.tag-sidebar ~ .blog-entry .blog-entry-content {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+	.tag-sidebar ~ h2 {
+		width: 100%;
+	}
 }
