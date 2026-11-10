@@ -7,13 +7,7 @@
 }
 
 /// Normalize labels without merging distinct names such as C++ and C#.
-#let normalize-tags(tags) = {
-  assert(type(tags) == array, message: "tags must be an array of strings")
-  tags.map(tag => {
-    assert(type(tag) == str, message: "each tag must be a string")
-    tag.trim()
-  }).filter(tag => tag != "").dedup()
-}
+#let normalize-tags(tags) = tags.map(tag => tag.trim()).filter(tag => tag != "").dedup()
 
 /// Group and sort a catalogue within a site-root directory.
 /// Stable UTF-8 hex IDs keep arbitrary labels safe and collision-free in URLs.
@@ -84,4 +78,9 @@
       }
     })
   }
+}
+
+// Standalone query entry; importing this module does not render its content.
+#if sys.inputs.at("tag-scope", default: none) != none {
+  [#metadata(tag-groups(tag-catalogue(), sys.inputs.at("tag-scope"))) <tag-plan>]
 }

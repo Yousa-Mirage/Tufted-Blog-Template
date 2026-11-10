@@ -1,4 +1,4 @@
-#import "tags.typ": normalize-tags, tag-catalogue, tag-groups, tag-navigation, article-tags
+#import "tags.typ": normalize-tags, tag-catalogue, tag-groups, tag-navigation, tag-page, article-tags
 #import "math.typ": template-math
 #import "refs.typ": template-refs
 #import "notes.typ": template-notes
@@ -82,6 +82,17 @@
       message: "tag-index must be a site-root directory, e.g. /Blog/")
   }
   let groups = if tag-index == none { () } else { tag-groups(tag-catalogue(), tag-index) }
+  let active = sys.inputs.at("active-tag", default: none)
+  if active != none and tag-index != none and tag-index == sys.inputs.at("tag-scope", default: none) {
+    let group = groups.find(group => group.id == active)
+    assert(group != none, message: "Unknown active tag: " + active)
+    title = group.name
+    description = ""
+    date = none
+    extra-info = none
+    tags = ()
+    content = tag-page(group, sys.inputs.at("tag-index-url"), lang: lang)
+  }
   // Apply styling
   show: template-math
   show: template-refs
@@ -217,7 +228,7 @@
         // Main content
         html.article(
           html.section({
-            tag-navigation(groups, lang: lang, active: sys.inputs.at("active-tag", default: none))
+            tag-navigation(groups, lang: lang, active: active)
             content
           }),
         )
