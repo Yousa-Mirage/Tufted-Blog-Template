@@ -535,7 +535,7 @@ def build_html(force: bool = False) -> bool:
 
     if not html_files:
         print("  ⚠️ 未找到任何 HTML 文件。")
-        return True
+        return build_tags([])
 
     print("正在构建 HTML 文件...")
 
@@ -650,6 +650,7 @@ def build_tags(sources: list[Path]) -> bool:
             catalogue,
             Path("tufted-lib/tags.typ"),
             Path("tufted-lib/tag-plan.typ"),
+            Path(__file__),
             CONFIG_FILE,
         ]
         base = [
@@ -662,6 +663,31 @@ def build_tags(sources: list[Path]) -> bool:
             "--input",
             "tags-data=/" + catalogue.as_posix(),
         ]
+        # Refresh article label links when the catalogue or index configuration changes.
+        for source, post in zip(sources, posts):
+            output = get_file_output_path(source, "html")
+            if (
+                post["tags"]
+                and not post["index"]
+                and needs_rebuild(source, output, dependencies)
+            ):
+                relative = source.relative_to(CONTENT_DIR)
+                page_path = (
+                    relative.parent.as_posix()
+                    if source.name == "index.typ"
+                    else relative.with_suffix("").as_posix()
+                )
+                if not run_typst_command(
+                    [
+                        "compile",
+                        *base,
+                        "--input",
+                        "page-path=" + page_path,
+                        str(source),
+                        str(output),
+                    ]
+                ):
+                    return False
         planned = []
         for source, output, scope, index_url, lang in indexes:
             result = subprocess.run(
@@ -687,7 +713,7 @@ def build_tags(sources: list[Path]) -> bool:
             groups = json.loads(result.stdout)
             for group in groups:
                 # The scope is validated; IDs come from Typst's UTF-8 hex encoding.
-                if not re.fullmatch(r"t-[0-9a-f]+", group["id"]):
+                if not re.fullmatch(r"t-[0-9a-f]+(?:/[0-9a-f]+)*", group["id"]):
                     raise ValueError("Invalid generated tag identifier")
                 destination = (
                     SITE_DIR / scope.strip("/") / "tags" / group["id"] / "index.html"
@@ -722,17 +748,19 @@ def build_tags(sources: list[Path]) -> bool:
             # Import only the index's exported template, never its rendered body.
             entry = cache / "page.typ"
             entry.write_text(
-                "#import " + json.dumps("/" + source.as_posix()) + ": template\n"
+                "#import "
+                + json.dumps("/" + source.as_posix(), ensure_ascii=False)
+                + ": template\n"
                 '#import "/tufted-lib/tags.typ": tag-groups, tag-catalogue, tag-page\n'
                 '#let scope = sys.inputs.at("tag-scope")\n'
                 '#let group = tag-groups(tag-catalogue(), scope).find(g => g.id == sys.inputs.at("active-tag"))\n'
                 '#show: template.with(title: group.name, description: "", date: none, extra-info: none, tags: (), tag-index: scope, lang: '
-                + json.dumps(lang)
+                + json.dumps(lang, ensure_ascii=False)
                 + ")\n"
                 "#tag-page(group, "
-                + json.dumps(index_url)
+                + json.dumps(index_url, ensure_ascii=False)
                 + ", lang: "
-                + json.dumps(lang)
+                + json.dumps(lang, ensure_ascii=False)
                 + ")\n",
                 encoding="utf-8",
             )

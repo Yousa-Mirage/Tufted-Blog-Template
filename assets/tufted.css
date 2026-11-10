@@ -1048,3 +1048,119 @@ TABLE OF CONTENTS
 	background: var(--theme-heading, #111);
 	opacity: 0.8;
 }
+
+/*******************************************************************************
+TAG NAVIGATION
+*******************************************************************************/
+
+.tag-sidebar {
+	float: right;
+	width: 30%;
+	margin: 0.5rem 0 2rem 5%;
+	padding: 0.5rem 0 0.5rem 1.25rem;
+	border-left: 1px solid var(--theme-table-border);
+	box-sizing: border-box;
+	color: var(--theme-text);
+}
+
+.tag-sidebar .tag-sidebar-title {
+	width: 100%;
+	margin: 0 0 0.75rem;
+	font-size: 1rem;
+	font-weight: 600;
+	text-align: left;
+	letter-spacing: 0.06em;
+}
+
+.tag-sidebar ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	font-size: 1rem;
+	line-height: 1.5;
+}
+
+.tag-sidebar li {
+	max-width: 100%;
+	margin: 0;
+}
+
+.tag-sidebar .tag-link,
+.article-tags .tag-link {
+	display: flex;
+	align-items: baseline;
+	gap: 0.6em;
+	padding: 0.3em 0.65em;
+	border: 1px solid var(--theme-table-border);
+	border-radius: var(--radius-sm);
+	text-decoration: none;
+	box-shadow: none;
+	transition: background-color 120ms ease;
+}
+
+.tag-link > span:first-child {
+	overflow-wrap: anywhere;
+	min-width: 0;
+}
+
+.tag-count {
+	opacity: 0.6;
+	font-size: 0.85em;
+	font-variant-numeric: tabular-nums;
+	flex-shrink: 0;
+}
+
+.article-tags a.tag-link:hover,
+.tag-sidebar .tag-link:hover,
+.tag-sidebar .tag-link[aria-current="page"] {
+	background: var(--highlight-weak);
+}
+
+.tag-sidebar .tag-link[aria-current="page"] {
+	font-weight: 600;
+}
+
+.article-tags a.tag-link:focus-visible,
+.tag-sidebar .tag-link:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+.tag-back,
+.tag-summary {
+	font-size: 1.1rem;
+	color: var(--theme-icon);
+}
+
+.tag-back {
+	margin-top: 0;
+}
+
+@media (max-width: 760px) {
+	.tag-sidebar {
+		float: none;
+		width: 100%;
+		margin: 0 0 2rem;
+		padding: 0 0 1rem;
+		border-left: 0;
+		border-bottom: 1px solid var(--theme-table-border);
+	}
+
+	.tag-sidebar .tag-link {
+		min-height: 2.25rem;
+		align-items: center;
+		box-sizing: border-box;
+	}
+}
+
+.article-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+	margin-top: 0.6rem;
+	font-size: 0.85em;
+}

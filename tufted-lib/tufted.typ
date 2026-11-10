@@ -1,4 +1,4 @@
-#import "tags.typ": normalize-tags, tag-catalogue, tag-groups, tag-navigation
+#import "tags.typ": normalize-tags, tag-catalogue, tag-groups, tag-navigation, article-tags
 #import "math.typ": template-math
 #import "refs.typ": template-refs
 #import "notes.typ": template-notes
@@ -89,7 +89,8 @@
   show: template-figures
   show: template-quotes
   show: template-links
-  show: template-byline.with(author: author, date: date, extra-info: extra-info)
+  show: template-byline.with(author: author, date: date, extra-info: extra-info,
+    tags-content: if tags.len() > 0 { article-tags(tags, tag-catalogue()) } else { [] })
   show line: it => if target() == "html" { html.hr() } else { it }
 
   set text(lang: lang)

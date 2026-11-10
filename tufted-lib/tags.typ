@@ -21,9 +21,9 @@
   let articles = posts.filter(post => post.path.starts-with(scope) and post.index == "")
   let labels = articles.map(post => post.tags).flatten().dedup().sorted()
   labels.map(name => {
-    let id = "t-" + array(bytes(name)).map(b => {
+    let id = "t-" + array(bytes(name)).chunks(48).map(chunk => chunk.map(b => {
       (if b < 16 { "0" } else { "" }) + str(b, base: 16)
-    }).join()
+    }).join()).join("/")
     let entries = articles.filter(post => name in post.tags)
     entries = entries.sorted(key: post => (post.date, post.url)).rev()
     (name: name, id: id, url: scope + "tags/" + id + "/", posts: entries)
@@ -62,5 +62,26 @@
   html.p(class: "tag-summary", str(group.posts.len()) + if lang == "zh" { " 篇文章" } else { " articles" })
   for post in group.posts {
     blog-entry(date: post.date, path: post.url, title: post.title)
+  }
+}
+
+/// Show an article's labels, linking to the most specific configured tag index.
+/// Without catalogue data, labels remain readable plain text.
+#let article-tags(tags, posts) = {
+  if tags.len() > 0 {
+    let page = "/" + sys.inputs.at("page-path", default: "")
+    let indexes = posts.filter(post => post.index != "" and
+      (page + "/").starts-with(post.index)).sorted(key: post => post.index.len())
+    let groups = if indexes.len() > 0 { tag-groups(posts, indexes.last().index) } else { () }
+    html.div(class: "article-tags", {
+      for name in tags {
+        let group = groups.find(group => group.name == name)
+        if group == none {
+          html.span(class: "tag-link", name)
+        } else {
+          html.a(class: "tag-link", href: group.url, name)
+        }
+      }
+    })
   }
 }
