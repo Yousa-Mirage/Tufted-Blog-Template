@@ -10,7 +10,7 @@
 ///
 /// Returns an HTML blog-entry element with separate date and title columns.
 #let blog-entry(date: auto, path: str, title: str) = {
-  let href = if path.ends-with("/") {
+  let href = if path.ends-with("/") or path.ends-with(".html") {
     path
   } else {
     path + "/"

@@ -34,6 +34,7 @@ Tufted Blog Template 构建脚本
 """
 
 import argparse
+import json
 import os
 import re
 import shutil
@@ -47,7 +48,7 @@ from html import escape
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Literal
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import quote, urljoin, urlsplit
 
 # ============================================================================
 # 配置
@@ -112,7 +113,7 @@ class HTMLMetadataParser(HTMLParser):
                 self._in_title = True
             case "meta":
                 name = attrs_dict.get("name", "")
-                if name in {"description", "date"}:
+                if name in {"description", "date", "article-tags", "tag-index"}:
                     self.metadata[name] = attrs_dict.get("content", "")
             case "link":
                 if attrs_dict.get("rel") == "canonical":
@@ -572,6 +573,11 @@ def build_html(force: bool = False) -> bool:
             "html",
             "--input",
             f"page-path={page_path}",
+            *(
+                ["--input", "tags-data=/target/tufted-tags/articles.json"]
+                if Path("target/tufted-tags/articles.json").exists()
+                else []
+            ),
             str(typ_file),
             str(output_path),
         ]
@@ -585,7 +591,193 @@ def build_html(force: bool = False) -> bool:
     )
 
     print(f"✅ HTML 构建完成。{stats.format_summary()}")
-    return not stats.has_failures
+    return not stats.has_failures and build_tags(html_files)
+
+
+def build_tags(sources: list[Path]) -> bool:
+    """Supply raw article records; Typst owns grouping, ordering and page rendering."""
+    cache = Path("target/tufted-tags")
+    cache.mkdir(parents=True, exist_ok=True)
+    manifest_path = cache / "pages.json"
+    try:
+        previous = (
+            json.loads(manifest_path.read_text()) if manifest_path.exists() else []
+        )
+        posts = []
+        indexes = []
+        source_outputs = {get_file_output_path(source, "html") for source in sources}
+        for source in sources:
+            output = get_file_output_path(source, "html")
+            meta = parse_html_metadata(output)
+            relative = output.relative_to(SITE_DIR).as_posix()
+            url = "/" + (
+                relative.removesuffix("index.html")
+                if output.name == "index.html"
+                else relative
+            )
+            scope = meta.get("tag-index", "")
+            posts.append(
+                {
+                    "title": meta.get("title", ""),
+                    "url": quote(url, safe="/"),
+                    "path": url,
+                    "date": meta.get("date", ""),
+                    "tags": json.loads(meta.get("article-tags", "[]")),
+                    "index": scope,
+                }
+            )
+            if scope:
+                if (
+                    not scope.startswith("/")
+                    or not scope.endswith("/")
+                    or any(part in {".", ".."} for part in scope.split("/"))
+                    or "\\" in scope
+                    or "//" in scope
+                ):
+                    raise ValueError(f"Invalid tag-index directory: {scope}")
+                indexes.append((source, output, scope, url, meta.get("lang", "zh")))
+        scopes = [item[2] for item in indexes]
+        if len(scopes) != len(set(scopes)):
+            raise ValueError("Each tag-index directory must have only one index page")
+        catalogue = cache / "articles.json"
+        catalogue_text = json.dumps(posts, ensure_ascii=False)
+        if (
+            not catalogue.exists()
+            or catalogue.read_text(encoding="utf-8") != catalogue_text
+        ):
+            catalogue.write_text(catalogue_text, encoding="utf-8")
+        dependencies = [
+            catalogue,
+            Path("tufted-lib/tags.typ"),
+            Path("tufted-lib/tag-plan.typ"),
+            CONFIG_FILE,
+        ]
+        base = [
+            "--root",
+            ".",
+            "--font-path",
+            str(ASSETS_DIR),
+            "--features",
+            "html",
+            "--input",
+            "tags-data=/" + catalogue.as_posix(),
+        ]
+        planned = []
+        for source, output, scope, index_url, lang in indexes:
+            result = subprocess.run(
+                [
+                    "typst",
+                    "query",
+                    *base,
+                    "--input",
+                    "tag-scope=" + scope,
+                    "tufted-lib/tag-plan.typ",
+                    "<tag-plan>",
+                    "--field",
+                    "value",
+                    "--one",
+                ],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                check=False,
+            )
+            if result.returncode:
+                raise ValueError(result.stderr.strip())
+            groups = json.loads(result.stdout)
+            for group in groups:
+                # The scope is validated; IDs come from Typst's UTF-8 hex encoding.
+                if not re.fullmatch(r"t-[0-9a-f]+", group["id"]):
+                    raise ValueError("Invalid generated tag identifier")
+                destination = (
+                    SITE_DIR / scope.strip("/") / "tags" / group["id"] / "index.html"
+                )
+                if destination in source_outputs or (
+                    destination.exists() and destination.as_posix() not in previous
+                ):
+                    raise ValueError(
+                        f"Tag archive would overwrite an existing page: {destination}"
+                    )
+                planned.append(destination.as_posix())
+            # Refresh the original index, including manually maintained content.
+            page_path = (
+                source.relative_to(CONTENT_DIR)
+                .with_suffix("")
+                .as_posix()
+                .removesuffix("/index")
+            )
+            if page_path == "index":
+                page_path = ""
+            if needs_rebuild(source, output, dependencies) and not run_typst_command(
+                [
+                    "compile",
+                    *base,
+                    "--input",
+                    "page-path=" + page_path,
+                    str(source),
+                    str(output),
+                ]
+            ):
+                return False
+            # Import only the index's exported template, never its rendered body.
+            entry = cache / "page.typ"
+            entry.write_text(
+                "#import " + json.dumps("/" + source.as_posix()) + ": template\n"
+                '#import "/tufted-lib/tags.typ": tag-groups, tag-catalogue, tag-page\n'
+                '#let scope = sys.inputs.at("tag-scope")\n'
+                '#let group = tag-groups(tag-catalogue(), scope).find(g => g.id == sys.inputs.at("active-tag"))\n'
+                '#show: template.with(title: group.name, description: "", date: none, extra-info: none, tags: (), tag-index: scope, lang: '
+                + json.dumps(lang)
+                + ")\n"
+                "#tag-page(group, "
+                + json.dumps(index_url)
+                + ", lang: "
+                + json.dumps(lang)
+                + ")\n",
+                encoding="utf-8",
+            )
+            for group in groups:
+                destination = (
+                    SITE_DIR / scope.strip("/") / "tags" / group["id"] / "index.html"
+                )
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                manifest_path.write_text(
+                    json.dumps(sorted(set(previous + planned))), encoding="utf-8"
+                )
+                if needs_rebuild(
+                    source, destination, dependencies
+                ) and not run_typst_command(
+                    [
+                        "compile",
+                        *base,
+                        "--input",
+                        "tag-scope=" + scope,
+                        "--input",
+                        "active-tag=" + group["id"],
+                        "--input",
+                        "page-path=" + scope.strip("/") + "/tags/" + group["id"],
+                        str(entry),
+                        str(destination),
+                    ]
+                ):
+                    return False
+        for old in previous:
+            path = Path(old)
+            # Only remove files previously generated here, never current source pages.
+            if (
+                old not in planned
+                and path not in source_outputs
+                and path.is_relative_to(SITE_DIR)
+                and ".." not in path.parts
+            ):
+                path.unlink(missing_ok=True)
+        manifest_path.write_text(json.dumps(planned), encoding="utf-8")
+        if indexes or previous:
+            print(f"✅ 标签聚合完成: {len(indexes)} 个索引，{len(planned)} 个标签页")
+        return True
+    except (OSError, ValueError, UnicodeError) as error:
+        print(f"❌ 标签聚合失败: {error}")
+        return False
 
 
 def build_pdf(force: bool = False) -> bool:

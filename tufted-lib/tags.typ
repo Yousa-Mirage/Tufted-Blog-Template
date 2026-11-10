@@ -18,14 +18,14 @@
 /// Group and sort a catalogue within a site-root directory.
 /// Stable UTF-8 hex IDs keep arbitrary labels safe and collision-free in URLs.
 #let tag-groups(posts, scope) = {
-  let articles = posts.filter(post => post.url.starts-with(scope) and post.index == "")
+  let articles = posts.filter(post => post.path.starts-with(scope) and post.index == "")
   let labels = articles.map(post => post.tags).flatten().dedup().sorted()
   labels.map(name => {
     let id = "t-" + array(bytes(name)).map(b => {
       (if b < 16 { "0" } else { "" }) + str(b, base: 16)
     }).join()
     let entries = articles.filter(post => name in post.tags)
-    entries = entries.sorted(key: post => (post.date, post.url), descending: true)
+    entries = entries.sorted(key: post => (post.date, post.url)).rev()
     (name: name, id: id, url: scope + "tags/" + id + "/", posts: entries)
   })
 }

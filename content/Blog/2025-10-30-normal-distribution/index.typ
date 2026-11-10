@@ -2,6 +2,7 @@
 #import "@preview/lilaq:0.6.0" as lq
 // 如需生成 RSS feed，必须填写 title、description 和 date 元数据
 #show: template.with(
+  tags: ("数学", "统计学"),
   title: "The Normal Distribution: A Fundamental Concept in Statistics",
   description: "An in-depth look at the normal distribution, its properties, significance, and real-world applications across various fields.",
   date: datetime(year: 2025, month: 10, day: 30),

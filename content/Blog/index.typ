@@ -1,6 +1,7 @@
 #import "../index.typ": template, tufted
 #show: template.with(
   title: "Blog",
+  tag-index: "/Blog/",
   description: "Some blog examples",
 )
 
