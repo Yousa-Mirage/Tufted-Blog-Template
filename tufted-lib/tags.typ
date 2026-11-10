@@ -45,7 +45,7 @@
               ..if group.id == active { (aria-current: "page") } else { (:) },
             ), {
               html.span(group.name)
-              html.span(class: "tag-count", str(group.posts.len()))
+              html.span(class: "tag-count", " (" + str(group.posts.len()) + ")")
             }))
           }
         })
@@ -59,7 +59,7 @@
   html.p(class: "tag-back", html.a(href: index-url,
     if lang == "zh" { "← 返回博客" } else { "← Back to blog" }))
   heading(level: 1, group.name)
-  html.p(class: "tag-summary", str(group.posts.len()) + if lang == "zh" { " 篇文章" } else { " articles" })
+  html.p(class: "tag-summary", str(group.posts.len()) + if lang == "zh" { " 篇文章" } else if group.posts.len() == 1 { " article" } else { " articles" })
   for post in group.posts {
     blog-entry(date: post.date, path: post.url, title: post.title)
   }

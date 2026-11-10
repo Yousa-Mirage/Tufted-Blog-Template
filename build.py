@@ -650,6 +650,7 @@ def build_tags(sources: list[Path]) -> bool:
             catalogue,
             Path("tufted-lib/tags.typ"),
             Path("tufted-lib/tag-plan.typ"),
+            Path("tufted-lib/tag-page.typ"),
             Path(__file__),
             CONFIG_FILE,
         ]
@@ -745,25 +746,6 @@ def build_tags(sources: list[Path]) -> bool:
                 ]
             ):
                 return False
-            # Import only the index's exported template, never its rendered body.
-            entry = cache / "page.typ"
-            entry.write_text(
-                "#import "
-                + json.dumps("/" + source.as_posix(), ensure_ascii=False)
-                + ": template\n"
-                '#import "/tufted-lib/tags.typ": tag-groups, tag-catalogue, tag-page\n'
-                '#let scope = sys.inputs.at("tag-scope")\n'
-                '#let group = tag-groups(tag-catalogue(), scope).find(g => g.id == sys.inputs.at("active-tag"))\n'
-                '#show: template.with(title: group.name, description: "", date: none, extra-info: none, tags: (), tag-index: scope, lang: '
-                + json.dumps(lang, ensure_ascii=False)
-                + ")\n"
-                "#tag-page(group, "
-                + json.dumps(index_url, ensure_ascii=False)
-                + ", lang: "
-                + json.dumps(lang, ensure_ascii=False)
-                + ")\n",
-                encoding="utf-8",
-            )
             for group in groups:
                 destination = (
                     SITE_DIR / scope.strip("/") / "tags" / group["id"] / "index.html"
@@ -784,7 +766,13 @@ def build_tags(sources: list[Path]) -> bool:
                         "active-tag=" + group["id"],
                         "--input",
                         "page-path=" + scope.strip("/") + "/tags/" + group["id"],
-                        str(entry),
+                        "--input",
+                        "tag-template=/" + source.as_posix(),
+                        "--input",
+                        "tag-index-url=" + quote(index_url, safe="/"),
+                        "--input",
+                        "tag-lang=" + lang,
+                        "tufted-lib/tag-page.typ",
                         str(destination),
                     ]
                 ):
