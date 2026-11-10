@@ -224,6 +224,7 @@ Tufted-Blog-Template/
 ├── tufted-lib/            # Typst style library and feature modules
 │   ├── custom-syntaxes/       # Syntax highlighting for Just, Mermaid, JSON5, and JSONC
 │   ├── tufted.typ             # Main template and configuration
+│   ├── tags.typ               # Tag grouping, navigation, and archives
 │   ├── layout.typ             # Page layout definitions
 │   ├── metadata.typ           # SEO metadata and RSS links
 │   ├── byline.typ             # Article author, date, and extra information

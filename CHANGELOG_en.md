@@ -6,6 +6,7 @@
 
 Development updates will be recorded here.
 
+- Feature: Added article `tags` and index `tag-index` with automatic tag archives, sidebar navigation, article tag links, and mobile layouts
 - Feature: Added full-text RSS content (#50)
 - Feature: Added the `favicon` parameter for custom ICO tab icons, defaulting to `/assets/favicon.ico`
 - Feature: Added an RSS subscription icon to the navigation bar when RSS is configured (#51)
