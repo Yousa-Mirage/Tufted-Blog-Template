@@ -17,7 +17,7 @@ Tufted Blog Template 构建脚本
     uv run build.py pdf         # 仅构建 PDF 文件
     uv run build.py assets      # 仅复制静态资源
     uv run build.py clean       # 清理生成的文件
-    uv run build.py preview     # 启动本地预览服务器（默认端口 8000）
+    uv run build.py preview     # 启动本地预览服务器（默认端口 8000），刷新网页时自动增量构建
     uv run build.py preview -p 3000  # 使用自定义端口
     uv run build.py --help      # 显示帮助信息
 
@@ -26,6 +26,8 @@ Tufted Blog Template 构建脚本
 
 预览服务器选项:
     --port, -p PORT             # 指定服务器端口号（默认: 8000）
+    --no-open                   # 不自动打开浏览器
+    --no-rebuild                # 刷新网页时不自动重新构建
 
 也可以直接使用 Python 运行:
     python build.py build
@@ -34,6 +36,10 @@ Tufted Blog Template 构建脚本
 """
 
 import argparse
+import contextlib
+import functools
+import http.server
+import io
 import os
 import re
 import shutil
@@ -632,9 +638,10 @@ def build_pdf(force: bool = False) -> bool:
     return not stats.has_failures
 
 
-def copy_assets() -> bool:
+def copy_assets(force: bool = False) -> bool:
     """
     复制静态资源到输出目录。
+    支持增量复制：只复制新增或修改过的文件。
     """
     if not ASSETS_DIR.exists():
         print(f"  ⚠ 静态资源目录 {ASSETS_DIR} 不存在。")
@@ -644,9 +651,28 @@ def copy_assets() -> bool:
     target_dir = SITE_DIR / "assets"
 
     try:
-        if target_dir.exists():
-            shutil.rmtree(target_dir)
-        shutil.copytree(ASSETS_DIR, target_dir)
+        for item in ASSETS_DIR.rglob("*"):
+            # 跳过目录
+            if item.is_dir():
+                continue
+
+            # 计算目标路径
+            target_path = target_dir / item.relative_to(ASSETS_DIR)
+
+            # 增量复制检查
+            if (
+                not force
+                and target_path.exists()
+                and get_file_mtime(item) <= get_file_mtime(target_path)
+            ):
+                continue
+
+            # 创建目标目录
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # 复制文件
+            shutil.copy2(item, target_path)
+
         return True
     except OSError as e:
         print(f"  ❌ 复制静态资源失败: {e}")
@@ -731,24 +757,75 @@ def clean() -> bool:
         return False
 
 
-def preview(port: int = 8000, open_browser_flag: bool = True) -> bool:
+class RebuildOnRequestHandler(http.server.SimpleHTTPRequestHandler):
+    """
+    预览服务器的请求处理器：每次请求 HTML 时先执行增量构建，再返回文件。
+    CSS、JS、图片、PDF 等资源请求直接返回，避免一次刷新触发多次构建。
+    """
+
+    rebuild = True
+    _build_lock = threading.Lock()  # 防止多线程同时触发构建
+
+    def do_GET(self):
+        path = urlsplit(self.path).path
+        # 只处理 HTML 请求
+        if self.rebuild and (path.endswith("/") or path.endswith(".html")):
+            self._rebuild()
+        super().do_GET()
+
+    def _rebuild(self) -> None:
+        with self._build_lock:
+            output = io.StringIO()  # 捕获构建日志输出
+            try:
+                with contextlib.redirect_stdout(output):
+                    ok = build(force=False)
+
+            # 构建出错时仍返回旧页面，服务器不退出
+            except Exception as e:
+                print(output.getvalue(), end="")
+                print(f"❌ 增量构建失败: {e}")
+                return
+
+            if ok:
+                print(f"✅ 增量构建完成 ({time.strftime('%H:%M:%S')})", flush=True)
+            else:
+                print(output.getvalue(), end="", flush=True)
+
+    def end_headers(self):
+        # 禁止浏览器缓存，确保刷新时获取最新文件
+        self.send_header("Cache-Control", "no-store")
+        super().end_headers()
+
+    def log_message(self, format, *args):
+        # 仅输出错误请求（如 404），省略其余访问日志
+        if len(args) >= 2 and str(args[1]).startswith(("4", "5")):
+            super().log_message(format, *args)
+
+
+def preview(port: int = 8000, open_browser_flag: bool = True, rebuild: bool = True) -> bool:
     """
     启动本地预览服务器。
 
-    首先尝试使用 uvx livereload（支持实时刷新），
-    如果失败则回退到 Python 内置的 http.server。
+    每次在浏览器中打开或刷新网页时默认先执行增量构建。
 
     参数:
         port: 服务器端口号，默认为 8000
         open_browser_flag: 是否自动打开浏览器，默认为 True
+        rebuild: 是否在刷新网页时自动增量构建，默认为 True
     """
     import webbrowser
 
-    if not SITE_DIR.exists():
+    if not rebuild and not SITE_DIR.exists():
         print(f"  ⚠ 输出目录 {SITE_DIR} 不存在，请先运行 build 命令。")
         return False
 
+    build(force=False)
+    print()
+
     print("正在启动本地预览服务器（按 Ctrl+C 停止）...")
+    print(f"  🌐 地址: http://localhost:{port}")
+    if rebuild:
+        print("  🔄 修改源文件后刷新网页即可自动重新构建")
     print()
 
     if open_browser_flag:
@@ -762,34 +839,13 @@ def preview(port: int = 8000, open_browser_flag: bool = True) -> bool:
         # 在后台线程中打开浏览器
         threading.Thread(target=open_browser, daemon=True).start()
 
-    # 首先尝试 uvx livereload
-    try:
-        result = subprocess.run(
-            ["uvx", "livereload", str(SITE_DIR), "-p", str(port)],
-            check=False,
-        )
-        return result.returncode == 0
-    except FileNotFoundError:
-        print("  未找到 uv，尝试 Python http.server...")
-    except KeyboardInterrupt:
-        print("\n服务器已停止。")
-        return True
+    RebuildOnRequestHandler.rebuild = rebuild
+    handler = functools.partial(RebuildOnRequestHandler, directory=SITE_DIR)
 
-    # 回退到 Python http.server
     try:
-        print("使用 Python 内置 http.server...")
-        result = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "http.server",
-                str(port),
-                "--directory",
-                str(SITE_DIR),
-            ],
-            check=False,
-        )
-        return result.returncode == 0
+        with http.server.ThreadingHTTPServer(("127.0.0.1", port), handler) as server:
+            server.serve_forever()
+        return True
     except KeyboardInterrupt:
         print("\n服务器已停止。")
         return True
@@ -1477,7 +1533,7 @@ def create_parser() -> argparse.ArgumentParser:
     uv run build.py build --force
     或 python build.py build -f
 
-使用 preview 命令启动本地预览服务器：
+使用 preview 命令启动本地预览服务器（修改源文件后刷新网页即可自动重新构建）：
     uv run build.py preview
     或 python build.py preview -p 3000  # 使用自定义端口
 
@@ -1508,7 +1564,13 @@ def create_parser() -> argparse.ArgumentParser:
     preview_parser.add_argument(
         "--no-open", action="store_false", dest="open_browser", help="不自动打开浏览器"
     )
-    preview_parser.set_defaults(open_browser=True)
+    preview_parser.add_argument(
+        "--no-rebuild",
+        action="store_false",
+        dest="rebuild",
+        help="刷新网页时不自动重新构建（仅提供静态文件）",
+    )
+    preview_parser.set_defaults(open_browser=True, rebuild=True)
 
     return parser
 
@@ -1525,7 +1587,7 @@ if __name__ == "__main__":
     script_dir = Path(__file__).parent.absolute()
     os.chdir(script_dir)
 
-    if args.command in {"build", "html", "pdf"}:
+    if args.command in {"build", "html", "pdf", "preview"}:
         warn_if_typst_version_is_outdated()
 
     # 获取 force 参数
@@ -1545,7 +1607,9 @@ if __name__ == "__main__":
             success = clean()
         case "preview":
             success = preview(
-                getattr(args, "port", 8000), getattr(args, "open_browser", True)
+                getattr(args, "port", 8000),
+                getattr(args, "open_browser", True),
+                getattr(args, "rebuild", True),
             )
         case _:
             print(f"❌ 未知命令: {args.command}")
