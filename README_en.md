@@ -150,7 +150,7 @@ To remove old output and rebuild everything, run `uv run build.py build --force`
 
 > The HTTP server will occupy the current terminal window, so it's recommended to open a new terminal window in that path to run the preview command.
 >
-> 💡 **Quick workflow tip**: Build the website first, then run `uv run build.py preview` in one terminal and `uv run build.py build` in another terminal to compile your changes. `preview` only serves generated files; it does not watch or automatically compile `.typ` source files. With livereload, the page refreshes automatically when build output changes; with Python's built-in HTTP server, refresh the page manually. Neither requires restarting the server.
+> 💡 **Quick workflow tip**: Run `uv run build.py preview`, edit and save your files, then refresh your browser to see the changes.
 
 You can run the following command to start a local preview server:
 
@@ -164,7 +164,16 @@ python build.py preview
 <details>
 <summary>Preview Command Explanation</summary>
 
-`preview` first tries to run `uvx livereload _site -p 8000`. This command uses uv to run a tool called livereload, which uses the `_site/` directory as the website root and starts an HTTP live server on local port 8000. If the `uvx` command is not found, it falls back to the built-in HTTP server using the current Python interpreter, equivalent to: `python -m http.server 8000 --directory _site`.
+`preview` first runs an incremental build before starting the server. Each time an HTML page is opened or refreshed in the browser, the server runs an incremental build. To turn off rebuilding on refresh (the startup build still runs), use the following command instead:
+
+```bash
+uv run build.py preview --no-rebuild
+
+# Or run directly with Python
+python build.py preview --no-rebuild
+```
+
+With `--no-rebuild`, you have to manually `build` the website and refresh the browser to see the changes.
 
 The preview server uses port `8000` by default, but you can specify a different port using the `-p/--port` parameter, for example:
 

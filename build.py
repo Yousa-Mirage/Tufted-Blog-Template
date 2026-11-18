@@ -806,7 +806,7 @@ def preview(port: int = 8000, open_browser_flag: bool = True, rebuild: bool = Tr
     """
     启动本地预览服务器。
 
-    每次在浏览器中打开或刷新网页时默认先执行增量构建。
+    启动时先执行一次增量构建；默认情况下，之后每次在浏览器中打开或刷新网页时也会先执行增量构建。
 
     参数:
         port: 服务器端口号，默认为 8000
@@ -815,10 +815,7 @@ def preview(port: int = 8000, open_browser_flag: bool = True, rebuild: bool = Tr
     """
     import webbrowser
 
-    if not rebuild and not SITE_DIR.exists():
-        print(f"  ⚠ 输出目录 {SITE_DIR} 不存在，请先运行 build 命令。")
-        return False
-
+    # 启动时总是执行一次增量构建（无论是否启用 rebuild）
     build(force=False)
     print()
 
@@ -1568,7 +1565,7 @@ def create_parser() -> argparse.ArgumentParser:
         "--no-rebuild",
         action="store_false",
         dest="rebuild",
-        help="刷新网页时不自动重新构建（仅提供静态文件）",
+        help="刷新网页时不自动重新构建（启动时仍会构建一次）",
     )
     preview_parser.set_defaults(open_browser=True, rebuild=True)
 

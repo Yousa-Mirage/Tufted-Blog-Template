@@ -150,7 +150,7 @@ python build.py build
 
 > HTTP 服务器会占用当前终端窗口，因此推荐在该路径下打开一个新的终端窗口运行预览命令。
 >
-> 💡 **快速工作流提示**：先构建网站，再在一个终端运行 `uv run build.py preview`，然后在另一个终端运行 `uv run build.py build` 来编译修改。`preview` 只提供已生成文件的预览，不会监听或自动编译 `.typ` 源文件。使用 livereload 时，构建产物更新后网页会自动刷新；使用 Python 内置 HTTP 服务器时，需要手动刷新网页，无需重启服务器。
+> 💡 **快速工作流提示**：运行 `uv run build.py preview`，修改并保存源文件，然后在浏览器中刷新网页即可看到效果。
 
 你可以运行以下命令启动本地预览服务器：
 
@@ -164,7 +164,16 @@ python build.py preview
 <details>
 <summary>预览命令说明</summary>
 
-`preview` 会首先尝试运行 `uvx livereload _site -p 8000`，这个命令使用 uv 运行了一个叫做 livereload 的工具，livereload 将 `_site/` 目录作为网站根目录，并在本地的 8000 端口启动 HTTP 实时服务器。如果找不到 `uvx` 命令，则会回退到使用当前 Python 解释器运行内置的 HTTP 服务器，等价于：`python -m http.server 8000 --directory _site`。
+`preview` 会先执行一次增量构建，然后启动预览服务器。之后每次在浏览器中打开或刷新页面时，服务器会自动执行增量构建。如果希望刷新页面时不自动构建（启动时仍会构建一次），可使用以下命令：
+
+```bash
+uv run build.py preview --no-rebuild
+
+# 或者直接使用 Python 运行
+python build.py preview --no-rebuild
+```
+
+在使用 `--no-rebuild` 选项的情况下，需要手动执行 `build` 命令并刷新页面才可以看到最新结果。
 
 预览服务器默认使用 `8000` 端口，你可以使用 `-p/--port` 参数指定其他端口，例如：
 
