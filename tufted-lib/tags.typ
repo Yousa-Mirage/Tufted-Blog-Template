@@ -126,8 +126,9 @@
     let path = sys.inputs.at("tag-scopes", default: none)
     let scopes = if path == none { () } else { json(path) }
     let indexes = scopes.filter(scope => page.starts-with(scope)).sorted(key: scope => scope.len())
-    html.div(class: "article-tags", {
-      for tag in tags {
+    html.p(class: "article-tags", {
+      for (i, tag) in tags.enumerate() {
+        if i > 0 { html.span(class: "article-byline-separator", " · ") }
         if indexes.len() == 0 {
           html.span(class: "tag-link", tag.name)
         } else {

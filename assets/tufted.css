@@ -289,9 +289,17 @@ h5 {
 	line-height: inherit;
 }
 
-.article-extra-info {
+.article-byline p + p {
 	margin-top: 0.2rem;
-	font-size: 0.85em;
+}
+
+.article-extra-info,
+.article-tags {
+	font-size: 0.9em;
+}
+
+.article-tags {
+	overflow-wrap: anywhere;
 }
 
 /* English/numeric text in headings */
@@ -1093,26 +1101,17 @@ section:has(> .tag-sidebar) {
 	margin: 0;
 }
 
-.tag-sidebar .tag-link,
-.article-tags .tag-link {
+.tag-sidebar .tag-link {
 	display: flex;
 	align-items: baseline;
 	border-radius: var(--radius-sm);
 	text-decoration: none;
 	box-shadow: none;
 	transition: background-color 120ms ease;
-}
-
-.tag-sidebar .tag-link {
 	gap: 0.25em;
 	width: fit-content;
 	max-width: 100%;
 	padding: 0.15em 0;
-}
-
-.article-tags .tag-link {
-	padding: 0.3em 0.65em;
-	border: 1px solid var(--theme-table-border);
 }
 
 .tag-link > span:first-child {
@@ -1127,7 +1126,6 @@ section:has(> .tag-sidebar) {
 	flex-shrink: 0;
 }
 
-.article-tags a.tag-link:hover,
 .tag-sidebar .tag-link:hover,
 .tag-sidebar .tag-link[aria-current="page"] {
 	background: var(--highlight-weak);
@@ -1168,14 +1166,6 @@ section:has(> .tag-sidebar) {
 		align-items: center;
 		box-sizing: border-box;
 	}
-}
-
-.article-tags {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.4rem;
-	margin-top: 0.6rem;
-	font-size: 0.85em;
 }
 
 /* Keep headings beside the tag sidebar within the text column. */
