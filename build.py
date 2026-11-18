@@ -617,19 +617,20 @@ def build_tags(sources: list[Path], force: bool = False) -> bool:
     cache = TAG_CACHE_DIR
     cache.mkdir(parents=True, exist_ok=True)
     manifest_path = cache / "pages.json"
+    plans_path = cache / "plans.json"
 
     def save_data(path: Path, data: object) -> Path:
-        text = json.dumps(data, ensure_ascii=False, sort_keys=True)
-        if not path.exists() or path.read_text(encoding="utf-8") != text:
+        encoded = json.dumps(data, ensure_ascii=False, sort_keys=True).encode("utf-8")
+        if not path.exists() or path.read_bytes() != encoded:
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(text, encoding="utf-8")
+            path.write_bytes(encoded)
         return path
 
     try:
         previous = (
-            json.loads(manifest_path.read_text(encoding="utf-8"))
+            set(json.loads(manifest_path.read_text(encoding="utf-8")))
             if manifest_path.exists()
-            else []
+            else set()
         )
         posts = []
         articles = []
@@ -667,9 +668,8 @@ def build_tags(sources: list[Path], force: bool = False) -> bool:
         scopes = sorted(scope for _, _, scope, _ in indexes)
         if len(scopes) != len(set(scopes)):
             raise ValueError("Each tag-index directory must have only one index page")
-        catalogue = save_data(
-            cache / "articles.json", sorted(posts, key=lambda post: post["path"])
-        )
+        posts.sort(key=lambda post: post["path"])
+        catalogue = save_data(cache / "articles.json", posts)
         scope_file = save_data(cache / "scopes.json", scopes)
         dependencies = [
             *find_common_dependencies(),
@@ -731,36 +731,83 @@ def build_tags(sources: list[Path], force: bool = False) -> bool:
         # Forced article compilation already happened in build_html.
         for source, output in articles:
             schedule(source, output, [scope_file])
-        planned = []
+        cached_plans = {}
+        if indexes and not force:
+            try:
+                stored = json.loads(plans_path.read_text(encoding="utf-8"))
+                if isinstance(stored, dict):
+                    cached_plans = stored
+            except (FileNotFoundError, ValueError):
+                # Plans can be regenerated independently of archive ownership.
+                pass
+
+        planner = Path("tufted-lib/tags.typ")
+        planner_inputs = []
+        if indexes:
+            planner_files = [
+                Path(__file__),
+                planner,
+                *sorted(get_all_dependencies(planner)),
+            ]
+            planner_inputs = [
+                (str(path), sha256(path.read_bytes()).hexdigest())
+                for path in planner_files
+            ]
+        compiler = shutil.which("typst") if indexes else None
+        compiler_state = (
+            (compiler, get_file_mtime(Path(compiler))) if compiler else None
+        )
+
+        plans = {}
+        planned = set()
         for source, output, scope, index_url in indexes:
-            result = subprocess.run(
-                [
-                    "typst",
-                    "query",
-                    *base,
-                    "--input",
-                    "tag-query-scope=" + scope,
-                    "tufted-lib/tags.typ",
-                    "<tag-plan>",
-                    "--field",
-                    "value",
-                    "--one",
-                ],
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                check=False,
-            )
-            if result.returncode:
-                raise ValueError(result.stderr.strip())
-            groups = json.loads(result.stdout)
+            scoped_posts = [post for post in posts if post["path"].startswith(scope)]
+            key = sha256(
+                json.dumps(
+                    (scope, scoped_posts, planner_inputs, compiler_state),
+                    sort_keys=True,
+                ).encode("utf-8")
+            ).hexdigest()
+            plan = cached_plans.get(scope)
+            if (
+                isinstance(plan, dict)
+                and plan.get("key") == key
+                and isinstance(plan.get("groups"), list)
+            ):
+                groups = plan["groups"]
+            else:
+                result = subprocess.run(
+                    [
+                        "typst",
+                        "query",
+                        *base,
+                        "--input",
+                        "tag-query-scope=" + scope,
+                        str(planner),
+                        "<tag-plan>",
+                        "--field",
+                        "value",
+                        "--one",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    check=False,
+                )
+                if result.returncode:
+                    raise ValueError(result.stderr.strip())
+                groups = json.loads(result.stdout)
+            plans[scope] = {"key": key, "groups": groups}
             navigation = [
                 (group["name"], group["url"], len(group["posts"])) for group in groups
             ]
             schedule(source, output, [page_data(output, navigation), scope_file])
             for group in groups:
+                tag_id = group["id"]
+                if not re.fullmatch(r"[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*", tag_id):
+                    raise ValueError(f"Invalid tag archive ID: {tag_id}")
                 destination = (
-                    SITE_DIR / scope.strip("/") / "tags" / group["id"] / "index.html"
+                    SITE_DIR / scope.strip("/") / "tags" / tag_id / "index.html"
                 )
                 if destination in source_outputs or (
                     destination.exists() and destination.as_posix() not in previous
@@ -768,7 +815,7 @@ def build_tags(sources: list[Path], force: bool = False) -> bool:
                     raise ValueError(
                         f"Tag archive would overwrite an existing page: {destination}"
                     )
-                planned.append(destination.as_posix())
+                planned.add(destination.as_posix())
                 # Every archive displays its own posts and the shared tag counts.
                 state = page_data(destination, (group, navigation))
                 schedule(
@@ -776,27 +823,36 @@ def build_tags(sources: list[Path], force: bool = False) -> bool:
                     destination,
                     [state],
                     (
-                        "active-tag=" + group["id"],
+                        "active-tag=" + tag_id,
                         "tag-scope=" + scope,
                         "tag-index-url=" + quote(index_url, safe="/"),
                     ),
                     force_page=force,
                 )
-        # Preserve ownership across partial failures; publish the final list only on success.
-        save_data(manifest_path, sorted(set(previous + planned)))
-        with ThreadPoolExecutor(max_workers=min(8, os.cpu_count() or 1)) as executor:
-            results = list(executor.map(run_typst_command, jobs))
-        if not all(results):
-            return False
-        for old in previous:
+        if plans or plans_path.exists():
+            save_data(plans_path, plans)
+        if jobs:
+            # Preserve ownership across partial failures.
+            save_data(manifest_path, sorted(previous | planned))
+            with ThreadPoolExecutor(
+                max_workers=min(8, os.cpu_count() or 1)
+            ) as executor:
+                results = list(executor.map(run_typst_command, jobs))
+            if not all(results):
+                return False
+        removed = 0
+        for old in sorted(previous - planned):
             path = Path(old)
             if (
-                old not in planned
-                and path not in source_outputs
+                path not in source_outputs
                 and path.is_relative_to(SITE_DIR)
                 and ".." not in path.parts
             ):
-                path.unlink(missing_ok=True)
+                try:
+                    path.unlink()
+                    removed += 1
+                except FileNotFoundError:
+                    pass
                 # Remove only empty parents, stopping before the site's root.
                 parent = path.parent
                 while (
@@ -804,10 +860,11 @@ def build_tags(sources: list[Path], force: bool = False) -> bool:
                 ):
                     parent.rmdir()
                     parent = parent.parent
-        save_data(manifest_path, planned)
-        if indexes or previous:
+        save_data(manifest_path, sorted(planned))
+        if jobs or removed:
             print(
-                f"✅ 标签聚合完成: {len(indexes)} 个索引，{len(planned)} 个标签页，编译: {len(jobs)}"
+                f"✅ 标签聚合完成: {len(indexes)} 个索引，{len(planned)} 个标签页，"
+                f"编译: {len(jobs)}，清理: {removed}"
             )
         return True
     except (OSError, ValueError, UnicodeError) as error:
