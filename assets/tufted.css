@@ -1178,9 +1178,8 @@ section:has(> .tag-sidebar) {
 	font-size: 0.85em;
 }
 
-/* Long archive names and article titles must wrap inside the text column. */
-.tag-sidebar ~ h1,
-.tag-sidebar ~ h2 {
+/* Keep headings beside the tag sidebar within the text column. */
+.tag-sidebar ~ :is(h1, h2, h3, h4, h5, h6) {
 	width: 55%;
 	overflow-wrap: anywhere;
 }
@@ -1191,8 +1190,7 @@ section:has(> .tag-sidebar) {
 }
 
 @media (max-width: 760px) {
-	.tag-sidebar ~ h1,
-	.tag-sidebar ~ h2 {
+	.tag-sidebar ~ :is(h1, h2, h3, h4, h5, h6) {
 		width: 100%;
 	}
 }
