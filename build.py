@@ -35,9 +35,11 @@ Tufted Blog Template 构建脚本
 """
 
 import argparse
+import logging
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import threading
@@ -770,7 +772,7 @@ def preview(port: int = 8000, open_browser_flag: bool = True) -> bool:
             ["uvx", "livereload", str(SITE_DIR), "-p", str(port)],
             check=False,
         )
-        if result.returncode == 0:
+        if result.returncode in (0, -signal.SIGINT, 128 + signal.SIGINT):
             return True
         print("  livereload 已退出，尝试 Python http.server...")
     except FileNotFoundError:
@@ -1501,13 +1503,13 @@ def watch(port: int = 8000, open_browser_flag: bool = True) -> bool:
                 get_file_output_path(source, kind).unlink(missing_ok=True)
             sources = current
             build()
-        except OSError as error:
-            print(f"❌ 自动构建失败: {error}")
+        except Exception:
+            logging.getLogger(__name__).exception("❌ 自动构建失败")
 
     def watch_changes() -> None:
         nonlocal snapshot
         pending = False
-        while not stop.wait(0.5):
+        while not stop.wait(0.25):
             try:
                 current = watch_snapshot()
             except OSError as error:
