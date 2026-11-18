@@ -70,6 +70,30 @@
   }
 }
 
+/// Validate page tags and replace the page content and metadata for an archive build.
+#let prepare-page-tags(tags, tag-index, page, lang: "zh") = {
+  let tags = normalize-tags(tags)
+  if tag-index != none {
+    assert(type(tag-index) == str and tag-index.starts-with("/") and tag-index.ends-with("/"),
+      message: "tag-index must be a site-root directory, e.g. /Blog/")
+    assert(tags.len() == 0, message: "A page cannot set both tag-index and tags")
+  }
+  let groups = if tag-index == none { () } else { tag-groups(tag-catalogue(), tag-index) }
+  let active = sys.inputs.at("active-tag", default: none)
+  if active != none and tag-index != none and tag-index == sys.inputs.at("tag-scope", default: none) {
+    let group = groups.find(group => group.id == active)
+    assert(group != none, message: "Unknown active tag: " + active)
+    page += (
+      content: tag-page(group, sys.inputs.at("tag-index-url"), index-title: page.title, lang: lang),
+      title: group.name,
+      description: "",
+      date: none,
+      extra-info: none,
+    )
+  }
+  (tags: tags, groups: groups, active: active, ..page)
+}
+
 /// Show an article's labels, linking to the most specific configured tag index.
 /// Without catalogue data, labels remain readable plain text.
 #let article-tags(tags) = {
