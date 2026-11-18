@@ -1,50 +1,41 @@
 #import "blog-entry.typ": blog-entry
 
-/// Read the article catalogue supplied by build.py; direct compilation stays usable.
-#let tag-catalogue() = {
-  let path = sys.inputs.at("tags-data", default: none)
-  if path == none { () } else { json(path) }
-}
-
 /// Match case variants and canonically equivalent Unicode spellings.
 #let tag-key(name) = lower(name.normalize()).normalize()
 
-/// Remove empty and duplicate labels, keeping each article's first spelling.
-#let normalize-tags(tags) = tags.map(tag => tag.trim()).filter(tag => tag != "").dedup(key: tag-key)
-
 /// Use short paths for ordinary labels and a separate namespace for encoded paths.
-#let tag-id(name) = {
-  let key = tag-key(name)
+#let tag-id(key) = {
   let raw = bytes(key)
   let safe = (
     raw.len() <= 64
-    and key.match(regex("^[\\p{L}\\p{N}_-]+$")) != none
-    and key.match(regex("^(con|prn|aux|nul|com[1-9¹²³]|lpt[1-9¹²³])$")) == none
-    and key.match(regex("^t-[0-9a-f]+$")) == none
-    // Some lowercase letters, such as final sigma, share an uppercase form.
-    and tag-key(upper(key)) == key
+      and key.match(regex("^[\\p{L}\\p{N}_-]+$")) != none
+      and key.match(regex("^(con|prn|aux|nul|com[1-9¹²³]|lpt[1-9¹²³])$")) == none
+      and key.match(regex("^t-[0-9a-f]+$")) == none
+      // Some lowercase letters, such as final sigma, share an uppercase form.
+      and tag-key(upper(key)) == key
   )
   if safe {
     key
   } else {
     // Split long labels to stay within filesystem component limits.
-    "t-" + array(raw).chunks(48).map(chunk => chunk.map(b => {
-      (if b < 16 { "0" } else { "" }) + str(b, base: 16)
-    }).join()).join("/")
+    (
+      "t-"
+        + array(raw)
+          .chunks(48)
+          .map(chunk => chunk
+            .map(b => {
+              (if b < 16 { "0" } else { "" }) + str(b, base: 16)
+            })
+            .join())
+          .join("/")
+    )
   }
 }
 
-/// Group and sort tags by their keys, using a stable spelling for each archive.
-#let tag-groups(posts, scope) = {
-  let articles = posts.filter(post => post.path.starts-with(scope))
-  let labels = articles.map(post => post.tags).flatten().sorted().dedup(key: tag-key).sorted(key: tag-key)
-  labels.map(name => {
-    let id = tag-id(name)
-    let key = tag-key(name)
-    let entries = articles.filter(post => post.tags.any(tag => tag-key(tag) == key))
-    entries = entries.sorted(key: post => (post.date, post.url)).rev()
-    (name: name, id: id, url: scope + "tags/" + id + "/", posts: entries.map(post => (title: post.title, date: post.date, url: post.url)))
-  })
+/// Share article link identities with the Python aggregator through metadata.
+#let article-tag-records(tags) = {
+  let names = tags.map(tag => tag.trim()).filter(tag => tag != "")
+  names.map(name => (name: name, key: tag-key(name))).dedup(key: tag => tag.key).map(tag => tag + (id: tag-id(tag.key)))
 }
 
 /// Render a semantic tag navigation, shared by the blog and tag archive pages.
@@ -56,14 +47,18 @@
         html.p(class: "tag-sidebar-title", title)
         html.ul({
           for group in groups {
-            html.li(html.elem("a", attrs: (
-              href: group.url,
-              class: "tag-link",
-              ..if group.id == active { (aria-current: "page") } else { (:) },
-            ), {
-              html.span(group.name)
-              html.span(class: "tag-count", " (" + str(group.posts.len()) + ")")
-            }))
+            html.li(html.elem(
+              "a",
+              attrs: (
+                href: group.url,
+                class: "tag-link",
+                ..if group.id == active { (aria-current: "page") } else { (:) },
+              ),
+              {
+                html.span(group.name)
+                html.span(class: "tag-count", " (" + str(group.count) + ")")
+              },
+            ))
           }
         })
       })
@@ -73,11 +68,15 @@
 
 /// Render a tag archive using the same entry layout as manually written blog lists.
 #let tag-page(group, index-url, index-title: "", lang: "zh") = {
-  html.p(class: "tag-back", html.a(href: index-url,
-    if lang.starts-with("zh") { "← 返回" + if index-title == "" { "列表" } else { index-title } }
-    else { "← Back to " + if index-title == "" { "index" } else { index-title } }))
+  html.p(class: "tag-back", html.a(href: index-url, if lang.starts-with("zh") {
+    "← 返回" + if index-title == "" { "列表" } else { index-title }
+  } else { "← Back to " + if index-title == "" { "index" } else { index-title } }))
   heading(level: 1, group.name)
-  html.p(class: "tag-summary", str(group.posts.len()) + if lang.starts-with("zh") { " 篇文章" } else if group.posts.len() == 1 { " article" } else { " articles" })
+  html.p(
+    class: "tag-summary",
+    str(group.posts.len())
+      + if lang.starts-with("zh") { " 篇文章" } else if group.posts.len() == 1 { " article" } else { " articles" },
+  )
   for post in group.posts {
     blog-entry(date: post.date, path: post.url, title: post.title)
   }
@@ -85,24 +84,36 @@
 
 /// Validate page tags and replace the page content and metadata for an archive build.
 #let prepare-page-tags(tags, tag-index, page, lang: "zh") = {
-  let tags = normalize-tags(tags)
+  let tags = article-tag-records(tags)
   if tag-index != none {
-    assert(type(tag-index) == str and tag-index.starts-with("/") and tag-index.ends-with("/"),
-      message: "tag-index must be a site-root directory, e.g. /Blog/")
+    assert(
+      type(tag-index) == str and tag-index.starts-with("/") and tag-index.ends-with("/"),
+      message: "tag-index must be a site-root directory, e.g. /Blog/",
+    )
     assert(tags.len() == 0, message: "A page cannot set both tag-index and tags")
   }
-  let groups = if tag-index == none { () } else { tag-groups(tag-catalogue(), tag-index) }
-  let active = sys.inputs.at("active-tag", default: none)
-  if active != none and tag-index != none and tag-index == sys.inputs.at("tag-scope", default: none) {
-    let group = groups.find(group => group.id == active)
-    assert(group != none, message: "Unknown active tag: " + active)
-    page += (
-      content: tag-page(group, sys.inputs.at("tag-index-url"), index-title: page.title, lang: lang),
-      title: group.name,
-      description: "",
-      date: none,
-      extra-info: none,
-    )
+  let groups = ()
+  let active = none
+  let nav-path = sys.inputs.at("tag-navigation", default: none)
+  if tag-index != none and nav-path != none {
+    let navigation = json(nav-path)
+    if navigation.scope == tag-index {
+      groups = navigation.items
+      let archive-path = sys.inputs.at("tag-archive", default: none)
+      if archive-path != none {
+        let archive = json(archive-path)
+        assert(archive.scope == tag-index, message: "Tag archive scope does not match the index")
+        let group = archive.group
+        active = group.id
+        page += (
+          content: tag-page(group, archive.at("index-url"), index-title: page.title, lang: lang),
+          title: group.name,
+          description: "",
+          date: none,
+          extra-info: none,
+        )
+      }
+    }
   }
   (tags: tags, groups: groups, active: active, ..page)
 }
@@ -116,18 +127,13 @@
     let scopes = if path == none { () } else { json(path) }
     let indexes = scopes.filter(scope => page.starts-with(scope)).sorted(key: scope => scope.len())
     html.div(class: "article-tags", {
-      for name in tags {
+      for tag in tags {
         if indexes.len() == 0 {
-          html.span(class: "tag-link", name)
+          html.span(class: "tag-link", tag.name)
         } else {
-          html.a(class: "tag-link", href: indexes.last() + "tags/" + tag-id(name) + "/", name)
+          html.a(class: "tag-link", href: indexes.last() + "tags/" + tag.id + "/", tag.name)
         }
       }
     })
   }
-}
-
-// Standalone query entry; importing this module does not render its content.
-#if sys.inputs.at("tag-query-scope", default: none) != none {
-  [#metadata(tag-groups(tag-catalogue(), sys.inputs.at("tag-query-scope"))) <tag-plan>]
 }

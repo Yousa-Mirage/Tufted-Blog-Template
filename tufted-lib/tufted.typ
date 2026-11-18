@@ -83,9 +83,6 @@
   show: template-figures
   show: template-quotes
   show: template-links
-  show: template-byline.with(author: author, date: date, extra-info: extra-info, tags-content: if tags.len() > 0 {
-    article-tags(tags)
-  } else { [] })
   show line: it => if target() == "html" { html.hr() } else { it }
 
   // HTML accepts BCP 47 tags; Typst text expects the base language code.
@@ -104,6 +101,9 @@
     (title: title, description: description, date: date, extra-info: extra-info, content: content),
     lang: lang,
   )
+  show: template-byline.with(author: author, date: date, extra-info: extra-info, tags-content: if tags.len() > 0 {
+    article-tags(tags)
+  } else { [] })
 
   html.html(
     lang: lang,
