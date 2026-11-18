@@ -19,6 +19,7 @@ Tufted Blog Template 构建脚本
     uv run build.py clean       # 清理生成的文件
     uv run build.py preview     # 启动本地预览服务器（默认端口 8000）
     uv run build.py preview -p 3000  # 使用自定义端口
+    uv run build.py watch       # 启动预览，并在文件变化时自动构建
     uv run build.py --help      # 显示帮助信息
 
 增量编译选项:
@@ -46,6 +47,7 @@ from datetime import datetime, timezone
 from html import escape
 from html.parser import HTMLParser
 from pathlib import Path
+from stat import S_ISREG
 from typing import Literal
 from urllib.parse import urljoin, urlsplit
 
@@ -768,7 +770,9 @@ def preview(port: int = 8000, open_browser_flag: bool = True) -> bool:
             ["uvx", "livereload", str(SITE_DIR), "-p", str(port)],
             check=False,
         )
-        return result.returncode == 0
+        if result.returncode == 0:
+            return True
+        print("  livereload 已退出，尝试 Python http.server...")
     except FileNotFoundError:
         print("  未找到 uv，尝试 Python http.server...")
     except KeyboardInterrupt:
@@ -1460,8 +1464,71 @@ def build(force: bool = False) -> bool:
 
 
 # ============================================================================
-# 命令行接口
+# 监听与命令行接口
 # ============================================================================
+
+
+def watch_snapshot() -> dict[Path, tuple[int, int]]:
+    """Record the mtime and size of site inputs without scanning build outputs."""
+    files = [CONFIG_FILE]
+    for directory in (CONTENT_DIR, ASSETS_DIR, Path("tufted-lib")):
+        files.extend(directory.rglob("*"))
+
+    snapshot = {}
+    for path in files:
+        try:
+            info = path.stat()
+        except FileNotFoundError:
+            # An editor may replace a file between listing and statting it.
+            continue
+        if S_ISREG(info.st_mode):
+            snapshot[path] = (info.st_mtime_ns, info.st_size)
+    return snapshot
+
+
+def watch(port: int = 8000, open_browser_flag: bool = True) -> bool:
+    """Build once, then rebuild on input changes while preview is running."""
+    stop = threading.Event()
+    snapshot = watch_snapshot()
+    sources = set(find_typ_files())
+
+    def rebuild() -> None:
+        nonlocal sources
+        try:
+            current = set(find_typ_files())
+            for source in sources - current:
+                kind = "pdf" if "pdf" in source.stem.lower() else "html"
+                get_file_output_path(source, kind).unlink(missing_ok=True)
+            sources = current
+            build()
+        except OSError as error:
+            print(f"❌ 自动构建失败: {error}")
+
+    def watch_changes() -> None:
+        nonlocal snapshot
+        pending = False
+        while not stop.wait(0.5):
+            try:
+                current = watch_snapshot()
+            except OSError as error:
+                print(f"⚠ 无法扫描构建输入: {error}")
+                continue
+            if current != snapshot:
+                snapshot = current
+                pending = True
+            elif pending:
+                pending = False
+                rebuild()
+
+    rebuild()
+    print("👀 正在监听 content/、assets/、tufted-lib/ 和 config.typ（按 Ctrl+C 停止）")
+    worker = threading.Thread(target=watch_changes)
+    worker.start()
+    try:
+        return preview(port, open_browser_flag)
+    finally:
+        stop.set()
+        worker.join()
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -1501,14 +1568,20 @@ def create_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("assets", help="仅复制静态资源")
     subparsers.add_parser("clean", help="清理生成的文件")
 
-    preview_parser = subparsers.add_parser("preview", help="启动本地预览服务器")
-    preview_parser.add_argument(
-        "-p", "--port", type=int, default=8000, help="服务器端口号（默认: 8000）"
-    )
-    preview_parser.add_argument(
-        "--no-open", action="store_false", dest="open_browser", help="不自动打开浏览器"
-    )
-    preview_parser.set_defaults(open_browser=True)
+    for command, help_text in (
+        ("preview", "启动本地预览服务器"),
+        ("watch", "启动本地预览服务器并监听源文件变化"),
+    ):
+        serve_parser = subparsers.add_parser(command, help=help_text)
+        serve_parser.add_argument(
+            "-p", "--port", type=int, default=8000, help="服务器端口号（默认: 8000）"
+        )
+        serve_parser.add_argument(
+            "--no-open",
+            action="store_false",
+            dest="open_browser",
+            help="不自动打开浏览器",
+        )
 
     return parser
 
@@ -1525,7 +1598,7 @@ if __name__ == "__main__":
     script_dir = Path(__file__).parent.absolute()
     os.chdir(script_dir)
 
-    if args.command in {"build", "html", "pdf"}:
+    if args.command in {"build", "html", "pdf", "watch"}:
         warn_if_typst_version_is_outdated()
 
     # 获取 force 参数
@@ -1544,9 +1617,9 @@ if __name__ == "__main__":
         case "clean":
             success = clean()
         case "preview":
-            success = preview(
-                getattr(args, "port", 8000), getattr(args, "open_browser", True)
-            )
+            success = preview(args.port, args.open_browser)
+        case "watch":
+            success = watch(args.port, args.open_browser)
         case _:
             print(f"❌ 未知命令: {args.command}")
             success = False

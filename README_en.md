@@ -148,11 +148,20 @@ To remove old output and rebuild everything, run `uv run build.py build --force`
 
 ### 3. Local Preview
 
-> The HTTP server will occupy the current terminal window, so it's recommended to open a new terminal window in that path to run the preview command.
->
-> 💡 **Quick workflow tip**: Build the website first, then run `uv run build.py preview` in one terminal and `uv run build.py build` in another terminal to compile your changes. `preview` only serves generated files; it does not watch or automatically compile `.typ` source files. With livereload, the page refreshes automatically when build output changes; with Python's built-in HTTP server, refresh the page manually. Neither requires restarting the server.
+For daily writing, use the `watch` command to start incremental builds and a live preview server in one step:
 
-You can run the following command to start a local preview server:
+```bash
+uv run build.py watch
+
+# Or run directly with Python
+python build.py watch
+```
+
+Upon startup, the command performs an initial full build and automatically opens `http://localhost:8000` in your browser. Whenever you modify and save files in `content/`, `assets/`, `tufted-lib/`, or `config.typ`, it automatically triggers an incremental build and refreshes the page. Press `Ctrl+C` to stop the server.
+
+The default site (generated from the source files in `content/`) includes detailed documentation and layout examples. Feel free to edit these files directly to test the live preview.
+
+If you only want to view the pre-built site without watching for file changes, run the `preview` command instead:
 
 ```bash
 uv run build.py preview
@@ -162,25 +171,18 @@ python build.py preview
 ```
 
 <details>
-<summary>Preview Command Explanation</summary>
+<summary>Preview Mechanism & CLI Options</summary>
 
-`preview` first tries to run `uvx livereload _site -p 8000`. This command uses uv to run a tool called livereload, which uses the `_site/` directory as the website root and starts an HTTP live server on local port 8000. If the `uvx` command is not found, it falls back to the built-in HTTP server using the current Python interpreter, equivalent to: `python -m http.server 8000 --directory _site`.
-
-The preview server uses port `8000` by default, but you can specify a different port using the `-p/--port` parameter, for example:
-
-```bash
-uv run build.py preview -p 12345
-```
-
-Add `--no-open` to disable automatically opening the browser.
+- **Auto-reload mechanism**: The preview server first attempts to run `uvx livereload _site -p 8000`, serving `_site/` as the web root and automatically refreshing the browser on file changes. If `uvx` is not found in your environment, it falls back to Python's built-in `http.server` (which requires refreshing the browser manually after editing files).
+- **Custom port and browser behavior**: By default, the server listens on port `8000` and opens your browser automatically. Both `watch` and `preview` support `-p/--port` to specify a custom port and `--no-open` to disable opening the browser:
+  ```bash
+  uv run build.py watch -p 12345 --no-open
+  ```
+- **Stale artifact cleanup**: Deleting or renaming page source files while `watch` is running automatically removes their corresponding build outputs. If source files were deleted before starting `watch`, run `uv run build.py build --force` to force a full rebuild and clean up leftover local files.
 
 </details>
 
-The browser should open automatically, or you can manually open a browser and visit `http://localhost:8000` to view the default web page. I've written more documentation and example content in the default web page (i.e., the content in `content/`), which you can explore and modify on your own.
-
-See the [Demo Website](https://tufted-blog.pages.dev/) for an online preview of the default template.
-
-You can refer to the content and resources on the [Wiki page](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/Typst-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E8%B5%84%E6%96%99) to learn about Typst.
+Check out the [Demo Site](https://tufted-blog.pages.dev/) to see the default template in action. If you are new to Typst, visit the project [Wiki](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/Typst-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E8%B5%84%E6%96%99) for quick-start guides and learning resources.
 
 ### 4. Write Web Pages with Typst and Deploy the Website
 

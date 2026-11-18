@@ -148,11 +148,20 @@ python build.py build
 
 ### 3. 本地预览
 
-> HTTP 服务器会占用当前终端窗口，因此推荐在该路径下打开一个新的终端窗口运行预览命令。
->
-> 💡 **快速工作流提示**：先构建网站，再在一个终端运行 `uv run build.py preview`，然后在另一个终端运行 `uv run build.py build` 来编译修改。`preview` 只提供已生成文件的预览，不会监听或自动编译 `.typ` 源文件。使用 livereload 时，构建产物更新后网页会自动刷新；使用 Python 内置 HTTP 服务器时，需要手动刷新网页，无需重启服务器。
+日常写作时，推荐使用 `watch` 命令一键启动增量构建与实时预览：
 
-你可以运行以下命令启动本地预览服务器：
+```bash
+uv run build.py watch
+
+# 或者直接使用 Python 运行
+python build.py watch
+```
+
+命令启动后会先执行一次完整构建，随后自动在浏览器中打开 `http://localhost:8000`。当你修改并保存 `content/`、`assets/`、`tufted-lib/` 或 `config.typ` 中的内容时，会自动触发增量构建并刷新页面。按 `Ctrl+C` 可停止服务。
+
+默认网页（对应 `content/` 目录下的源文件）中包含了详细的文档说明与排版示例，你可以直接修改这些文件来体验实时预览效果。
+
+如果你只想查看已构建好的网站（不监听文件修改），可以单独运行 `preview` 命令：
 
 ```bash
 uv run build.py preview
@@ -162,25 +171,18 @@ python build.py preview
 ```
 
 <details>
-<summary>预览命令说明</summary>
+<summary>预览机制与参数说明</summary>
 
-`preview` 会首先尝试运行 `uvx livereload _site -p 8000`，这个命令使用 uv 运行了一个叫做 livereload 的工具，livereload 将 `_site/` 目录作为网站根目录，并在本地的 8000 端口启动 HTTP 实时服务器。如果找不到 `uvx` 命令，则会回退到使用当前 Python 解释器运行内置的 HTTP 服务器，等价于：`python -m http.server 8000 --directory _site`。
-
-预览服务器默认使用 `8000` 端口，你可以使用 `-p/--port` 参数指定其他端口，例如：
-
-```bash
-uv run build.py preview -p 12345
-```
-
-如需禁用自动打开浏览器，可添加 `--no-open` 参数。
+* **自动刷新机制**：预览服务会优先尝试运行 `uvx livereload _site -p 8000`，将 `_site/` 作为网站根目录并在修改后自动刷新浏览器；若环境中未找到 `uvx`，则会回退至 Python 内置的 `http.server`（此时修改文件后需手动刷新浏览器）。
+* **自定义端口与浏览器行为**：默认使用 `8000` 端口并自动打开浏览器。`watch` 和 `preview` 均支持通过 `-p/--port` 指定端口，或添加 `--no-open` 禁用自动打开浏览器：
+  ```bash
+  uv run build.py watch -p 12345 --no-open
+  ```
+* **旧产物清理**：在 `watch` 监听期间删除或重命名页面源文件，会自动清理对应的旧构建产物。若在启动监听前就已删除了源文件，可运行 `uv run build.py build --force` 强制重新构建并清理本地残留文件。
 
 </details>
 
-浏览器应该会自动打开，或者你可以手动打开浏览器，访问 `http://localhost:8000` 来查看默认网页。我在默认网页（即`content/` 中的内容）中编写了更多文档说明和示例内容，你可以自行探索和修改。
-
-默认模板的在线效果可参考 [示例网站](https://tufted-blog.pages.dev/)。
-
-你可以参考 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/Typst-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E8%B5%84%E6%96%99) 的内容和资料了解和学习 Typst。
+默认模板的在线效果可参考 [示例网站](https://tufted-blog.pages.dev/)。如果你刚开始接触 Typst，可以参考项目 [Wiki 页](https://github.com/Yousa-Mirage/Tufted-Blog-Template/wiki/Typst-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E8%B5%84%E6%96%99) 的资料快速入门。
 
 ### 4. 使用 Typst 编写网页与部署网站
 
