@@ -20,7 +20,7 @@
   /// 浏览器标签页图标地址，必须以 .ico 结尾。必须使用以 / 开头的网站路径。
   favicon: "/assets/favicon.ico",
   /// 网站作者。用于生成 <meta name="author"> 标签。（可选）
-  author: "@Yousa-Mirage",
+  author: "Yousa-Mirage",
   /// 网站描述。用于 SEO 搜索引擎摘要和社交媒体分享预览。（可选）
   description: "Tufted Blog Template, Powered by Typst",
   /// 站点的根 URL (例如 "https://example.com")。用于生成 Canonical URL 元数据。（可选）
