@@ -100,7 +100,7 @@ Enable aggregation on the blog index, such as `content/Blog/index.typ`:
 )
 ```
 
-After building finished, the index displays tags and article counts in its right sidebar, moving above the article list on mobile.
+After the build completes, the index displays tags and article counts in its right sidebar, moving above the article list on mobile.
 
 - `tags` is an array of strings. Labels are trimmed, empty labels are ignored, and case variants are merged.
 - `tag-index` is a site-root directory beginning and ending with `/`. It collects tagged articles beneath that directory.

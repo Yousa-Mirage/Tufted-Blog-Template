@@ -6,6 +6,7 @@
   title: "The Normal Distribution: A Fundamental Concept in Statistics",
   description: "An in-depth look at the normal distribution, its properties, significance, and real-world applications across various fields.",
   date: datetime(year: 2025, month: 10, day: 30),
+  extra-info: [Includes an illustration of the bell curve.],
   lang: "en",
 )
 
