@@ -616,7 +616,9 @@ def build_tags(sources: list[Path], force: bool = False) -> bool:
 
     try:
         previous = (
-            json.loads(manifest_path.read_text()) if manifest_path.exists() else []
+            json.loads(manifest_path.read_text(encoding="utf-8"))
+            if manifest_path.exists()
+            else []
         )
         posts = []
         articles = []

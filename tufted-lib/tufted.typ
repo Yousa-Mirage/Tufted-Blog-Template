@@ -80,6 +80,7 @@
   if tag-index != none {
     assert(type(tag-index) == str and tag-index.starts-with("/") and tag-index.ends-with("/"),
       message: "tag-index must be a site-root directory, e.g. /Blog/")
+    assert(tags.len() == 0, message: "A page cannot set both tag-index and tags")
   }
   let groups = if tag-index == none { () } else { tag-groups(tag-catalogue(), tag-index) }
   let active = sys.inputs.at("active-tag", default: none)
