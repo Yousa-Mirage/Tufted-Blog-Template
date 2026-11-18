@@ -102,7 +102,7 @@ Enable aggregation on the blog index, such as `content/Blog/index.typ`:
 
 Run `uv run build.py build`. The index displays tags and article counts in its right sidebar, moving above the article list on mobile.
 
-- `tags` is an array of strings. Leading/trailing whitespace, empty labels, and duplicates are removed. Labels are case-sensitive.
+- `tags` is an array of strings. Labels are trimmed, empty labels are ignored, and case variants are merged.
 - `tag-index` is a site-root directory beginning and ending with `/`. It collects tagged articles beneath that directory.
 - A page with `tag-index` cannot also have `tags`.
 

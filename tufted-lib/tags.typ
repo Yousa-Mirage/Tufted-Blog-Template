@@ -6,29 +6,42 @@
   if path == none { () } else { json(path) }
 }
 
-/// Normalize labels without merging distinct names such as C++ and C#.
-#let normalize-tags(tags) = tags.map(tag => tag.trim()).filter(tag => tag != "").dedup()
+/// Match case variants and canonically equivalent Unicode spellings.
+#let tag-key(name) = lower(name.normalize()).normalize()
 
-/// Keep ordinary ASCII labels readable; the hex suffix preserves case-sensitive identity.
-/// Split long hex IDs to stay within filesystem component limits.
+/// Remove empty and duplicate labels, keeping each article's first spelling.
+#let normalize-tags(tags) = tags.map(tag => tag.trim()).filter(tag => tag != "").dedup(key: tag-key)
+
+/// Use short paths for ordinary labels and a separate namespace for encoded paths.
 #let tag-id(name) = {
-  let encoded = array(bytes(name)).chunks(48).map(chunk => chunk.map(b => {
-    (if b < 16 { "0" } else { "" }) + str(b, base: 16)
-  }).join()).join("/")
-  let prefix = if name.len() <= 48 and name.match(regex("^[A-Za-z0-9_-]+$")) != none {
-    "tag-" + name + "-"
-  } else { "t-" }
-  prefix + encoded
+  let key = tag-key(name)
+  let raw = bytes(key)
+  let safe = (
+    raw.len() <= 64
+    and key.match(regex("^[\\p{L}\\p{N}_-]+$")) != none
+    and key.match(regex("^(con|prn|aux|nul|com[1-9¹²³]|lpt[1-9¹²³])$")) == none
+    and key.match(regex("^t-[0-9a-f]+$")) == none
+    // Some lowercase letters, such as final sigma, share an uppercase form.
+    and tag-key(upper(key)) == key
+  )
+  if safe {
+    key
+  } else {
+    // Split long labels to stay within filesystem component limits.
+    "t-" + array(raw).chunks(48).map(chunk => chunk.map(b => {
+      (if b < 16 { "0" } else { "" }) + str(b, base: 16)
+    }).join()).join("/")
+  }
 }
 
-/// Group and sort a catalogue within a site-root directory.
-/// Stable UTF-8 hex IDs keep arbitrary labels safe and collision-free in URLs.
+/// Group and sort tags by their keys, using a stable spelling for each archive.
 #let tag-groups(posts, scope) = {
   let articles = posts.filter(post => post.path.starts-with(scope))
-  let labels = articles.map(post => post.tags).flatten().dedup().sorted()
+  let labels = articles.map(post => post.tags).flatten().sorted().dedup(key: tag-key).sorted(key: tag-key)
   labels.map(name => {
     let id = tag-id(name)
-    let entries = articles.filter(post => name in post.tags)
+    let key = tag-key(name)
+    let entries = articles.filter(post => post.tags.any(tag => tag-key(tag) == key))
     entries = entries.sorted(key: post => (post.date, post.url)).rev()
     (name: name, id: id, url: scope + "tags/" + id + "/", posts: entries.map(post => (title: post.title, date: post.date, url: post.url)))
   })

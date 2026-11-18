@@ -804,7 +804,7 @@ def build_tags(sources: list[Path], force: bool = False) -> bool:
             schedule(source, output, [page_data(output, navigation), scope_file])
             for group in groups:
                 tag_id = group["id"]
-                if not re.fullmatch(r"[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*", tag_id):
+                if not re.fullmatch(r"[\w-]+(?:/[\w-]+)*", tag_id):
                     raise ValueError(f"Invalid tag archive ID: {tag_id}")
                 destination = (
                     SITE_DIR / scope.strip("/") / "tags" / tag_id / "index.html"
