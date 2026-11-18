@@ -98,10 +98,10 @@
 /// Without catalogue data, labels remain readable plain text.
 #let article-tags(tags) = {
   if tags.len() > 0 {
-    let page = "/" + sys.inputs.at("page-path", default: "")
+    let page = sys.inputs.at("tag-page-path", default: "")
     let path = sys.inputs.at("tag-scopes", default: none)
     let scopes = if path == none { () } else { json(path) }
-    let indexes = scopes.filter(scope => (page + "/").starts-with(scope)).sorted(key: scope => scope.len())
+    let indexes = scopes.filter(scope => page.starts-with(scope)).sorted(key: scope => scope.len())
     html.div(class: "article-tags", {
       for name in tags {
         if indexes.len() == 0 {

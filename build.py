@@ -64,6 +64,7 @@ CONTENT_DIR = Path("content")  # 源文件目录
 SITE_DIR = Path("_site")  # 输出目录
 ASSETS_DIR = Path("assets")  # 静态资源目录
 CONFIG_FILE = Path("config.typ")  # 全局配置文件
+TAG_CACHE_DIR = Path("target/tufted-tags")
 MATHML_MIN_TYPST_VERSION = (0, 15, 0)
 
 
@@ -443,6 +444,14 @@ def get_file_output_path(typ_file: Path, type: Literal["pdf", "html"]) -> Path:
     return SITE_DIR / relative_path.with_suffix(f".{type}")
 
 
+def get_html_route(output: Path) -> str:
+    """Return the unescaped site path, keeping .html on standalone pages."""
+    relative = output.relative_to(SITE_DIR).as_posix()
+    return "/" + (
+        relative.removesuffix("index.html") if output.name == "index.html" else relative
+    )
+
+
 def run_typst_command(args: list[str]) -> bool:
     """
     运行 typst 命令。
@@ -579,11 +588,13 @@ def build_html(force: bool = False) -> bool:
             "html",
             "--input",
             f"page-path={page_path}",
+            "--input",
+            "tag-page-path=" + get_html_route(output_path),
             *[
                 arg
                 for key, name in (("tags-data", "articles"), ("tag-scopes", "scopes"))
-                if Path(f"target/tufted-tags/{name}.json").exists()
-                for arg in ("--input", f"{key}=/target/tufted-tags/{name}.json")
+                if (path := TAG_CACHE_DIR / f"{name}.json").exists()
+                for arg in ("--input", f"{key}=/{path.as_posix()}")
             ],
             str(typ_file),
             str(output_path),
@@ -603,7 +614,7 @@ def build_html(force: bool = False) -> bool:
 
 def build_tags(sources: list[Path], force: bool = False) -> bool:
     """Let Typst group tags; rebuild pages only when their rendered data changes."""
-    cache = Path("target/tufted-tags")
+    cache = TAG_CACHE_DIR
     cache.mkdir(parents=True, exist_ok=True)
     manifest_path = cache / "pages.json"
 
@@ -631,12 +642,7 @@ def build_tags(sources: list[Path], force: bool = False) -> bool:
             scope = meta.get("tag-index", "")
             if not tags and not scope:
                 continue
-            relative = output.relative_to(SITE_DIR).as_posix()
-            url = "/" + (
-                relative.removesuffix("index.html")
-                if output.name == "index.html"
-                else relative
-            )
+            url = get_html_route(output)
             if scope:
                 if (
                     not scope.startswith("/")
@@ -696,11 +702,11 @@ def build_tags(sources: list[Path], force: bool = False) -> bool:
                 source, output, dependencies + deps
             ):
                 return
-            page_path = output.relative_to(SITE_DIR).as_posix()
+            route = get_html_route(output)
             page_path = (
-                page_path.removesuffix("index.html")
+                route.strip("/")
                 if output.name == "index.html"
-                else page_path.removesuffix(".html")
+                else route.lstrip("/").removesuffix(".html")
             )
             output.parent.mkdir(parents=True, exist_ok=True)
             jobs.append(
@@ -708,7 +714,9 @@ def build_tags(sources: list[Path], force: bool = False) -> bool:
                     "compile",
                     *base,
                     "--input",
-                    "page-path=" + page_path.rstrip("/"),
+                    "page-path=" + page_path,
+                    "--input",
+                    "tag-page-path=" + route,
                     *[arg for value in inputs for arg in ("--input", value)],
                     str(source),
                     str(output),
@@ -927,23 +935,24 @@ def copy_content_assets(force: bool = False) -> bool:
 
 def clean() -> bool:
     """
-    清理生成的文件。
+    清理网站产物和标签构建缓存。
     """
     print("正在清理生成的文件...")
 
-    if not SITE_DIR.exists():
-        print(f"  输出目录 {SITE_DIR} 不存在，无需清理。")
-        return True
-
     try:
-        # 删除 _site 目录下的所有内容
-        for item in SITE_DIR.iterdir():
-            if item.is_dir():
-                shutil.rmtree(item)
-            else:
-                item.unlink()
+        if SITE_DIR.exists():
+            for item in SITE_DIR.iterdir():
+                if item.is_dir():
+                    shutil.rmtree(item)
+                else:
+                    item.unlink()
+            print(f"  ✅ 已清理 {SITE_DIR}/ 目录。")
+        else:
+            print(f"  输出目录 {SITE_DIR} 不存在。")
 
-        print(f"  ✅ 已清理 {SITE_DIR}/ 目录。")
+        if TAG_CACHE_DIR.exists():
+            shutil.rmtree(TAG_CACHE_DIR)
+            print(f"  ✅ 已清理 {TAG_CACHE_DIR}/ 目录。")
         return True
     except OSError as e:
         print(f"  ❌ 清理失败: {e}")
