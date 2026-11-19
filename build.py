@@ -35,6 +35,7 @@ Tufted Blog Template 构建脚本
 """
 
 import argparse
+import json
 import logging
 import os
 import re
@@ -44,14 +45,17 @@ import subprocess
 import sys
 import threading
 import time
+from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from hashlib import sha256
 from html import escape
 from html.parser import HTMLParser
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from stat import S_ISREG
-from typing import Literal
-from urllib.parse import urljoin, urlsplit
+from typing import Literal, TypedDict
+from urllib.parse import quote, urljoin, urlsplit
 
 # ============================================================================
 # 配置
@@ -61,6 +65,7 @@ CONTENT_DIR = Path("content")  # 源文件目录
 SITE_DIR = Path("_site")  # 输出目录
 ASSETS_DIR = Path("assets")  # 静态资源目录
 CONFIG_FILE = Path("config.typ")  # 全局配置文件
+TAG_CACHE_DIR = Path("target/tufted-tags")
 MATHML_MIN_TYPST_VERSION = (0, 15, 0)
 
 
@@ -116,7 +121,7 @@ class HTMLMetadataParser(HTMLParser):
                 self._in_title = True
             case "meta":
                 name = attrs_dict.get("name", "")
-                if name in {"description", "date"}:
+                if name in {"description", "date", "article-tags", "tag-index"}:
                     self.metadata[name] = attrs_dict.get("content", "")
             case "link":
                 if attrs_dict.get("rel") == "canonical":
@@ -440,6 +445,14 @@ def get_file_output_path(typ_file: Path, type: Literal["pdf", "html"]) -> Path:
     return SITE_DIR / relative_path.with_suffix(f".{type}")
 
 
+def get_html_route(output: Path) -> str:
+    """Return the unescaped site path, keeping .html on standalone pages."""
+    relative = output.relative_to(SITE_DIR).as_posix()
+    return "/" + (
+        relative.removesuffix("index.html") if output.name == "index.html" else relative
+    )
+
+
 def run_typst_command(args: list[str]) -> bool:
     """
     运行 typst 命令。
@@ -484,6 +497,8 @@ def _compile_files(
     common_deps: list[Path],
     get_output_path_func,
     build_args_func,
+    *,
+    output_needs_refresh: Callable[[Path], bool] | None = None,
 ) -> BuildStats:
     """
     通用文件编译函数，减少重复代码。
@@ -494,6 +509,7 @@ def _compile_files(
         common_deps: 公共依赖列表
         get_output_path_func: 获取输出路径的函数
         build_args_func: 构建编译参数的函数
+        output_needs_refresh: 可选的产物刷新条件，用于检查标签链接等构建数据
 
     返回:
         BuildStats: 构建统计信息
@@ -504,7 +520,11 @@ def _compile_files(
         output_path = get_output_path_func(typ_file)
 
         # 增量编译检查
-        if not force and not needs_rebuild(typ_file, output_path, common_deps):
+        if (
+            not force
+            and not needs_rebuild(typ_file, output_path, common_deps)
+            and not (output_needs_refresh and output_needs_refresh(output_path))
+        ):
             stats.skipped += 1
             continue
 
@@ -522,74 +542,390 @@ def _compile_files(
     return stats
 
 
-def build_html(force: bool = False) -> bool:
-    """
-    编译所有 .typ 文件为 HTML（文件名中包含 PDF 的除外）。
+# Treat literal settings as hints. Skip comments, raw examples and string literals.
+TAG_INDEX_HINT = re.compile(
+    r"(?<!`)(?P<ticks>`+)(?!`)[\s\S]*?(?<!`)(?P=ticks)(?!`)"
+    r"|/\*[\s\S]*?\*/|//[^\n]*"
+    r'|(?<![\w-])tag-index\s*:\s*"(?P<scope>[^"\\]*)"(?=\s*[,\)])'
+    r'|"(?:\\.|[^"\\])*"'
+)
+TAG_ID = re.compile(r"[\w-]+(?:/[\w-]+)*")
 
-    参数:
-        force: 是否强制重建所有文件
-    """
-    SITE_DIR.mkdir(parents=True, exist_ok=True)
 
-    typ_files = find_typ_files()
-
-    # 排除标记为 PDF 的文件
-    html_files = [f for f in typ_files if "pdf" not in f.stem.lower()]
-
-    if not html_files:
-        print("  ⚠️ 未找到任何 HTML 文件。")
-        return True
-
-    print("正在构建 HTML 文件...")
-
-    # 获取公共依赖
-    common_deps = find_common_dependencies()
-
-    def build_html_args(typ_file: Path, output_path: Path) -> list[str]:
-        """构建 HTML 编译参数"""
-        try:
-            rel_path = typ_file.relative_to(CONTENT_DIR)
-
-            if rel_path.name == "index.typ":
-                # index.typ uses the parent directory name as the path
-                # content/Blog/index.typ -> "Blog"
-                # content/index.typ -> "" (Homepage)
-                page_path = rel_path.parent.as_posix()
-                if page_path == ".":
-                    page_path = ""
-            else:
-                # Common files use the filename as the path
-                # content/about.typ -> "about"
-                page_path = rel_path.with_suffix("").as_posix()
-        except ValueError:
-            page_path = ""
-
-        return [
-            "compile",
-            "--root",
-            ".",
-            "--font-path",
-            str(ASSETS_DIR),
-            "--features",
-            "html",
-            "--format",
-            "html",
-            "--input",
-            f"page-path={page_path}",
-            str(typ_file),
-            str(output_path),
-        ]
-
-    stats = _compile_files(
-        html_files,
-        force,
-        common_deps,
-        lambda typ_file: get_file_output_path(typ_file, "html"),
-        build_html_args,
+def valid_tag_scope(scope: str) -> bool:
+    return (
+        scope.startswith("/")
+        and scope.endswith("/")
+        and not any(part in {".", ".."} for part in scope.split("/"))
+        and "\\" not in scope
+        and "//" not in scope
+        and not PureWindowsPath(scope.strip("/")).drive
     )
 
-    print(f"✅ HTML 构建完成。{stats.format_summary()}")
-    return not stats.has_failures
+
+def save_tag_data(path: Path, data: object) -> Path:
+    encoded = json.dumps(data, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    if not path.exists() or path.read_bytes() != encoded:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(encoded)
+    return path
+
+
+def tag_page_data(output: Path, data: object) -> Path:
+    key = sha256(output.as_posix().encode("utf-8")).hexdigest()
+    return save_tag_data(TAG_CACHE_DIR / "pages" / (key + ".json"), data)
+
+
+@dataclass
+class TaggedPost:
+    path: str
+    title: str
+    date: str
+    tags: list[dict[str, str]]
+
+    @property
+    def url(self) -> str:
+        return quote(self.path, safe="/")
+
+
+class TagGroup(TypedDict):
+    id: str
+    name: str
+    url: str
+    posts: list[dict[str, str]]
+
+
+def group_tags(posts: list[TaggedPost], scope: str) -> list[TagGroup]:
+    """Group each article once per label, reusing the date order for every archive."""
+    groups: dict[str, TagGroup] = {}
+    for post in posts:
+        if not post.path.startswith(scope):
+            continue
+        entry = {"title": post.title, "date": post.date, "url": post.url}
+        for tag in post.tags:
+            key, name = tag["key"], tag["name"]
+            if key not in groups:
+                slug = tag["id"]
+                if not TAG_ID.fullmatch(slug):
+                    raise ValueError(f"Invalid tag archive ID: {slug}")
+                groups[key] = {
+                    "id": slug,
+                    "name": name,
+                    "url": quote(f"{scope}tags/{slug}/", safe="/"),
+                    "posts": [],
+                }
+            group = groups[key]
+            group["name"] = min(name, group["name"])
+            group["posts"].append(entry)
+    return [groups[key] for key in sorted(groups)]
+
+
+def html_compile_args(
+    source: Path, output: Path, scope_file: Path, *inputs: str
+) -> list[str]:
+    route = get_html_route(output)
+    page_path = (
+        route.strip("/")
+        if output.name == "index.html"
+        else route[1:].removesuffix(".html")
+    )
+    return [
+        "compile",
+        "--root",
+        ".",
+        "--font-path",
+        str(ASSETS_DIR),
+        "--features",
+        "html",
+        "--format",
+        "html",
+        "--input",
+        f"page-path={page_path}",
+        "--input",
+        f"tag-page-path={route}",
+        "--input",
+        f"tag-scopes=/{scope_file.as_posix()}",
+        *[arg for value in inputs for arg in ("--input", value)],
+        str(source),
+        str(output),
+    ]
+
+
+def build_html(force: bool = False) -> bool:
+    """Compile articles first, then render indexes and archives from their metadata."""
+    SITE_DIR.mkdir(parents=True, exist_ok=True)
+    outputs = {
+        source: get_file_output_path(source, "html")
+        for source in find_typ_files()
+        if "pdf" not in source.stem.lower()
+    }
+    try:
+        known_path = TAG_CACHE_DIR / "indexes.json"
+        have_known_indexes = known_path.exists()
+        known = (
+            json.loads(known_path.read_text(encoding="utf-8"))
+            if have_known_indexes
+            else {}
+        )
+        hints = {}
+        for source, output in outputs.items():
+            candidates = {
+                match["scope"]
+                for match in TAG_INDEX_HINT.finditer(source.read_text(encoding="utf-8"))
+                if match["scope"] and valid_tag_scope(match["scope"])
+            }
+            hint = known.get(source.as_posix())
+            if len(candidates) == 1 and (
+                not have_known_indexes
+                or get_file_mtime(source) > get_file_mtime(output)
+            ):
+                hint = candidates.pop()
+            if hint and valid_tag_scope(hint):
+                hints[source] = hint
+        initial_scopes = sorted(set(hints.values()))
+        scope_file = save_tag_data(TAG_CACHE_DIR / "scopes.json", initial_scopes)
+        common_deps = [
+            *find_common_dependencies(),
+            *Path("tufted-lib").rglob("*.typ"),
+            Path(__file__),
+        ]
+        compiled = set()
+
+        def article_args(source: Path, output: Path) -> list[str]:
+            compiled.add(source)
+            return html_compile_args(source, output, scope_file)
+
+        scope_mtime = get_file_mtime(scope_file)
+
+        def refresh_article_links(output: Path) -> bool:
+            return scope_mtime > get_file_mtime(output) and bool(
+                parse_html_metadata(output).get("article-tags")
+            )
+
+        print("正在构建 HTML 文件...")
+        stats = _compile_files(
+            [source for source in outputs if source not in hints],
+            force,
+            common_deps,
+            outputs.__getitem__,
+            article_args,
+            output_needs_refresh=refresh_article_links,
+        )
+        print(f"✅ HTML 构建完成。{stats.format_summary()}")
+        if stats.has_failures:
+            return False
+        metadata = {
+            source: parse_html_metadata(output)
+            for source, output in outputs.items()
+            if source not in hints
+        }
+        return build_tags(
+            outputs,
+            hints,
+            metadata,
+            compiled,
+            initial_scopes,
+            scope_file,
+            common_deps,
+            force,
+        )
+    except (OSError, ValueError) as error:
+        print(f"❌ 标签构建失败: {error}")
+        return False
+
+
+def build_tags(
+    outputs: dict[Path, Path],
+    hints: dict[Path, str],
+    metadata: dict[Path, dict[str, str]],
+    compiled: set[Path],
+    initial_scopes: list[str],
+    scope_file: Path,
+    common_deps: list[Path],
+    force: bool,
+) -> bool:
+    manifest = TAG_CACHE_DIR / "pages.json"
+    previous = (
+        set(json.loads(manifest.read_text(encoding="utf-8")))
+        if manifest.exists()
+        else set()
+    )
+    jobs = []
+
+    def schedule(
+        source: Path,
+        output: Path,
+        deps: list[Path],
+        *inputs: str,
+        force_page: bool = False,
+    ) -> bool:
+        if not force_page and not needs_rebuild(source, output, common_deps + deps):
+            return False
+        output.parent.mkdir(parents=True, exist_ok=True)
+        jobs.append(html_compile_args(source, output, scope_file, *inputs))
+        return True
+
+    def run_jobs() -> bool:
+        if not jobs:
+            return True
+        with ThreadPoolExecutor(max_workers=min(8, os.cpu_count() or 1)) as executor:
+            results = list(executor.map(run_typst_command, jobs))
+        jobs.clear()
+        return all(results)
+
+    def verified_indexes() -> dict[Path, str]:
+        indexes = {
+            source: scope
+            for source, meta in metadata.items()
+            if (scope := meta.get("tag-index"))
+        }
+        if any(not valid_tag_scope(scope) for scope in indexes.values()):
+            raise ValueError("tag-index must be a site-root directory, e.g. /Blog/")
+        if len(indexes) != len(set(indexes.values())):
+            raise ValueError("Each tag-index directory must have only one index page")
+        return indexes
+
+    # Confirm hints before publishing archives. Only an incorrect hint or dynamic
+    # configuration needs a second iteration.
+    rendered = set()
+    compiled_count = 0
+    for _ in range(3):
+        indexes = verified_indexes() | {
+            source: scope for source, scope in hints.items() if source not in metadata
+        }
+        scopes = sorted(set(indexes.values()))
+        save_tag_data(scope_file, scopes)
+        posts = []
+        for source, meta in metadata.items():
+            tags = json.loads(meta.get("article-tags") or "[]")
+            if tags and source not in indexes:
+                posts.append(
+                    TaggedPost(
+                        get_html_route(outputs[source]),
+                        meta.get("title", ""),
+                        meta.get("date", ""),
+                        tags,
+                    )
+                )
+        posts.sort(key=lambda post: (post.date, post.url), reverse=True)
+        groups = {scope: group_tags(posts, scope) for scope in scopes}
+        navigation = {
+            scope: [
+                {
+                    "id": group["id"],
+                    "name": group["name"],
+                    "url": group["url"],
+                    "count": len(group["posts"]),
+                }
+                for group in groups[scope]
+            ]
+            for scope in scopes
+        }
+        nav_files = {}
+        for source, scope in indexes.items():
+            output = outputs[source]
+            nav = tag_page_data(output, {"scope": scope, "items": navigation[scope]})
+            nav_files[source] = nav
+            if schedule(
+                source,
+                output,
+                [nav],
+                f"tag-navigation=/{nav.as_posix()}",
+                force_page=(source not in rendered and (force or source in compiled)),
+            ):
+                rendered.add(source)
+        compiled_count += len(jobs)
+        if not run_jobs():
+            return False
+        for source in indexes:
+            metadata[source] = parse_html_metadata(outputs[source])
+        if verified_indexes() == indexes:
+            break
+    else:
+        raise ValueError("Tag index configuration changed during rendering")
+
+    # Apply authoritative scopes to articles affected by a speculative scope.
+    if scopes != initial_scopes:
+        for source, meta in metadata.items():
+            if meta.get("article-tags") and source not in indexes:
+                schedule(source, outputs[source], [scope_file], force_page=True)
+
+    protected = set(outputs.values())
+    planned = set()
+    for source, scope in indexes.items():
+        nav = nav_files[source]
+        index_url = quote(get_html_route(outputs[source]), safe="/")
+        for group in groups[scope]:
+            destination = (
+                SITE_DIR / scope.strip("/") / "tags" / group["id"] / "index.html"
+            )
+            relative = destination.relative_to(SITE_DIR)
+            static = CONTENT_DIR / relative
+            static_asset = (
+                relative.parts[0] == "assets"
+                and (ASSETS_DIR.joinpath(*relative.parts[1:])).is_file()
+            )
+            if (
+                destination in protected
+                or static.is_file()
+                or static_asset
+                or destination.as_posix() in planned
+                or (destination.exists() and destination.as_posix() not in previous)
+            ):
+                raise ValueError(
+                    f"Tag archive would overwrite an existing page: {destination}"
+                )
+            planned.add(destination.as_posix())
+            state = tag_page_data(
+                destination, {"scope": scope, "group": group, "index-url": index_url}
+            )
+            schedule(
+                source,
+                destination,
+                [nav, state],
+                f"tag-navigation=/{nav.as_posix()}",
+                f"tag-archive=/{state.as_posix()}",
+                force_page=force,
+            )
+    if jobs:
+        save_tag_data(manifest, sorted(previous | planned))
+        compiled_count += len(jobs)
+        if not run_jobs():
+            return False
+    removed = 0
+    for old in sorted(previous - planned):
+        path = Path(old)
+        if (
+            path in protected
+            or not path.is_relative_to(SITE_DIR)
+            or ".." in path.parts
+            or path == SITE_DIR
+        ):
+            continue
+        relative = path.relative_to(SITE_DIR)
+        if (CONTENT_DIR / relative).is_file() or (
+            relative.parts[0] == "assets"
+            and ASSETS_DIR.joinpath(*relative.parts[1:]).is_file()
+        ):
+            continue
+        if path.exists():
+            path.unlink()
+            removed += 1
+        parent = path.parent
+        while parent != SITE_DIR and parent.exists() and not any(parent.iterdir()):
+            parent.rmdir()
+            parent = parent.parent
+    save_tag_data(manifest, sorted(planned))
+    save_tag_data(
+        TAG_CACHE_DIR / "indexes.json",
+        {source.as_posix(): scope for source, scope in indexes.items()},
+    )
+    if compiled_count or removed:
+        print(
+            f"✅ 标签聚合完成: {len(indexes)} 个索引，{len(planned)} 个标签页，"
+            f"编译: {compiled_count}，清理: {removed}"
+        )
+    return True
 
 
 def build_pdf(force: bool = False) -> bool:
@@ -712,23 +1048,24 @@ def copy_content_assets(force: bool = False) -> bool:
 
 def clean() -> bool:
     """
-    清理生成的文件。
+    清理网站产物和标签构建缓存。
     """
     print("正在清理生成的文件...")
 
-    if not SITE_DIR.exists():
-        print(f"  输出目录 {SITE_DIR} 不存在，无需清理。")
-        return True
-
     try:
-        # 删除 _site 目录下的所有内容
-        for item in SITE_DIR.iterdir():
-            if item.is_dir():
-                shutil.rmtree(item)
-            else:
-                item.unlink()
+        if SITE_DIR.exists():
+            for item in SITE_DIR.iterdir():
+                if item.is_dir():
+                    shutil.rmtree(item)
+                else:
+                    item.unlink()
+            print(f"  ✅ 已清理 {SITE_DIR}/ 目录。")
+        else:
+            print(f"  输出目录 {SITE_DIR} 不存在。")
 
-        print(f"  ✅ 已清理 {SITE_DIR}/ 目录。")
+        if TAG_CACHE_DIR.exists():
+            shutil.rmtree(TAG_CACHE_DIR)
+            print(f"  ✅ 已清理 {TAG_CACHE_DIR}/ 目录。")
         return True
     except OSError as e:
         print(f"  ❌ 清理失败: {e}")

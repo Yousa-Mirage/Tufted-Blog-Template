@@ -78,6 +78,33 @@
 )
 ```
 
+=== 文章标签与聚合页面
+
+在文章的模板参数中填写 `tags`：
+
+```typst
+#show: template.with(
+  title: "正态分布",
+  date: datetime(year: 2025, month: 10, day: 30),
+  tags: ("数学", "统计学"),
+)
+```
+
+在博客索引页（例如 `content/Blog/index.typ`）开启标签聚合：
+
+```typst
+#show: template.with(
+  title: "Blog",
+  tag-index: "/Blog/",
+)
+```
+
+构建完成后，索引页右侧将显示标签及文章数；移动端则显示在文章列表上方。文章标题下的标签可以跳转到对应聚合页。
+
+- `tags` 是字符串数组。首尾空白会移除，空标签会忽略，大小写不同的标签会合并。
+- `tag-index` 是以 `/` 开头和结尾的网站目录，收集该目录下所有带标签的文章。
+- 设置 `tag-index` 的页面不能同时设置 `tags`。
+
 === SEO 参数
 
 SEO (Search Engine Optimization，搜索引擎优化) 参数用于优化网站在搜索引擎中的可见性。模板提供以下参数（均为可选）：

@@ -1,3 +1,4 @@
+#import "tags.typ": article-tags, prepare-page-tags, tag-navigation
 #import "math.typ": template-math
 #import "refs.typ": template-refs
 #import "notes.typ": template-notes
@@ -15,6 +16,8 @@
 /// references, math, links, and article bylines.
 ///
 /// - `header-links`: Dictionary mapping navigation URLs to visible labels.
+/// - `tags`: Article tag strings, normalized and exported for the catalogue.
+/// - `tag-index`: Site-root directory whose tags appear in this page's sidebar.
 /// - `header-icons`: Icon-link content, typically created with `icon-link`.
 /// - `title`: Page title.
 /// - `author`: Author name shown in metadata and the article byline.
@@ -40,6 +43,8 @@
 #let tufted-web(
   header-links: (:),
   header-icons: (),
+  tags: (),
+  tag-index: none,
 
   // Meta data
   title: "",
@@ -78,10 +83,10 @@
   show: template-figures
   show: template-quotes
   show: template-links
-  show: template-byline.with(author: author, date: date, extra-info: extra-info)
   show line: it => if target() == "html" { html.hr() } else { it }
 
-  set text(lang: lang)
+  // HTML accepts BCP 47 tags; Typst text expects the base language code.
+  set text(lang: lang.split("-").first())
   set raw(syntaxes: (
     "custom-syntaxes/Just.sublime-syntax",
     "custom-syntaxes/Mermaid.sublime-syntax",
@@ -89,11 +94,26 @@
     "custom-syntaxes/JSONC.sublime-syntax",
   ))
 
+  // Prepare tags for a page.
+  let (tags, groups, active, title, description, date, extra-info, content) = prepare-page-tags(
+    tags,
+    tag-index,
+    (title: title, description: description, date: date, extra-info: extra-info, content: content),
+    lang: lang,
+  )
+  show: template-byline.with(author: author, date: date, extra-info: extra-info, tags-content: if tags.len() > 0 {
+    article-tags(tags)
+  } else { [] })
+
   html.html(
     lang: lang,
     {
       // Head
       html.head({
+        if active == none {
+          if tags.len() > 0 { html.meta(name: "article-tags", content: json.encode(tags)) }
+          if tag-index != none { html.meta(name: "tag-index", content: tag-index) }
+        }
         // All metadata
         metadata(
           title: title,
@@ -202,7 +222,10 @@
 
         // Main content
         html.article(
-          html.section(content),
+          html.section({
+            tag-navigation(groups, lang: lang, active: active)
+            content
+          }),
         )
 
         // Custom footer elements
