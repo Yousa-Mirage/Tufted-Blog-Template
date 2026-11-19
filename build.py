@@ -611,7 +611,7 @@ def group_tags(posts: list[TaggedPost], scope: str) -> list[TagGroup]:
                 groups[key] = {
                     "id": slug,
                     "name": name,
-                    "url": f"{scope}tags/{slug}/",
+                    "url": quote(f"{scope}tags/{slug}/", safe="/"),
                     "posts": [],
                 }
             group = groups[key]
@@ -684,7 +684,11 @@ def build_html(force: bool = False) -> bool:
                 hints[source] = hint
         initial_scopes = sorted(set(hints.values()))
         scope_file = save_tag_data(TAG_CACHE_DIR / "scopes.json", initial_scopes)
-        common_deps = [*find_common_dependencies(), Path(__file__)]
+        common_deps = [
+            *find_common_dependencies(),
+            *Path("tufted-lib").rglob("*.typ"),
+            Path(__file__),
+        ]
         compiled = set()
 
         def article_args(source: Path, output: Path) -> list[str]:
@@ -746,7 +750,6 @@ def build_tags(
         if manifest.exists()
         else set()
     )
-    dependencies = [*common_deps, *Path("tufted-lib").rglob("*.typ")]
     jobs = []
 
     def schedule(
@@ -756,7 +759,7 @@ def build_tags(
         *inputs: str,
         force_page: bool = False,
     ) -> bool:
-        if not force_page and not needs_rebuild(source, output, dependencies + deps):
+        if not force_page and not needs_rebuild(source, output, common_deps + deps):
             return False
         output.parent.mkdir(parents=True, exist_ok=True)
         jobs.append(html_compile_args(source, output, scope_file, *inputs))
@@ -845,7 +848,7 @@ def build_tags(
     if scopes != initial_scopes:
         for source, meta in metadata.items():
             if meta.get("article-tags") and source not in indexes:
-                schedule(source, outputs[source], [scope_file])
+                schedule(source, outputs[source], [scope_file], force_page=True)
 
     protected = set(outputs.values())
     planned = set()
@@ -917,8 +920,6 @@ def build_tags(
         TAG_CACHE_DIR / "indexes.json",
         {source.as_posix(): scope for source, scope in indexes.items()},
     )
-    for old_cache in ("articles.json", "plans.json"):
-        (TAG_CACHE_DIR / old_cache).unlink(missing_ok=True)
     if compiled_count or removed:
         print(
             f"✅ 标签聚合完成: {len(indexes)} 个索引，{len(planned)} 个标签页，"

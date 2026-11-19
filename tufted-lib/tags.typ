@@ -118,6 +118,11 @@
   (tags: tags, groups: groups, active: active, ..page)
 }
 
+/// Encode hrefs like Python's quote(path, safe="/"), keeping path separators.
+#let quote-tag-path(path) = path.replace(regex("[^A-Za-z0-9._~/-]+"), match => {
+  array(bytes(match.text)).map(byte => "%" + (if byte < 16 { "0" } else { "" }) + upper(str(byte, base: 16))).join()
+})
+
 /// Show an article's labels, linking to the most specific configured tag index.
 /// Without catalogue data, labels remain readable plain text.
 #let article-tags(tags) = {
@@ -132,7 +137,8 @@
         if indexes.len() == 0 {
           html.span(class: "tag-link", tag.name)
         } else {
-          html.a(class: "tag-link", href: indexes.last() + "tags/" + tag.id + "/", tag.name)
+          let href = quote-tag-path(indexes.last() + "tags/" + tag.id + "/")
+          html.a(class: "tag-link", href: href, tag.name)
         }
       }
     })
