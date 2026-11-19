@@ -6,7 +6,7 @@
 
 Development updates will be recorded here.
 
-- Feature: Added article `tags` and index `tag-index` with automatic tag archives, sidebar navigation, article tag links, and mobile layouts
+- Feature: Added article `tags` and index `tag-index` with automatic tag archives, sidebar navigation, article tag links, and mobile layouts (#53)
 - Feature: Added `build.py watch` to start local preview and rebuild on save. (#56)
 - Feature: Added full-text RSS content (#50)
 - Feature: Added the `favicon` parameter for custom ICO tab icons, defaulting to `/assets/favicon.ico`
